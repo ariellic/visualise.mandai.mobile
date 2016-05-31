@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "259589054065",
+    "firebase_url": "https://visualise-mandai.firebaseio.com",
+    "project_id": "visualise-mandai",
+    "storage_bucket": "visualise-mandai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:259589054065:android:a48ce30606e28123",
+        "android_client_info": {
+          "package_name": "com.itpteam11.visualisemandai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "259589054065-rrda34q7thfafdnrbscnoprbe979ql67.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHk-JZlTUWkaYv9l-1h2qNTAss_S-lzoc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
