@@ -8,15 +8,19 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SignInActivity"
-            android:theme="@style/SignIn">
+        <activity
+            android:name=".SignInActivity"
+            android:theme="@style/SignIn"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".FirebaseConnectionActivity"></activity>
+        <activity android:name=".FirebaseConnectionActivity" />
+        <activity android:name=".MainActivity"
+            android:theme="@style/Main"></activity>
     </application>
 
 </manifest>

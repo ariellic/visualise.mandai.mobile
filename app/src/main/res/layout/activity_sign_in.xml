@@ -11,20 +11,20 @@
     tools:context="com.itpteam11.visualisemandai.SignInActivity">
 
     <LinearLayout
-        android:id="@+id/sign_in_layout"
+        android:id="@+id/signin_activity_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/sign_in_logo"
+            android:id="@+id/signin_activity_logo"
             android:layout_width="match_parent"
             android:layout_height="@dimen/logo_height"
             android:src="@mipmap/logo"/>
 
         <EditText
-            android:id="@+id/signin_edittext_email"
+            android:id="@+id/signin_activity_edittext_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/signin_edittext_hint_email"
@@ -32,7 +32,7 @@
             android:layout_marginTop="@dimen/margin_medium"/>
 
         <EditText
-            android:id="@+id/signin_edittext_password"
+            android:id="@+id/signin_activity_edittext_password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/signin_edittext_hint_password"
@@ -40,7 +40,7 @@
             android:singleLine="true"/>
 
         <Button
-            android:id="@+id/signin_button_signin"
+            android:id="@+id/signin_activity_button_signin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/signin_button_signin"
@@ -50,7 +50,7 @@
             android:layout_marginTop="@dimen/margin_medium"/>
 
         <Button
-            android:id="@+id/signin_button_test"
+            android:id="@+id/signin_activity_button_test"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:layout_gravity="center_horizontal"

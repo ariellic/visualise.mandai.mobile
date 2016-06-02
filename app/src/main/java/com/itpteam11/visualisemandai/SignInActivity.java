@@ -33,12 +33,12 @@ public class SignInActivity extends AppCompatActivity implements OnClickListener
         setContentView(R.layout.activity_sign_in);
 
         //Initialising widgets
-        btnSignIn = (Button) findViewById(R.id.signin_button_signin);
-        etEmail = (EditText) findViewById(R.id.signin_edittext_email);
-        etPassword = (EditText) findViewById(R.id.signin_edittext_password);
+        btnSignIn = (Button) findViewById(R.id.signin_activity_button_signin);
+        etEmail = (EditText) findViewById(R.id.signin_activity_edittext_email);
+        etPassword = (EditText) findViewById(R.id.signin_activity_edittext_password);
 
         //For Firebase code testing ----------------------------------------------------------------
-        btnTest = (Button) findViewById(R.id.signin_button_test);
+        btnTest = (Button) findViewById(R.id.signin_activity_button_test);
         btnTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -62,8 +62,9 @@ public class SignInActivity extends AppCompatActivity implements OnClickListener
 
         //Run respective switch statement accordingly to the pressed button
         switch(button.getId()) {
-            case R.id.signin_button_signin:
-
+            case R.id.signin_activity_button_signin:
+                Intent mainActivity = new Intent(SignInActivity.this, MainActivity.class);
+                startActivity(mainActivity);
                 break;
         }
     }

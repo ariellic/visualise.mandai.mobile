@@ -1,5 +1,6 @@
 package com.itpteam11.visualisemandai;
 
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 public class FirebaseConnectionActivity extends AppCompatActivity implements OnClickListener {
@@ -56,7 +58,7 @@ public class FirebaseConnectionActivity extends AppCompatActivity implements OnC
         };
 
         // Signin using firebase authentication to use the database
-        authentication.signInWithEmailAndPassword("master@vm.com", "12345678")
+        authentication.signInWithEmailAndPassword(getString(R.string.authentication_email), getString(R.string.authentication_password))
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -67,6 +69,8 @@ public class FirebaseConnectionActivity extends AppCompatActivity implements OnC
                         }
                     }
                 });
+
+        System.out.println("Timestamp: " + ServerValue.TIMESTAMP);
     }
 
     @Override
@@ -90,6 +94,7 @@ public class FirebaseConnectionActivity extends AppCompatActivity implements OnC
                 DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("test");
 
                 // Add object into database
+                db.push().setValue(ServerValue.TIMESTAMP);
                 db.push().setValue(testUser);
 
                 // The following code is read data when changes happen

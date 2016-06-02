@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#FF6F00</color>
-    <color name="colorPrimaryDark">#E65100</color>
-    <color name="colorAccent">#FF6F00</color>
+    <color name="colorPrimary">#FF6F00</color>          <!-- Amber 900 -->
+    <color name="colorPrimaryDark">#BF360C</color>      <!-- Deep Orange 900 -->
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#263238</color>    <!-- Blue Grey 900 -->
+    <color name="colorAccent">#FF6F00</color>           <!-- Amber 900 -->
 
     <color name="button_backgroundcolor">#FF6F00</color>
     <color name="button_textcolor">#FFFFFF</color>
