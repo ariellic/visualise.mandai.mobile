@@ -1,6 +1,7 @@
 package com.itpteam11.visualisemandai;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,12 @@ import android.view.View.OnFocusChangeListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
 
 /**
  * Activity for user sign in
@@ -47,6 +54,22 @@ public class SignInActivity extends AppCompatActivity implements OnClickListener
             }
         });
         //------------------------------------------------------------------------------------------
+
+        // Sign in using Firebase Authentication to use the database
+        FirebaseAuth.getInstance().signInWithEmailAndPassword(getString(R.string.authentication_email), getString(R.string.authentication_password))
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (!task.isSuccessful()) {
+                            System.out.println("Authentication Unsuccessful " + task.getException());
+                            Toast.makeText(getApplicationContext(), "Please check phone's network connectivity", Toast.LENGTH_LONG).show();
+                        }
+                        else
+                        {
+                            System.out.println("Authentication Successful:" + task.isSuccessful());
+                        }
+                    }
+                });
 
         //Assign on click listener to button
         btnSignIn.setOnClickListener(this);

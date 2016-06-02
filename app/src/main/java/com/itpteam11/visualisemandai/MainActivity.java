@@ -9,6 +9,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +18,9 @@ public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
+    private int[] tabIcons = {
+            R.drawable.info,
+            R.drawable.notification};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +37,8 @@ public class MainActivity extends AppCompatActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.main_activity_tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        setupTabIcons();
     }
 
     private void setupViewPager(ViewPager viewPager)
@@ -40,6 +47,12 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(new InfoFragment(), "Info");
         adapter.addFragment(new NotificationFragment(), "Notification");
         viewPager.setAdapter(adapter);
+    }
+
+    private void setupTabIcons()
+    {
+        for(int i=0; i<tabIcons.length; i++)
+            tabLayout.getTabAt(i).setIcon(tabIcons[i]);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter
@@ -70,5 +83,13 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             return mFragmentTitleList.get(position);
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        //Sign out from Firebase Authentication account
+        FirebaseAuth.getInstance().signOut();
     }
 }
