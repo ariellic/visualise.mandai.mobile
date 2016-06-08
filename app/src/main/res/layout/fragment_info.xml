@@ -10,5 +10,4 @@
         android:text="@string/info_fragment"
         android:layout_margin="@dimen/margin_normal"
         android:layout_gravity="center_horizontal"/>
-
 </RelativeLayout>

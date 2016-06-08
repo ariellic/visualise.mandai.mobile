@@ -86,7 +86,7 @@ public class FirebaseConnectionActivity extends AppCompatActivity implements OnC
         switch(button.getId()) {
             case R.id.firebaseconnection_button_add:
                 //Create an object and assign respective value into it
-                User testUser = new User(etEmail.getText().toString(), etPassword.getText().toString());
+                //User testUser = new User(etEmail.getText().toString(), etPassword.getText().toString());
                 System.out.println("Email: " + etEmail.getText().toString());
                 System.out.println("Password: " + etPassword.getText().toString());
 
@@ -95,7 +95,7 @@ public class FirebaseConnectionActivity extends AppCompatActivity implements OnC
 
                 // Add object into database
                 db.push().setValue(ServerValue.TIMESTAMP);
-                db.push().setValue(testUser);
+                //db.push().setValue(testUser);
 
                 // The following code is read data when changes happen
                 /*db.addValueEventListener(new ValueEventListener() {

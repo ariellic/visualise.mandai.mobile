@@ -1,16 +1,24 @@
 package com.itpteam11.visualisemandai;
 
+import java.util.Map;
+
 /**
  *
  */
 public class User {
-    public String email;
-    public String password;
+    private String name;
+    private String status;
+    private String email;
+    private String type;
+    private Map<String, String> group;
+    private Map<String, Boolean> service;
 
     public User() {}
 
-    public User(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
+    public String getName() { return name; }
+    public String getStatus() { return status; }
+    public String getEmail() { return email; }
+    public String getType() { return type; }
+    public Map<String, String> getGroup() { return group; }
+    public Map<String, Boolean> getService() { return service; }
 }

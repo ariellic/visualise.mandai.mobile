@@ -28,6 +28,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/signin_edittext_hint_email"
+            android:inputType="textEmailAddress"
+            android:textAlignment="center"
             android:singleLine="true"
             android:layout_marginTop="@dimen/margin_medium"/>
 
@@ -36,26 +38,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/signin_edittext_hint_password"
+            android:textAlignment="center"
             android:inputType="textWebPassword"
             android:singleLine="true"/>
 
         <Button
             android:id="@+id/signin_activity_button_signin"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/signin_button_signin"
+            android:textSize="@dimen/textsize_medium"
             android:background="@color/button_backgroundcolor"
             android:textColor="@color/button_textcolor"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/margin_medium"/>
-
-        <Button
-            android:id="@+id/signin_activity_button_test"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_gravity="center_horizontal"
-            android:text="Firebase Test"
-            android:layout_marginTop="16dp"/>
     </LinearLayout>
 
 </RelativeLayout>

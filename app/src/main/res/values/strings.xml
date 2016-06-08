@@ -15,9 +15,18 @@
     <string name="signin_edittext_hint_password">Password</string>
     <string name="signin_button_signin">Sign In</string>
 
+    <!-- Manager Info Fragment -->
+    <string name="manager_info_fragment">This is the manager info fragment</string>
+
     <!-- Info Fragment -->
     <string name="info_fragment">This is the info fragment</string>
 
     <!-- Notification Fragment -->
     <string name="notification_fragment">This is the notification fragment</string>
+
+    <!-- Staff Available Card -->
+    <string name="staff_available_card_title">Staff Available</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

@@ -14,6 +14,8 @@
 
     <dimen name="logo_height">200dp</dimen>
 
+    <dimen name="card_elevation">16dp</dimen>
+
     <!-- Tab Dimension -->
     <dimen name="tab_max_width">264dp</dimen>
     <dimen name="tab_padding_bottom">16dp</dimen>
