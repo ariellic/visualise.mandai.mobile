@@ -8,6 +8,8 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -44,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     private String userID;
     private String userGrp;
 
+    private String abbr;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
         //Get authenticated user ID from sign in activity
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
+        abbr = "";
 
         System.out.println("MainActivity - User ID from Intent mainActivity: " + userID);
         System.out.println("MainActivity - Firebase user ID: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -85,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
 
                 //Set title
                 setTitle("Welcome " + user.getName());
-
                 getNeaDataset();
                 trackDataChange("weather");
                 trackDataChange("psi");
@@ -116,11 +121,34 @@ public class MainActivity extends AppCompatActivity {
                     if (dataCat.equals("weather") ){
                         String weather = dataSnapshot.getValue().toString();
                         if (isAbbr(weather)){
+                            abbr = weather;
                             getAbbrTranslatedWeather(weather);
                         }
                         // If the data has been changed to weather description
                         else {
                             Log.d("DATACHANGE", "Weather description: " + weather);
+                            String[] rainyWeather = new String[] {"DR","HG","HR","HS","HT","LR","LS","PS","RA","SH","SK","SR","TL","WR","WS"};
+                            List rainyAbbrList = Arrays.asList(rainyWeather);
+                            if (rainyAbbrList.contains(abbr)){
+                                Log.d("NOTIFY", "Notify rainy");
+                                notifyRain(weather);
+                            }
+                            else if (abbr.equals("SU")) {
+                                Log.d("NOTIFY", "Notify sunny");
+                                notifySunny();
+                            }
+                        }
+                    }
+                    else if (dataCat.equals("psi")){
+                        int psi = Integer.parseInt(dataSnapshot.getValue().toString());
+                        if (inUnhealthyRange(psi)){
+                            notifyPsi(psi, "Unhealthy");
+                        }
+                        else if (inVeryUnhealthyRange(psi)){
+                            notifyPsi(psi, "Very unhealthy");
+                        }
+                        else if (inHazardousRange(psi)){
+                            notifyPsi(psi, "Hazardous");
                         }
                     }
                 }
@@ -134,8 +162,47 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void setNotification(String title, String intro, String desc) {
+        Log.d("NOTIFY", "In setNotification method");
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(MainActivity.this)
+                        .setSmallIcon(android.R.drawable.ic_popup_reminder)
+                        .setContentTitle(title)
+                        .setContentText(intro)
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(desc));
+
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(MainActivity.this);
+        notificationManager.notify(0, mBuilder.build());
+    }
+
+    private void notifyRain(String weather){
+        setNotification("Weather alert: " + weather, "It's going to rain!", "Hi " + user.getName() + "! It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!");
+    }
+
+    private void notifySunny(){
+        setNotification("Weather alert: Sunny", "The sun is smiling at us!", "Hi " + user.getName() + "! Do drink more water as the weather is getting warmer.");
+    }
+
+    private void notifyPsi(int psi, String descriptor){
+        setNotification("Haze alert: " + descriptor, "PSI is at " + psi, user.getName() + ", PSI is at " + psi + " now! Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
+    }
+
+    private boolean inUnhealthyRange(int psi){
+        return (psi>=101 && psi<=200);
+    }
+
+    private boolean inVeryUnhealthyRange(int psi){
+        return (psi>=201 && psi<=300);
+    }
+
+    private boolean inHazardousRange(int psi){
+        return (psi>300);
+    }
     // To get the full weather description from the abbreviation
     private void getAbbrTranslatedWeather(String weatherData){
+
         final DatabaseReference weatherRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("value");
         DatabaseReference abbrRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("abbreviations").child(weatherData);
         abbrRef.addValueEventListener(new ValueEventListener() {
