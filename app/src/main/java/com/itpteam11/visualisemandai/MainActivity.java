@@ -1,6 +1,9 @@
 package com.itpteam11.visualisemandai;
 
 import android.content.Intent;
+import android.os.Handler;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -9,8 +12,10 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -19,6 +24,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * This main activity which consist of necessary fragments for
@@ -75,6 +82,11 @@ public class MainActivity extends AppCompatActivity {
 
                 //Set title
                 setTitle("Welcome " + user.getName());
+
+                getNeaDataset();
+                trackDataChange("weather");
+                trackDataChange("psi");
+
             }
 
             @Override
@@ -87,6 +99,91 @@ public class MainActivity extends AppCompatActivity {
 
     //For fragment
     public String getUserID(){ return userID; }
+
+    // To check if the PSI/weather data from the database has changed
+    private void trackDataChange(final String dataCat) {
+        final DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("service").child(dataCat).child("value");
+        dataRef.keepSynced(true);
+        dataRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()) {
+                    Log.d("DATACHANGE", dataCat + " data changed: " + dataSnapshot.getValue().toString());
+                    // To get the full weather description from the abbreviations retrieved
+                    if (dataCat.equals("weather") ){
+                        String weather = dataSnapshot.getValue().toString();
+                        if (isAbbr(weather)){
+                            getAbbrTranslatedWeather(weather);
+                        }
+                        // If the data has been changed to weather description
+                        else {
+                            Log.d("DATACHANGE", "Weather description: " + weather);
+                        }
+                    }
+                }
+                else {
+                    Log.d("DATACHANGE", "Data not found");
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
+    // To get the full weather description from the abbreviation
+    private void getAbbrTranslatedWeather(String weatherData){
+        final DatabaseReference weatherRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("value");
+        DatabaseReference abbrRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("abbreviations").child(weatherData);
+        abbrRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot abbrDataSnapshot) {
+                if (abbrDataSnapshot.exists()){
+                    String abbrTranslated = abbrDataSnapshot.getValue().toString();
+                    Log.d("DATACHANGE", "Abbreviation translate to " + abbrTranslated);
+                    weatherRef.setValue(abbrTranslated); // Change abbreviation value in DB to the full weather description
+                }
+                else {
+                    Log.d("DATACHANGE", "No such abbreviation exists");
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError firebaseError) {
+                Log.d("DATACHANGE", "onCancelled");
+            }
+        });
+    }
+
+    // Check if data in DB is an abbreviation or an already translated description
+    private boolean isAbbr(String weatherData) {
+        return (weatherData.length() == 2);
+    }
+
+    // Execute the asynchronous task to retrieve the weather and PSI data from NEA website
+    private void getNeaDataset() {
+        final String weatherURL = "http://www.nea.gov.sg/api/WebAPI/?dataset=2hr_nowcast&keyref=781CF461BB6606ADEA01E0CAF8B35274D184749DB043FB09";
+        final String psiURL = "http://www.nea.gov.sg/api/WebAPI/?dataset=psi_update&keyref=781CF461BB6606ADEA01E0CAF8B35274D184749DB043FB09";
+        final Handler handler = new Handler();
+        Timer timer = new Timer();
+        TimerTask backtask = new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    public void run() {
+                        try {
+                            new NeaDatasetAsyncTask().execute(weatherURL);
+                            new NeaDatasetAsyncTask().execute(psiURL);
+                            Log.d("NEA Data", "Getting dataset");
+                        } catch (Exception e) {
+                            // TODO Auto-generated catch block
+                        }
+                    }
+                });
+            }
+        };
+        Log.d("NEA Data", "Dataset retrieved");
+        timer.schedule(backtask , 0, 60000); //execute in every 20000 ms*/
+    }
 
     private void setupViewPager(ViewPager viewPager, String userType)
     {
