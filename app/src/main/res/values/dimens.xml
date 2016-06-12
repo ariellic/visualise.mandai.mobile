@@ -4,17 +4,22 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
 
     <!-- Layout Dimension -->
+    <dimen name="textsize_xxlarge">32sp</dimen>
+    <dimen name="textsize_xlarge">24sp</dimen>
     <dimen name="textsize_large">20sp</dimen>
     <dimen name="textsize_medium">16sp</dimen>
     <dimen name="textsize_normal">12sp</dimen>
+    <dimen name="textsize_small">10sp</dimen>
 
     <dimen name="margin_large">64dp</dimen>
     <dimen name="margin_medium">32dp</dimen>
     <dimen name="margin_normal">16dp</dimen>
+    <dimen name="margin_small">12dp</dimen>
+    <dimen name="margin_xsmall">8dp</dimen>
 
     <dimen name="logo_height">200dp</dimen>
 
-    <dimen name="card_elevation">16dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
 
     <!-- Tab Dimension -->
     <dimen name="tab_max_width">264dp</dimen>

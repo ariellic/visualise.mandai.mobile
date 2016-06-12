@@ -10,12 +10,17 @@ import android.view.ViewGroup;
 
 import java.util.HashMap;
 
+/**
+ *
+ */
+
 public class ManagerInfoFragment extends Fragment {
     private RecyclerView recyclerView;
     private CustomCardAdapter customCardAdapter;
     private RecyclerView.LayoutManager recyclerLayoutManager;
 
     private HashMap<Integer, String> cardDataSet;
+    private String userID;
 
     public ManagerInfoFragment() {
         // Required empty public constructor
@@ -25,21 +30,25 @@ public class ManagerInfoFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Bundle bundle = getArguments();
+        userID = bundle.getString("userID");
+
         cardDataSet = new HashMap<Integer, String>();
         cardDataSet.put(CardType.STAFF_AVAILABLE, "12");
+        cardDataSet.put(CardType.CHECK_SHOWTIME, "");
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_manager_info, container, false);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.manager_info_fragment_recyclerView);
         recyclerLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(recyclerLayoutManager);
 
-        customCardAdapter = new CustomCardAdapter(cardDataSet);
+        customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
         recyclerView.setAdapter(customCardAdapter);
 
         return view;

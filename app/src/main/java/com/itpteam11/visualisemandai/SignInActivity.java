@@ -31,7 +31,7 @@ public class SignInActivity extends AppCompatActivity implements OnClickListener
     private Button btnSignIn;
     private EditText etEmail, etPassword;
 
-    //For Firebase code testing --------------------------------------------------------------------
+    //Firebase Authentication
     private FirebaseAuth authentication;
 
     @Override
@@ -46,12 +46,6 @@ public class SignInActivity extends AppCompatActivity implements OnClickListener
 
         //Assign on click listener to button
         btnSignIn.setOnClickListener(this);
-
-
-
-        //Assign focus change listener to Edittext to show or hide the soft keyboard
-        //etEmail.setOnFocusChangeListener(this);
-        //etPassword.setOnFocusChangeListener(this);
     }
 
     @Override
@@ -68,14 +62,17 @@ public class SignInActivity extends AppCompatActivity implements OnClickListener
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (!task.isSuccessful()) {
                                     System.out.println("Authentication Unsuccessful " + task.getException());
+
+                                    //Display toast when sign in unsuccessful
                                     Toast.makeText(getApplicationContext(), "Oops, sign in failed!\nPlease enter valid email or password", Toast.LENGTH_LONG).show();
                                 }
                                 else
                                 {
                                     System.out.println("Authentication Successful");
 
+                                    //Intent to MainActivity when sign in successful
                                     Intent mainActivity = new Intent(SignInActivity.this, MainActivity.class);
-                                    mainActivity.putExtra("uID", FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
+                                    mainActivity.putExtra("userID", FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
                                     startActivity(mainActivity);
                                 }
                             }
@@ -83,29 +80,4 @@ public class SignInActivity extends AppCompatActivity implements OnClickListener
                 break;
         }
     }
-
-    /*@Override
-    public void onFocusChange(View v, boolean hasFocus){
-        //Show soft keyboard when EditText is focused else hide the keyboard. For UX purpose
-        if (hasFocus) {
-            InputMethodManager imm = (InputMethodManager)
-                    getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
-
-            imm.showSoftInput(v, 0);
-        }
-        else {
-            InputMethodManager imm = (InputMethodManager)
-                    getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
-
-            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-        }
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        //Sign out from account
-        FirebaseAuth.getInstance().signOut();
-    }*/
 }

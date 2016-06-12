@@ -3,7 +3,7 @@ package com.itpteam11.visualisemandai;
 import java.util.Map;
 
 /**
- *
+ * This class represents the User data model
  */
 public class User {
     private String name;

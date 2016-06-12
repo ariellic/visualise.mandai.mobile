@@ -1,8 +1,6 @@
 package com.itpteam11.visualisemandai;
 
 import android.content.Intent;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,7 +11,6 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -22,6 +19,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * This main activity which consist of necessary fragments for
+ * the user to get their information and interact with the application
+ */
 
 public class MainActivity extends AppCompatActivity {
     private Toolbar toolbar;
@@ -32,39 +34,46 @@ public class MainActivity extends AppCompatActivity {
             R.drawable.notification};
 
     private User user;
+    private String userID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //Get authenticated user ID from sign in activity
         Intent intent = getIntent();
-        final String uID = intent.getStringExtra("uID");
+        userID = intent.getStringExtra("userID");
 
-        System.out.println("uID mainActivity: " + uID);
-        System.out.println("Firebase UID mainActivity: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
+        System.out.println("MainActivity - User ID from Intent mainActivity: " + userID);
+        System.out.println("MainActivity - Firebase user ID: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
 
-        //Get user's detail
+        //Retrieve user's detail from database with authenticated user ID
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        database.child("user").child(uID).addValueEventListener(new ValueEventListener() {
+        database.child("user").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                //Store user's details into User object
                 user = dataSnapshot.getValue(User.class);
 
-
+                //Setup Action bar
                 toolbar = (Toolbar) findViewById(R.id.main_activity_toolbar);
                 setSupportActionBar(toolbar);
 
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
+                //Setup page viewer for fragments
                 viewPager = (ViewPager) findViewById(R.id.main_activity_viewpager);
                 setupViewPager(viewPager, user.getType());
 
+                //Setup tabs
                 tabLayout = (TabLayout) findViewById(R.id.main_activity_tabs);
                 tabLayout.setupWithViewPager(viewPager);
 
+                //Assign tabs with their respective icon
                 setupTabIcons();
 
+                //Set title
                 setTitle("Welcome " + user.getName());
             }
 
@@ -74,19 +83,24 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("Failed to get user's detail: " + error.toException());
             }
         });
-
-
     }
 
     //For fragment
-    public User getUser(){ return user; }
+    public String getUserID(){ return userID; }
 
     private void setupViewPager(ViewPager viewPager, String userType)
     {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         if(userType.equals("manager")) {
-            adapter.addFragment(new ManagerInfoFragment(), "Info");
+            //Create Bundle to pass value from MainActivity to fragment
+            Bundle bundle = new Bundle();
+            bundle.putString("userID", userID);
+
+            ManagerInfoFragment managerInfoFragment = new ManagerInfoFragment();
+            managerInfoFragment.setArguments(bundle);
+
+            adapter.addFragment(managerInfoFragment, "Info");
         }
         else {
             adapter.addFragment(new InfoFragment(), "Info");

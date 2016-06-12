@@ -10,8 +10,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".SignInActivity"
-            android:theme="@style/SignIn"
-            android:noHistory="true">
+            android:noHistory="true"
+            android:theme="@style/SignIn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -19,8 +19,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".FirebaseConnectionActivity" />
-        <activity android:name=".MainActivity"
-            android:theme="@style/Main"></activity>
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/Main" />
+
+        <service
+            android:name=".CheckShowtimeService"
+            android:exported="false"></service>
+
     </application>
 
 </manifest>
