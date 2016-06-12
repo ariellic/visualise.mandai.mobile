@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     private User user;
     private String userID;
+    private String userGrp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +63,9 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Store user's details into User object
                 user = dataSnapshot.getValue(User.class);
-
+                for ( String key : user.getGroup().keySet() ) {
+                    userGrp = key;
+                }
                 //Setup Action bar
                 toolbar = (Toolbar) findViewById(R.id.main_activity_toolbar);
                 setSupportActionBar(toolbar);
@@ -193,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
             //Create Bundle to pass value from MainActivity to fragment
             Bundle bundle = new Bundle();
             bundle.putString("userID", userID);
+            bundle.putString("group",userGrp);
 
             ManagerInfoFragment managerInfoFragment = new ManagerInfoFragment();
             managerInfoFragment.setArguments(bundle);
