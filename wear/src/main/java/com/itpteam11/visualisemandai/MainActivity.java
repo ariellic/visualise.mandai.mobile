@@ -72,7 +72,7 @@ public class MainActivity extends Activity implements GoogleApiClient.Connection
         listItems = new ArrayList<>();
         listItems.add("Break");
         listItems.add("Toilet");
-        listItems.add("Work");
+        listItems.add("Working");
 
         //listItems.add("Async File Read");
 
