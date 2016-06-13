@@ -16,6 +16,12 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import com.google.android.gms.wearable.Wearable;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -41,7 +47,11 @@ import java.util.TimerTask;
  * the user to get their information and interact with the application
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  implements
+        GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
+
+    private static final String TAG = "MainActivity";
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -52,6 +62,9 @@ public class MainActivity extends AppCompatActivity {
     private User user;
     private String userID;
     private String userGrp;
+    GoogleApiClient mGoogleApiClient;
+
+
 
     private String abbr;
 
@@ -64,6 +77,22 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
         abbr = "";
+        if(null == mGoogleApiClient) {
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .addApi(Wearable.API)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+            Log.v(TAG, "GoogleApiClient created");
+        }
+
+        if(!mGoogleApiClient.isConnected()){
+            mGoogleApiClient.connect();
+            Log.v(TAG, "Connecting to GoogleApiClient..");
+        }
+
+        startService(new Intent(this, ListenerService.class));
+
 
         System.out.println("MainActivity - User ID from Intent mainActivity: " + userID);
         System.out.println("MainActivity - Firebase user ID: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -97,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //Set title
                 setTitle("Welcome " + user.getName());
+                new SendActivityPhoneMessage("TEST--"+userID,"").start();
                 getNeaDataset();
                 trackDataChange("weather");
                 trackDataChange("psi");
@@ -113,6 +143,53 @@ public class MainActivity extends AppCompatActivity {
 
     //For fragment
     public String getUserID(){ return userID; }
+
+    //Send userid to ListenerService
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        Log.v(TAG, "onConnectionSuspended called");
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.v(TAG, "onConnectionFailed called");
+    }
+
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        Log.v(TAG, "onConnected called");
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.v(TAG, "onStart called");
+    }
+
+    class SendActivityPhoneMessage extends Thread {
+        String path;
+        String message;
+
+        // Constructor to send a message to the data layer
+        SendActivityPhoneMessage(String p, String msg) {
+            path = p;
+            message = msg;
+        }
+
+        public void run() {
+            NodeApi.GetLocalNodeResult nodes = Wearable.NodeApi.getLocalNode(mGoogleApiClient).await();
+            Node node = nodes.getNode();
+            Log.v(TAG, "Activity Node is : " + node.getId() + " - " + node.getDisplayName());
+            MessageApi.SendMessageResult result = Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(), path, message.getBytes()).await();
+            if (result.getStatus().isSuccess()) {
+                Log.v(TAG, "Activity Message: {" + path + "} sent to: " + node.getDisplayName());
+            } else {
+                // Log an error
+                Log.v(TAG, "ERROR: failed to send Activity Message");
+            }
+
+        }
+    }
 
     // To check if the PSI/weather data from the database has changed
     private void trackDataChange(final String dataCat) {
