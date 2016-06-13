@@ -18,15 +18,21 @@ import android.util.Log;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -118,44 +124,40 @@ public class MainActivity extends AppCompatActivity {
                 if (dataSnapshot.exists()) {
                     Log.d("DATACHANGE", dataCat + " data changed: " + dataSnapshot.getValue().toString());
                     // To get the full weather description from the abbreviations retrieved
-                    if (dataCat.equals("weather") ){
+                    if (dataCat.equals("weather")) {
                         String weather = dataSnapshot.getValue().toString();
-                        if (isAbbr(weather)){
+                        if (isAbbr(weather)) {
                             abbr = weather;
                             getAbbrTranslatedWeather(weather);
                         }
                         // If the data has been changed to weather description
                         else {
                             Log.d("DATACHANGE", "Weather description: " + weather);
-                            String[] rainyWeather = new String[] {"DR","HG","HR","HS","HT","LR","LS","PS","RA","SH","SK","SR","TL","WR","WS"};
+                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS"};
                             List rainyAbbrList = Arrays.asList(rainyWeather);
-                            if (rainyAbbrList.contains(abbr)){
+                            if (rainyAbbrList.contains(abbr)) {
                                 Log.d("NOTIFY", "Notify rainy");
-                                notifyRain(weather);
-                            }
-                            else if (abbr.equals("SU")) {
+                                notifyRain(weather, dataRef);
+                            } else if (abbr.equals("SU")) {
                                 Log.d("NOTIFY", "Notify sunny");
                                 notifySunny();
                             }
                         }
-                    }
-                    else if (dataCat.equals("psi")){
+                    } else if (dataCat.equals("psi")) {
                         int psi = Integer.parseInt(dataSnapshot.getValue().toString());
-                        if (inUnhealthyRange(psi)){
+                        if (inUnhealthyRange(psi)) {
                             notifyPsi(psi, "Unhealthy");
-                        }
-                        else if (inVeryUnhealthyRange(psi)){
+                        } else if (inVeryUnhealthyRange(psi)) {
                             notifyPsi(psi, "Very unhealthy");
-                        }
-                        else if (inHazardousRange(psi)){
+                        } else if (inHazardousRange(psi)) {
                             notifyPsi(psi, "Hazardous");
                         }
                     }
-                }
-                else {
+                } else {
                     Log.d("DATACHANGE", "Data not found");
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
             }
@@ -177,8 +179,44 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(0, mBuilder.build());
     }
 
-    private void notifyRain(String weather){
-        setNotification("Weather alert: " + weather, "It's going to rain!", "Hi " + user.getName() + "! It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!");
+    private void notifyRain(String weather, DatabaseReference ref){
+        String title = "Weather alert: " + weather;
+        String intro = "It's going to rain!";
+        String desc = "Hi " + user.getName() + "! It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!";
+        setNotification(title, intro, desc);
+
+        Map<String, Object> timeTitle = new HashMap<String, Object>();
+        timeTitle.put(new Date().getTime() + "/title", title);
+
+        // Limiting the number of notifications to be shown to 5
+        final DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("notifications");
+        notiRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getChildrenCount()>5){
+                    long num = dataSnapshot.getChildrenCount()-5;
+                    Query deleteQuery = notiRef.limitToFirst((int) num);
+                    deleteQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            for (DataSnapshot postSnapshot: dataSnapshot.getChildren()){
+                                postSnapshot.getRef().removeValue();
+                            }
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        notiRef.updateChildren(timeTitle);
     }
 
     private void notifySunny(){
