@@ -24,9 +24,6 @@
     <!-- Notification Fragment -->
     <string name="notification_fragment">This is the notification fragment</string>
 
-    <!-- Staff Available Card -->
-    <string name="staff_available_card_title">Staff Available</string>
-
     <!-- Check Showtime Card -->
     <string name="check_showtime_card_title">Check Website Showtime</string>
     <string name="check_showtime_card_button">Check Now</string>

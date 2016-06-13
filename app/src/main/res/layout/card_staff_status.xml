@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/staff_available_cardview"
+    android:id="@+id/staff_status_cardview"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:elevation="@dimen/card_elevation"
@@ -15,14 +15,13 @@
         android:padding="@dimen/margin_normal">
 
         <TextView
-            android:id="@+id/staff_available_card_textview_title"
+            android:id="@+id/staff_status_card_textview_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/textsize_medium"
-            android:text="@string/staff_available_card_title" />
+            android:textSize="@dimen/textsize_medium" />
 
         <TextView
-            android:id="@+id/staff_available_card_textview_content"
+            android:id="@+id/staff_status_card_textview_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/margin_normal"

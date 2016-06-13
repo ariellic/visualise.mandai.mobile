@@ -32,7 +32,7 @@ public class ManagerInfoFragment extends Fragment {
     private RecyclerView.LayoutManager recyclerLayoutManager;
 
     private HashMap<Integer, String> cardDataSet;
-     ArrayList<String> userList = new ArrayList<String>();
+    ArrayList<String> userList = new ArrayList<String>();
     ArrayList<String> workingList = new ArrayList<String>();
     ArrayList<String> availableList = new ArrayList<String>();
      
@@ -54,8 +54,11 @@ public class ManagerInfoFragment extends Fragment {
         userGroup = bundle.getString("group");
 
         cardDataSet = new HashMap<Integer, String>();
+        cardDataSet.put(CardType.STAFF_WORKING, "");
+        cardDataSet.put(CardType.CHECK_SHOWTIME, "");
+
         DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("user");
-        db.addValueEventListener(new ValueEventListener() {
+        db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -93,8 +96,10 @@ public class ManagerInfoFragment extends Fragment {
                 }
 
                 String grpNum = String.valueOf(workingList.size());
-                cardDataSet.put(CardType.STAFF_AVAILABLE, grpNum);
+                cardDataSet.put(CardType.STAFF_WORKING, grpNum);
 
+                customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
+                recyclerView.setAdapter(customCardAdapter);
             }
 
 
@@ -104,10 +109,6 @@ public class ManagerInfoFragment extends Fragment {
                 System.out.println(error.toException());
             }
         });
-
-
-        cardDataSet.put(CardType.STAFF_AVAILABLE, "12");
-        cardDataSet.put(CardType.CHECK_SHOWTIME, "");
     }
 
     @Override

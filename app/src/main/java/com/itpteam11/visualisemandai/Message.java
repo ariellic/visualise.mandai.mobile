@@ -19,4 +19,8 @@ public class Message {
     public String getMessage() { return message; }
     public String getSender() { return sender; }
     public long getTimestamp() { return timestamp; }
+
+    public void setMessage(String message) { this.message = message; }
+    public void setSender(String sender) { this.sender = sender; }
+    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 }
