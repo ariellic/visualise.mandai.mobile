@@ -33,6 +33,8 @@ public class ManagerInfoFragment extends Fragment {
 
     private HashMap<Integer, String> cardDataSet;
      ArrayList<String> userList = new ArrayList<String>();
+    ArrayList<String> workingList = new ArrayList<String>();
+    ArrayList<String> availableList = new ArrayList<String>();
      
     private String userID;
     private String userGroup;
@@ -52,6 +54,58 @@ public class ManagerInfoFragment extends Fragment {
         userGroup = bundle.getString("group");
 
         cardDataSet = new HashMap<Integer, String>();
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("user");
+        db.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot sp : dataSnapshot.getChildren()) {
+                    userList.add(sp.getKey());
+                }
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                System.out.println(error.toException());
+            }
+        });
+
+        DatabaseReference db1 = FirebaseDatabase.getInstance().getReference();
+        db1.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                workingList.clear();
+                for (DataSnapshot postSnapshot : dataSnapshot.child("user").getChildren()) {
+                    String userID = postSnapshot.getKey();
+                    if (userList.contains(userID)) {
+                        String status = postSnapshot.child("status").getValue(String.class);
+                        Log.e("Status", status);
+                        if (status.equals("working")) {
+                            if (!workingList.contains(userID)) {
+                                workingList.add(userID);
+                            }
+                        } else {
+                            available += 1;
+                        }
+                    }
+                }
+
+                String grpNum = String.valueOf(workingList.size());
+                cardDataSet.put(CardType.STAFF_AVAILABLE, grpNum);
+
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                // Failed to read value
+                System.out.println(error.toException());
+            }
+        });
+
+
         cardDataSet.put(CardType.STAFF_AVAILABLE, "12");
         cardDataSet.put(CardType.CHECK_SHOWTIME, "");
     }
@@ -75,51 +129,51 @@ public class ManagerInfoFragment extends Fragment {
     public void onStart(){
         super.onStart();
 
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("user");
-        db.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                    for (DataSnapshot sp : dataSnapshot.getChildren()) {
-                        userList.add(sp.getKey());
-                    }
-                }
-
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                System.out.println(error.toException());
-            }
-        });
-
-   DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("user");
-        db1.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                    String userID = postSnapshot.getKey();
-                    if (userList.contains(userID)){
-                        String status = postSnapshot.child("status").getValue(String.class);
-                        Log.e("Status", status);
-                        if(status.equals("working")){
-                            working+=1;
-                        }
-                        else{
-                            available+=1;
-                        }
-                    }
-                    }
-                }
-
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                System.out.println(error.toException());
-            }
-        });
+//        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("user");
+//        db.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                    for (DataSnapshot sp : dataSnapshot.getChildren()) {
+//                        userList.add(sp.getKey());
+//                    }
+//                }
+//
+//
+//            @Override
+//            public void onCancelled(DatabaseError error) {
+//                // Failed to read value
+//                System.out.println(error.toException());
+//            }
+//        });
+//
+//   DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("user");
+//        db1.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+//                    String userID = postSnapshot.getKey();
+//                    if (userList.contains(userID)){
+//                        String status = postSnapshot.child("status").getValue(String.class);
+//                        Log.e("Status", status);
+//                        if(status.equals("working")){
+//                            working+=1;
+//                        }
+//                        else{
+//                            available+=1;
+//                        }
+//                    }
+//                    }
+//                }
+//
+//
+//            @Override
+//            public void onCancelled(DatabaseError error) {
+//                // Failed to read value
+//                System.out.println(error.toException());
+//            }
+//        });
 
 
 
