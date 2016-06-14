@@ -34,12 +34,11 @@ public class ManagerInfoFragment extends Fragment {
     private HashMap<Integer, String> cardDataSet;
     ArrayList<String> userList = new ArrayList<String>();
     ArrayList<String> workingList = new ArrayList<String>();
-    ArrayList<String> availableList = new ArrayList<String>();
+    ArrayList<String> breakList = new ArrayList<String>();
      
     private String userID;
     private String userGroup;
-    private int available;
-    private int working;
+
 
     public ManagerInfoFragment() {
         // Required empty public constructor
@@ -54,9 +53,9 @@ public class ManagerInfoFragment extends Fragment {
         userGroup = bundle.getString("group");
 
         cardDataSet = new HashMap<Integer, String>();
-        cardDataSet.put(CardType.STAFF_WORKING, "");
         cardDataSet.put(CardType.CHECK_SHOWTIME, "");
 
+        //Get list of users in the group under Manager
         DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("user");
         db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -74,7 +73,7 @@ public class ManagerInfoFragment extends Fragment {
                 System.out.println(error.toException());
             }
         });
-
+    //Get the group users' status
         DatabaseReference db1 = FirebaseDatabase.getInstance().getReference();
         db1.addValueEventListener(new ValueEventListener() {
             @Override
@@ -90,13 +89,15 @@ public class ManagerInfoFragment extends Fragment {
                                 workingList.add(userID);
                             }
                         } else {
-                            available += 1;
+                            breakList.add(userID);
                         }
                     }
                 }
 
                 String grpNum = String.valueOf(workingList.size());
+                String breakNum = String.valueOf(breakList.size());
                 cardDataSet.put(CardType.STAFF_WORKING, grpNum);
+                cardDataSet.put(CardType.STAFF_BREAK,breakNum);
 
                 customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
                 recyclerView.setAdapter(customCardAdapter);
@@ -129,52 +130,6 @@ public class ManagerInfoFragment extends Fragment {
      @Override
     public void onStart(){
         super.onStart();
-
-//        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("user");
-//        db.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                    for (DataSnapshot sp : dataSnapshot.getChildren()) {
-//                        userList.add(sp.getKey());
-//                    }
-//                }
-//
-//
-//            @Override
-//            public void onCancelled(DatabaseError error) {
-//                // Failed to read value
-//                System.out.println(error.toException());
-//            }
-//        });
-//
-//   DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("user");
-//        db1.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-//                    String userID = postSnapshot.getKey();
-//                    if (userList.contains(userID)){
-//                        String status = postSnapshot.child("status").getValue(String.class);
-//                        Log.e("Status", status);
-//                        if(status.equals("working")){
-//                            working+=1;
-//                        }
-//                        else{
-//                            available+=1;
-//                        }
-//                    }
-//                    }
-//                }
-//
-//
-//            @Override
-//            public void onCancelled(DatabaseError error) {
-//                // Failed to read value
-//                System.out.println(error.toException());
-//            }
-//        });
 
 
 
