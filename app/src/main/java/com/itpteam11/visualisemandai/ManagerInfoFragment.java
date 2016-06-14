@@ -79,6 +79,7 @@ public class ManagerInfoFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 workingList.clear();
+                breakList.clear();
                 for (DataSnapshot postSnapshot : dataSnapshot.child("user").getChildren()) {
                     String userID = postSnapshot.getKey();
                     if (userList.contains(userID)) {
