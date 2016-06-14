@@ -24,7 +24,8 @@
         <activity
             android:name=".SignInActivity"
             android:noHistory="true"
-            android:theme="@style/SignIn">
+            android:theme="@style/SignIn"
+            android:screenOrientation="portrait">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,7 +35,8 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:theme="@style/Main" />
+            android:theme="@style/Main"
+            android:screenOrientation="portrait" />
 
         <service
             android:name=".CheckShowtimeService"

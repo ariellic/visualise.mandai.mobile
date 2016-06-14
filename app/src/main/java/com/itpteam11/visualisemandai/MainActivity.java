@@ -64,8 +64,6 @@ public class MainActivity extends AppCompatActivity  implements
     private String userGrp;
     GoogleApiClient mGoogleApiClient;
 
-
-
     private String abbr;
 
     @Override
@@ -122,7 +120,7 @@ public class MainActivity extends AppCompatActivity  implements
                 tabLayout.setupWithViewPager(viewPager);
 
                 //Assign tabs with their respective icon
-                setupTabIcons();
+                setupTabIcons(user.getType());
 
                 //Set title
                 setTitle("Welcome " + user.getName());
@@ -386,17 +384,26 @@ public class MainActivity extends AppCompatActivity  implements
             adapter.addFragment(managerInfoFragment, "Info");
         }
         else {
-            adapter.addFragment(new InfoFragment(), "Info");
+            //adapter.addFragment(new InfoFragment(), "Info");
         }
 
         adapter.addFragment(new NotificationFragment(), "Notification");
         viewPager.setAdapter(adapter);
     }
 
-    private void setupTabIcons()
+    //Add icons to respective tabs
+    private void setupTabIcons(String userType)
     {
-        for(int i=0; i<tabIcons.length; i++)
-            tabLayout.getTabAt(i).setIcon(tabIcons[i]);
+        int j = 0;
+
+        for(int i=0; i<tabIcons.length; i++){
+            if(!userType.equals("manager")){
+                tabLayout.getTabAt(j).setIcon(tabIcons[i]);
+            }
+            else {
+                j++;
+            }
+        }
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter

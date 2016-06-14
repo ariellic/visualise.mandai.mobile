@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- *
+ *  This fragment contain RecyclerView which contain necessary cards for
+ *  manager to get information and interact with the application
  */
 
 public class ManagerInfoFragment extends Fragment {
@@ -39,7 +40,6 @@ public class ManagerInfoFragment extends Fragment {
     private String userID;
     private String userGroup;
 
-
     public ManagerInfoFragment() {
         // Required empty public constructor
     }
@@ -48,10 +48,12 @@ public class ManagerInfoFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Retrieve value pass from activity
         Bundle bundle = getArguments();
         userID = bundle.getString("userID");
         userGroup = bundle.getString("group");
 
+        //Create and add neccessary cards
         cardDataSet = new HashMap<Integer, String>();
         cardDataSet.put(CardType.CHECK_SHOWTIME, "");
 
@@ -131,8 +133,5 @@ public class ManagerInfoFragment extends Fragment {
      @Override
     public void onStart(){
         super.onStart();
-
-
-
     }
 }

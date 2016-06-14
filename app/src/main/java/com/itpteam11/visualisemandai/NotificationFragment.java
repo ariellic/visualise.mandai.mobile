@@ -22,6 +22,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  This fragment contain RecyclerView which contain user's notification list
+ */
+
 public class NotificationFragment extends Fragment {
     private List<Message> notificationList = new ArrayList<>();
     private RecyclerView recyclerView;

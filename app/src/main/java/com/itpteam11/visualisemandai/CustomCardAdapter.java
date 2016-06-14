@@ -20,6 +20,7 @@ public class CustomCardAdapter extends RecyclerView.Adapter<CustomCardAdapter.Vi
     private Integer[] cardType;
     private String userID;
 
+    //Constructor to initiate card content and type
     public CustomCardAdapter(HashMap<Integer, String> dataSet, String userID) {
         cardContent = dataSet.values().toArray(new String[0]);
         cardType = dataSet.keySet().toArray(new Integer[0]);
