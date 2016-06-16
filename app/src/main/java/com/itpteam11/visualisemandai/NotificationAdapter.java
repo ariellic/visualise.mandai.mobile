@@ -14,7 +14,7 @@ import java.util.List;
  * This custom RecyclerView adapter will create and hold multiple notification
  */
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.MyViewHolder>  {
-    private List<Message> notificationList;
+    private List<NotificationItem> notificationList;
 
     public class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView message, sender, timestamp;
@@ -27,7 +27,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
     }
 
-    public NotificationAdapter(List<Message> notificationList) {
+    public NotificationAdapter(List<NotificationItem> notificationList) {
         this.notificationList = notificationList;
     }
 
@@ -40,8 +40,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-        Message notification = notificationList.get(position);
-        holder.message.setText(notification.getMessage());
+        NotificationItem notification = notificationList.get(position);
+        holder.message.setText(notification.getContent());
         holder.sender.setText(notification.getSender());
         holder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
     }

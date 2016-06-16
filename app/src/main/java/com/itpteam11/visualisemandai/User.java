@@ -10,6 +10,7 @@ public class User {
     private String status;
     private String email;
     private String type;
+    private String coordinates;
     private Map<String, String> group;
     private Map<String, Boolean> service;
 

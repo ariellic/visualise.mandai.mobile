@@ -2,8 +2,6 @@ package com.itpteam11.visualisemandai;
 
 import android.content.Intent;
 import android.os.Handler;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,14 +21,11 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -129,6 +124,8 @@ public class MainActivity extends AppCompatActivity  implements
                 trackDataChange("weather");
                 trackDataChange("psi");
 
+                //Start listening to user's subscribed service for notification of changes
+                new ServiceSubscribeListener(userID, user.getService()).startListening();
             }
 
             @Override
@@ -260,7 +257,7 @@ public class MainActivity extends AppCompatActivity  implements
         String desc = "Hi " + user.getName() + "! It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!";
         setNotification(title, intro, desc);
 
-        Map<String, Object> timeTitle = new HashMap<String, Object>();
+        Map<String, Object> timeTitle = new HashMap<>();
         timeTitle.put(new Date().getTime() + "/title", title);
 
         // Limiting the number of notifications to be shown to 5
@@ -373,13 +370,13 @@ public class MainActivity extends AppCompatActivity  implements
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
         if(userType.equals("manager")) {
-            //Create Bundle to pass value from MainActivity to fragment
-            Bundle bundle = new Bundle();
-            bundle.putString("userID", userID);
-            bundle.putString("group",userGrp);
+            //Create Bundle to pass value from MainActivity to information fragment
+            Bundle infoBundle = new Bundle();
+            infoBundle.putString("userID", userID);
+            infoBundle.putString("group",userGrp);
 
             ManagerInfoFragment managerInfoFragment = new ManagerInfoFragment();
-            managerInfoFragment.setArguments(bundle);
+            managerInfoFragment.setArguments(infoBundle);
 
             adapter.addFragment(managerInfoFragment, "Info");
         }
@@ -387,7 +384,14 @@ public class MainActivity extends AppCompatActivity  implements
             //adapter.addFragment(new InfoFragment(), "Info");
         }
 
-        adapter.addFragment(new NotificationFragment(), "Notification");
+        //Create Bundle to pass value from MainActivity to notification fragment
+        Bundle notificationBundle = new Bundle();
+        notificationBundle.putString("userID", userID);
+
+        NotificationFragment notificationFragment = new NotificationFragment();
+        notificationFragment.setArguments(notificationBundle);
+
+        adapter.addFragment(notificationFragment, "Notification");
         viewPager.setAdapter(adapter);
     }
 
@@ -401,6 +405,7 @@ public class MainActivity extends AppCompatActivity  implements
                 tabLayout.getTabAt(j).setIcon(tabIcons[i]);
             }
             else {
+                tabLayout.getTabAt(j).setIcon(tabIcons[i]);
                 j++;
             }
         }

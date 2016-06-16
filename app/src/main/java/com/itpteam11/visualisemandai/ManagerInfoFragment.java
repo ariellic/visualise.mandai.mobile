@@ -33,9 +33,9 @@ public class ManagerInfoFragment extends Fragment {
     private RecyclerView.LayoutManager recyclerLayoutManager;
 
     private HashMap<Integer, String> cardDataSet;
-    ArrayList<String> userList = new ArrayList<String>();
-    ArrayList<String> workingList = new ArrayList<String>();
-    ArrayList<String> breakList = new ArrayList<String>();
+    ArrayList<String> userList = new ArrayList<>();
+    ArrayList<String> workingList = new ArrayList<>();
+    ArrayList<String> breakList = new ArrayList<>();
      
     private String userID;
     private String userGroup;
@@ -54,11 +54,11 @@ public class ManagerInfoFragment extends Fragment {
         userGroup = bundle.getString("group");
 
         //Create and add neccessary cards
-        cardDataSet = new HashMap<Integer, String>();
+        cardDataSet = new HashMap<>();
         cardDataSet.put(CardType.CHECK_SHOWTIME, "");
 
         //Get list of users in the group under Manager
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("user");
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff");
         db.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -68,14 +68,14 @@ public class ManagerInfoFragment extends Fragment {
                 }
             }
 
-
             @Override
             public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                System.out.println(error.toException());
+                //Failed to staff list
+                System.out.println("ManagerInfoFragment - Failed to staff list: "+error.toException());
             }
         });
-    //Get the group users' status
+
+        //Get the group users' status
         DatabaseReference db1 = FirebaseDatabase.getInstance().getReference();
         db1.addValueEventListener(new ValueEventListener() {
             @Override
@@ -106,11 +106,10 @@ public class ManagerInfoFragment extends Fragment {
                 recyclerView.setAdapter(customCardAdapter);
             }
 
-
             @Override
             public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                System.out.println(error.toException());
+                //Failed to staff count value
+                System.out.println("ManagerInfoFragment - Failed to staff count value: " + error.toException());
             }
         });
     }

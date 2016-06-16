@@ -2,21 +2,10 @@ package com.itpteam11.visualisemandai;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.content.Context;
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -24,7 +13,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.IOException;
-import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -54,7 +42,7 @@ public class CheckShowtimeService extends IntentService {
             FirebaseDatabase.getInstance().getReference().child("service").child(SHOWS[i]).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    //Store show's details into SHowtime object
+                    //Store show's details into Showtime object
                     Showtime showtime = dataSnapshot.getValue(Showtime.class);
 
                     //Retrieve HTML document from a URL that is contain inside the given showtime object
@@ -69,7 +57,6 @@ public class CheckShowtimeService extends IntentService {
                 }
             });
         }
-
     }
 
     //AsyncTask for getting and parsing HTML document to get showtime
@@ -107,15 +94,25 @@ public class CheckShowtimeService extends IntentService {
             System.out.println("Showtime Service - Showtime vaule from website: " + result);
 
             if(!showtime.getValue().equals(result)) {
-                //Update database when showtime changes
+                //Create notification
+                Notification notification = new Notification();
+                notification.setContent("Showtime for " + showType + " has changed to " + result + ".");
+                notification.setSender("Showtime Update");
+                notification.setTimestamp(new Date().getTime());
+
+                String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
+                FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(notification);
+
+                //Change notification ID to alert listening subscriber about changes
+                FirebaseDatabase.getInstance().getReference().child("service").child(showType).child("notification-id").setValue(notificationID);
+
+                //Update new show time
                 FirebaseDatabase.getInstance().getReference().child("service").child(showType).child("value").setValue(result);
                 System.out.println("Showtime Service - Time Changes");
             }
             else {
                 //Create no time change notification to the requested user
                 System.out.println("Showtime Service - User ID: " + userID);
-                Message message = new Message("No change to " + showType + " showtime. " + result, showType + " Notification", new Date().getTime());
-                FirebaseDatabase.getInstance().getReference().child("message").child("user").child(userID).push().setValue(message);
             }
         }
     }

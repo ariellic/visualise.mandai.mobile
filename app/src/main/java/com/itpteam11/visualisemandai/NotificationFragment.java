@@ -1,8 +1,9 @@
 package com.itpteam11.visualisemandai;
 
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -10,9 +11,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,13 +27,12 @@ import java.util.List;
  */
 
 public class NotificationFragment extends Fragment {
-    private List<Message> notificationList = new ArrayList<>();
+    private String userID;
+
+    private List<NotificationItem> notificationList = new ArrayList<>();
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager recyclerLayoutManager;
     private NotificationAdapter notificationAdapter;
-    /*private ArrayAdapter<String> notificationsAdapter;
-    private ArrayList<String> notificationsArrayList;
-    private ListView notiListView;*/
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -43,13 +42,17 @@ public class NotificationFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Retrieve value pass from activity
+        Bundle bundle = getArguments();
+        userID = bundle.getString("userID");
+
         DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("notifications");
         notiRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot notification : dataSnapshot.getChildren()) {
-                    Message notificationItem = new Message(notification.getValue().toString(), "Weatherman", Long.parseLong(notification.getKey()));
-                    Log.d("NOTITITLE getMessage", notificationItem.getMessage());
+                    NotificationItem notificationItem = new NotificationItem(notification.getValue().toString(), "Weatherman", Long.parseLong(notification.getKey()));
+                    Log.d("NOTITITLE getMessage", notificationItem.getContent());
                     Log.d("NOTITITLE getSender", notificationItem.getSender());
                     Log.d("NOTITITLE getTimestamp", notificationItem.getTimestamp()+"");
                     notificationList.add(notificationItem);
@@ -59,17 +62,16 @@ public class NotificationFragment extends Fragment {
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) {}
         });
 
+        updateList();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        //Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_notification, container, false);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.notification_fragment_recyclerview);
@@ -78,6 +80,7 @@ public class NotificationFragment extends Fragment {
         recyclerLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(recyclerLayoutManager);
 
+        //To have a divider underneath each list item
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(notificationAdapter);
@@ -85,43 +88,55 @@ public class NotificationFragment extends Fragment {
         return view;
     }
 
-
-   /* @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_notification, container, false);
-
-        notiListView = (ListView) view.findViewById(R.id.notificationListView);
-        notificationsArrayList = new ArrayList<String>();
-
-
-        DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("notifications");
-        notiRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    //This method set an event listener to observe for next addition for notification
+    //on the user's receive notification node. After which notification will be build
+    //to notify the user
+    public void updateList() {
+        FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot notification : dataSnapshot.getChildren()) {
-                    String notiTitle = notification.getValue().toString();
-                    Log.d("NOTITITLE", notiTitle);
-                    notificationsArrayList.add(notiTitle);
-                }
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                String notificationID = dataSnapshot.getKey();
+
+                //Retrieve the actual notification by ID
+                FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        //Store notification details into Notification object
+                        Notification notification = dataSnapshot.getValue(Notification.class);
+
+                        //Create a NotificationItem to be added into the notification list
+                        NotificationItem notificationItem = new NotificationItem(notification.getContent(), notification.getSender(), notification.getTimestamp());
+                        notificationList.add(notificationItem);
+
+                        //Build system notification to notify the user
+                        NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
+                                .setContentTitle("Notification from " + notification.getSender())
+                                .setContentText(notification.getContent())
+                                .setSmallIcon(R.drawable.notification);
+
+                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+                        notificationManager.notify(0, notify.build());
+
+                        //Update notification list
+                        notificationAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {}
+                });
             }
 
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {}
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {}
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
+                //Failed listen for notification
+                System.out.println("NotificationFragment - Failed listen for notification: " + databaseError.toException());
             }
         });
-
-        notificationsAdapter = new ArrayAdapter<String>(view.getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, notificationsArrayList);
-        notificationsAdapter.notifyDataSetChanged();
-        notiListView.setAdapter(notificationsAdapter);
-        return view;
-    }*/
+    }
 }

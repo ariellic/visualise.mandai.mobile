@@ -1,6 +1,5 @@
 package com.itpteam11.visualisemandai;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -20,19 +19,20 @@ public class CustomCardAdapter extends RecyclerView.Adapter<CustomCardAdapter.Vi
     private Integer[] cardType;
     private String userID;
 
+    private Context context;
+
     //Constructor to initiate card content and type
     public CustomCardAdapter(HashMap<Integer, String> dataSet, String userID) {
         cardContent = dataSet.values().toArray(new String[0]);
         cardType = dataSet.keySet().toArray(new Integer[0]);
         this.userID = userID;
-
-        System.out.println("CustomCardAdapter - cardContent: " + cardContent.toString());
-        System.out.println("CustomCardAdapter - cardType: " + cardType.toString());
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View v;
+
+        context = viewGroup.getContext();
 
         //Create respective CardView layout from given card type
         switch(viewType) {
