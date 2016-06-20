@@ -39,11 +39,11 @@ public class ServiceSubscribeListener {
                         //Retrieve notification ID
                         String notificationID = dataSnapshot.getValue(String.class);
 
-                        //Add user id into notification's receive list for record purpose
-                        FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).child("receiver").child(userID).setValue(true);
+                        //Add user id into notification's receive list for record purpose. Value is set false until recipient show notification(set true)
+                        FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).child("receiver").child(userID).setValue(false);
 
-                        //Add notification ID into user's receive list so to be notified
-                        FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(notificationID).setValue(true);
+                        //Add notification ID into user's receive list so to be notified. Value is set false until recipient show notification(set true)
+                        FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(notificationID).setValue(false);
                     }
                     @Override
                     public void onCancelled(DatabaseError error) {

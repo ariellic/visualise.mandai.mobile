@@ -96,34 +96,68 @@ public class NotificationFragment extends Fragment {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                 String notificationID = dataSnapshot.getKey();
+                boolean notified = dataSnapshot.getValue(Boolean.class);
 
-                //Retrieve the actual notification by ID
-                FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        //Store notification details into Notification object
-                        Notification notification = dataSnapshot.getValue(Notification.class);
+                //Show notification alert when record is a new notification. Else past notifications will not be alert
+                if(!notified) {
+                    //Retrieve the actual notification by ID
+                    FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            //Store notification details into Notification object
+                            Notification notification = dataSnapshot.getValue(Notification.class);
 
-                        //Create a NotificationItem to be added into the notification list
-                        NotificationItem notificationItem = new NotificationItem(notification.getContent(), notification.getSender(), notification.getTimestamp());
-                        notificationList.add(notificationItem);
+                            //Create a NotificationItem to be added into the notification list
+                            NotificationItem notificationItem = new NotificationItem(notification.getContent(), notification.getSender(), notification.getTimestamp());
+                            notificationList.add(notificationItem);
 
-                        //Build system notification to notify the user
-                        NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
-                                .setContentTitle("Notification from " + notification.getSender())
-                                .setContentText(notification.getContent())
-                                .setSmallIcon(R.drawable.notification);
+                            //Build system notification to notify the user
+                            NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
+                                    .setContentTitle("Notification from " + notification.getSender())
+                                    .setContentText(notification.getContent())
+                                    .setSmallIcon(R.drawable.notification);
 
-                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
-                        notificationManager.notify(0, notify.build());
+                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+                            notificationManager.notify(0, notify.build());
 
-                        //Update notification list
-                        notificationAdapter.notifyDataSetChanged();
-                    }
+                            //Update notification list
+                            notificationAdapter.notifyDataSetChanged();
 
-                    @Override
-                    public void onCancelled(DatabaseError error) {}
-                });
+                            //Set notification has received(set true)
+                            FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
+                            FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                        }
+                    });
+                }
+                else {
+                    //Retrieve the actual notification by ID
+                    FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            //Store notification details into Notification object
+                            Notification notification = dataSnapshot.getValue(Notification.class);
+
+                            //Create a NotificationItem to be added into the notification list
+                            NotificationItem notificationItem = new NotificationItem(notification.getContent(), notification.getSender(), notification.getTimestamp());
+                            notificationList.add(notificationItem);
+
+                            //Update notification list
+                            notificationAdapter.notifyDataSetChanged();
+
+                            //Set notification has received(set true)
+                            FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
+                            FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError error) {
+                        }
+                    });
+                }
             }
 
             @Override
