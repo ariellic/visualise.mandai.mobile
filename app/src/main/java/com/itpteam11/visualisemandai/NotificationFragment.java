@@ -46,25 +46,9 @@ public class NotificationFragment extends Fragment {
         Bundle bundle = getArguments();
         userID = bundle.getString("userID");
 
-        DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("notifications");
-        notiRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot notification : dataSnapshot.getChildren()) {
-                    NotificationItem notificationItem = new NotificationItem(notification.getValue().toString(), "Weatherman", Long.parseLong(notification.getKey()));
-                    Log.d("NOTITITLE getMessage", notificationItem.getContent());
-                    Log.d("NOTITITLE getSender", notificationItem.getSender());
-                    Log.d("NOTITITLE getTimestamp", notificationItem.getTimestamp()+"");
-                    notificationList.add(notificationItem);
-                }
-
-                notificationAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
-
+        updateEnvData("weather", "NEA forecast");
+        updateEnvData("psi", "NEA forecast");
+        updateEnvData("temperature", "OpenWeather forecast");
         updateList();
     }
 
@@ -86,6 +70,34 @@ public class NotificationFragment extends Fragment {
         recyclerView.setAdapter(notificationAdapter);
 
         return view;
+    }
+
+    /**
+     * This method set an event listener for an addition to the respective notification node
+     * for weather/temp/PSI when an alert has been added in.
+     * @param type
+     */
+    public void updateEnvData(String type, final String sender) {
+        DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child(type).child("notifications");
+        notiRef.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                NotificationItem notificationItem = new NotificationItem(dataSnapshot.child("title").getValue().toString(), sender, Long.parseLong(dataSnapshot.getKey()));
+                Log.d("NOTITITLE getMessage", notificationItem.getContent());
+                Log.d("NOTITITLE getSender", notificationItem.getSender());
+                Log.d("NOTITITLE getTimestamp", notificationItem.getTimestamp()+"");
+                notificationList.add(notificationItem);
+                notificationAdapter.notifyDataSetChanged();
+            }
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
     }
 
     //This method set an event listener to observe for next addition for notification

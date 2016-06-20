@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity  implements
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Store user's details into User object
                 user = dataSnapshot.getValue(User.class);
-                for ( String key : user.getGroup().keySet() ) {
+                for (String key : user.getGroup().keySet()) {
                     userGrp = key;
                 }
                 //Setup Action bar
@@ -119,9 +119,10 @@ public class MainActivity extends AppCompatActivity  implements
 
                 //Set title
                 setTitle("Welcome " + user.getName());
-                new SendActivityPhoneMessage("TEST--"+userID,"").start();
+                new SendActivityPhoneMessage("TEST--" + userID, "").start();
                 getNeaDataset();
                 trackDataChange("weather");
+                trackDataChange("temperature");
                 trackDataChange("psi");
 
                 //Start listening to user's subscribed service for notification of changes
@@ -200,22 +201,27 @@ public class MainActivity extends AppCompatActivity  implements
                         String weather = dataSnapshot.getValue().toString();
                         if (isAbbr(weather)) {
                             abbr = weather;
+                            Log.d("ABBR", "abbr is " + abbr);
+                            Log.d("WEATHER", "weather is " + weather);
                             getAbbrTranslatedWeather(weather);
-                        }
-                        // If the data has been changed to weather description
-                        else {
-                            Log.d("DATACHANGE", "Weather description: " + weather);
                             String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS"};
                             List rainyAbbrList = Arrays.asList(rainyWeather);
                             if (rainyAbbrList.contains(abbr)) {
                                 Log.d("NOTIFY", "Notify rainy");
-                                notifyRain(weather, dataRef);
+                                notifyWeather("rain");
                             } else if (abbr.equals("SU")) {
                                 Log.d("NOTIFY", "Notify sunny");
-                                notifySunny();
+                                notifyWeather("sunny");
                             }
                         }
-                    } else if (dataCat.equals("psi")) {
+                    }
+                    else if (dataCat.equals("temperature")){
+                        double temp = Double.parseDouble(dataSnapshot.getValue().toString());
+                        if (temp > 32.0) {
+                            notifyTemp(temp);
+                        }
+                    }
+                    else if (dataCat.equals("psi")) {
                         int psi = Integer.parseInt(dataSnapshot.getValue().toString());
                         if (inUnhealthyRange(psi)) {
                             notifyPsi(psi, "Unhealthy");
@@ -240,7 +246,7 @@ public class MainActivity extends AppCompatActivity  implements
         Log.d("NOTIFY", "In setNotification method");
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(MainActivity.this)
-                        .setSmallIcon(android.R.drawable.ic_popup_reminder)
+                        .setSmallIcon(R.drawable.notification )
                         .setContentTitle(title)
                         .setContentText(intro)
                         .setStyle(new NotificationCompat.BigTextStyle()
@@ -251,52 +257,81 @@ public class MainActivity extends AppCompatActivity  implements
         notificationManager.notify(0, mBuilder.build());
     }
 
-    private void notifyRain(String weather, DatabaseReference ref){
-        String title = "Weather alert: " + weather;
-        String intro = "It's going to rain!";
-        String desc = "Hi " + user.getName() + "! It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!";
-        setNotification(title, intro, desc);
-
-        Map<String, Object> timeTitle = new HashMap<>();
+    private void notifyTemp(final double temp){
+        DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("service").child("temperature").child("notifications");
+        // Setting values for notification
+        String title = "Temperature alert: " + temp + " degree Celsius";
+        String intro = "It's getting hot!";
+        String desc = "Hi " + user.getName() + "! Do drink more water as the weather is getting warmer.";
+        // Setting timestamp and weather alert title as a notification node and child respectively
+        Map<String, Object> timeTitle = new HashMap<String, Object>();
         timeTitle.put(new Date().getTime() + "/title", title);
+        dataRef.updateChildren(timeTitle);
+        setNotification(title, intro, desc);
+    }
 
-        // Limiting the number of notifications to be shown to 5
-        final DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("notifications");
-        notiRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    private void notifyWeather(final String weather){
+        final DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("valueLong");
+        dataRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getChildrenCount()>5){
-                    long num = dataSnapshot.getChildrenCount()-5;
-                    Query deleteQuery = notiRef.limitToFirst((int) num);
-                    deleteQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            for (DataSnapshot postSnapshot: dataSnapshot.getChildren()){
-                                postSnapshot.getRef().removeValue();
-                            }
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                Log.d("VALUELONG", dataSnapshot.getValue().toString());
 
-                        }
-                    });
+                // Setting values for notification
+                String title = "";
+                String intro = "";
+                String desc = "";
+                if (weather.equals("rain")) {
+                    title = "Weather alert: " + dataSnapshot.getValue().toString();
+                    intro = "It's going to rain!";
+                    desc = "Hi " + user.getName() + "! It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!";
                 }
-            }
+                else if (weather.equals("sunny")){
+                    title = "Weather alert: Sunny";
+                    intro = "The sun is smiling at us!";
+                    desc = "Hi " + user.getName() + "! Do drink more water as the weather is getting warmer.";
+                }
 
+                // Setting timestamp and weather alert title as a notification node and child respectively
+                Map<String, Object> timeTitle = new HashMap<String, Object>();
+                timeTitle.put(new Date().getTime() + "/title", title);
+
+                // Insert notification details to DB
+                final DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("notifications");
+                notiRef.updateChildren(timeTitle);
+                setNotification(title, intro, desc);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
+
+    private void notifyPsi(final int psi, final String descriptor){
+        //setNotification("Haze alert: " + descriptor, "PSI is at " + psi, user.getName() + ", PSI is at " + psi + " now! Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
+        final DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("valueLong");
+        dataRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Log.d("VALUELONG", dataSnapshot.getValue().toString());
+
+                // Setting values for notification
+                String title = "Haze alert: " + psi;
+                String intro = "PSI is at " + descriptor + "range";
+                String desc = user.getName() + ", PSI is at " + psi + " now! Do wear a mask if you are outdoors and do alert the visitors to wear one too.";
+
+                // Setting timestamp and weather alert title as a notification node and child respectively
+                Map<String, Object> timeTitle = new HashMap<String, Object>();
+                timeTitle.put(new Date().getTime() + "/title", title);
+
+                // Insert notification details to DB
+                final DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("psi").child("notifications");
+                notiRef.updateChildren(timeTitle);
+                setNotification(title, intro, desc);
+            }
             @Override
             public void onCancelled(DatabaseError databaseError) {
-
             }
         });
-        notiRef.updateChildren(timeTitle);
-    }
-
-    private void notifySunny(){
-        setNotification("Weather alert: Sunny", "The sun is smiling at us!", "Hi " + user.getName() + "! Do drink more water as the weather is getting warmer.");
-    }
-
-    private void notifyPsi(int psi, String descriptor){
-        setNotification("Haze alert: " + descriptor, "PSI is at " + psi, user.getName() + ", PSI is at " + psi + " now! Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
     }
 
     private boolean inUnhealthyRange(int psi){
@@ -312,10 +347,9 @@ public class MainActivity extends AppCompatActivity  implements
     }
     // To get the full weather description from the abbreviation
     private void getAbbrTranslatedWeather(String weatherData){
-
-        final DatabaseReference weatherRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("value");
+        final DatabaseReference weatherRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("valueLong");
         DatabaseReference abbrRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("abbreviations").child(weatherData);
-        abbrRef.addValueEventListener(new ValueEventListener() {
+        abbrRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot abbrDataSnapshot) {
                 if (abbrDataSnapshot.exists()){
@@ -343,6 +377,7 @@ public class MainActivity extends AppCompatActivity  implements
     private void getNeaDataset() {
         final String weatherURL = "http://www.nea.gov.sg/api/WebAPI/?dataset=2hr_nowcast&keyref=781CF461BB6606ADEA01E0CAF8B35274D184749DB043FB09";
         final String psiURL = "http://www.nea.gov.sg/api/WebAPI/?dataset=psi_update&keyref=781CF461BB6606ADEA01E0CAF8B35274D184749DB043FB09";
+        final String tempURL = "http://api.openweathermap.org/data/2.5/weather?lat=1.404043&lon=103.793045&appid=179acd6a18cfec63680175ff28ffdb06&mode=xml";
         final Handler handler = new Handler();
         Timer timer = new Timer();
         TimerTask backtask = new TimerTask() {
@@ -353,6 +388,7 @@ public class MainActivity extends AppCompatActivity  implements
                         try {
                             new NeaDatasetAsyncTask().execute(weatherURL);
                             new NeaDatasetAsyncTask().execute(psiURL);
+                            new NeaDatasetAsyncTask().execute(tempURL);
                             Log.d("NEA Data", "Getting dataset");
                         } catch (Exception e) {
                             // TODO Auto-generated catch block
@@ -362,7 +398,7 @@ public class MainActivity extends AppCompatActivity  implements
             }
         };
         Log.d("NEA Data", "Dataset retrieved");
-        timer.schedule(backtask , 0, 60000); //execute in every 20000 ms*/
+        timer.schedule(backtask, 0, 60000); //execute in every 20000 ms*/
     }
 
     private void setupViewPager(ViewPager viewPager, String userType)
