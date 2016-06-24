@@ -36,15 +36,14 @@ public class CustomCardAdapter extends RecyclerView.Adapter<CustomCardAdapter.Vi
 
         //Create respective CardView layout from given card type
         switch(viewType) {
-            case CardType.STAFF_WORKING:    //Fall through
-            case CardType.STAFF_BREAK:
-                v = LayoutInflater.from(viewGroup.getContext())
-                        .inflate(R.layout.card_staff_status, viewGroup, false);
-                return new StaffStatusViewHolder(v);
             case CardType.CHECK_SHOWTIME:
                 v = LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.card_check_showtime, viewGroup, false);
                 return new CheckShowtimeViewHolder(v);
+            case CardType.STAFF_STATUS:
+                v = LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.card_staff_count, viewGroup, false);
+                return new StaffStatusViewHolder(v);
             default:
                 return null;
         }
@@ -54,15 +53,9 @@ public class CustomCardAdapter extends RecyclerView.Adapter<CustomCardAdapter.Vi
     public void onBindViewHolder(ViewHolder viewHolder, final int position) {
         //Assign card content to respective CardView
         switch(viewHolder.getItemViewType()) {
-            case CardType.STAFF_WORKING:
-                StaffStatusViewHolder staffWorkingHolder = (StaffStatusViewHolder) viewHolder;
-                staffWorkingHolder.setTitle("Staff Currently Working");
-                staffWorkingHolder.setContent(cardContent[position]);
-                break;
-            case CardType.STAFF_BREAK:
-                StaffStatusViewHolder staffBreakHolder = (StaffStatusViewHolder) viewHolder;
-                staffBreakHolder.setTitle("Staff Currently on Break");
-                staffBreakHolder.setContent(cardContent[position]);
+            case CardType.STAFF_STATUS:
+                StaffStatusViewHolder staffStatusHolder = (StaffStatusViewHolder) viewHolder;
+                staffStatusHolder.setContent(cardContent[position]);
                 break;
         }
     }
@@ -84,21 +77,20 @@ public class CustomCardAdapter extends RecyclerView.Adapter<CustomCardAdapter.Vi
         }
     }
 
-    //Staff available CardView
+    //Staff Status CardView
     private class StaffStatusViewHolder extends ViewHolder {
-        private TextView title, content;
+        private TextView working, onBreak;
 
         public StaffStatusViewHolder(View v) {
             super(v);
-            this.title = (TextView) v.findViewById(R.id.staff_status_card_textview_title);
-            this.content = (TextView) v.findViewById(R.id.staff_status_card_textview_content);
+            this.working = (TextView) v.findViewById(R.id.staff_count_card_working_value);
+            this.onBreak = (TextView) v.findViewById(R.id.staff_count_card_break_value);
         }
 
-        public void setTitle(String text) {
-            this.title.setText(text);
-        }
         public void setContent(String text) {
-            this.content.setText(text);
+            String[] value = text.split("-");
+            working.setText(value[0].equals("")?"0":value[0]);
+            onBreak.setText(value[1].equals("")?"0":value[1]);
         }
     }
 

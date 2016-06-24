@@ -15,14 +15,16 @@
     <string name="signin_edittext_hint_password">Password</string>
     <string name="signin_button_signin">Sign In</string>
 
-    <!-- Manager Info Fragment -->
-    <string name="manager_info_fragment">This is the manager info fragment</string>
+    <!-- Staff Info Fragment -->
+    <string name="staff_info_fragment">This is staff info fragment</string>
 
-    <!-- Info Fragment -->
-    <string name="info_fragment">This is the info fragment</string>
+    <!-- Staff Info Fragment -->
+    <string name="send_notification_fragment">This is send notification fragment</string>
 
-    <!-- Notification Fragment -->
-    <string name="notification_fragment">This is the notification fragment</string>
+    <!-- Staff Count Card -->
+    <string name="staff_count_card_title">Staff Status</string>
+    <string name="staff_count_card_working_title">Currently Working</string>
+    <string name="staff_count_card_break_title">Currently on Break</string>
 
     <!-- Check Showtime Card -->
     <string name="check_showtime_card_title">Check Website Showtime</string>

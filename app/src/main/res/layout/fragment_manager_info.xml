@@ -7,13 +7,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/manager_info_fragment_recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-    <!--<TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/manager_info_fragment"
-        android:layout_margin="@dimen/margin_normal"
-        android:layout_gravity="center_horizontal"/>-->
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"/>
 
 </RelativeLayout>

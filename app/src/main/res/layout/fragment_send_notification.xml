@@ -2,12 +2,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.itpteam11.visualisemandai.InfoFragment">
+    tools:context="com.itpteam11.visualisemandai.SendNotificationFragment">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/info_fragment"
+        android:text="@string/send_notification_fragment"
         android:layout_margin="@dimen/margin_normal"
         android:layout_gravity="center_horizontal"/>
 </RelativeLayout>

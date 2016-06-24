@@ -34,16 +34,25 @@ public class ServiceSubscribeListener {
 
                 //create event listener
                 FirebaseDatabase.getInstance().getReference().child("service").child(serviceName[i]).child("notification-id").addValueEventListener(new ValueEventListener() {
+                    //To prevent writing added new notification into user node during initial setup of listener
+                    private boolean firstRead = true;
+
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        //Retrieve notification ID
-                        String notificationID = dataSnapshot.getValue(String.class);
+                        //Do nothing on initial setup of listener
+                        if(!firstRead) {
+                            //Retrieve notification ID
+                            String notificationID = dataSnapshot.getValue(String.class);
 
-                        //Add user id into notification's receive list for record purpose. Value is set false until recipient show notification(set true)
-                        FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).child("receiver").child(userID).setValue(false);
+                            //Add user id into notification's receive list for record purpose. Value is set false until recipient show notification(set true)
+                            FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).child("receiver").child(userID).setValue(false);
 
-                        //Add notification ID into user's receive list so to be notified. Value is set false until recipient show notification(set true)
-                        FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(notificationID).setValue(false);
+                            //Add notification ID into user's receive list so to be notified. Value is set false until recipient show notification(set true)
+                            FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(notificationID).setValue(false);
+                        }
+                        else {
+                            firstRead = false;
+                        }
                     }
                     @Override
                     public void onCancelled(DatabaseError error) {

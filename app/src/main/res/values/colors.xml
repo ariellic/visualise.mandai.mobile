@@ -11,4 +11,6 @@
     <color name="button_textcolor">#FFFFFF</color>
 
     <color name="signin_background">#ECEFF1</color>
+
+    <color name="staff_count_card_background">#7CB342</color> <!-- Light Green 600 -->
 </resources>

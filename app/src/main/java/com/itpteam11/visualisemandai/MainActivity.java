@@ -1,18 +1,25 @@
 package com.itpteam11.visualisemandai;
 
+import android.*;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -36,28 +43,36 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.jar.*;
 
 /**
  * This main activity which consist of necessary fragments for
  * the user to get their information and interact with the application
  */
 
-public class MainActivity extends AppCompatActivity  implements
+public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
+    private final static int LOCATION_PERMISSIONS_REQUEST = 1;
 
     private static final String TAG = "MainActivity";
+
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private int[] tabIcons = {
             R.drawable.info,
-            R.drawable.notification};
+            R.drawable.notification,
+            R.drawable.send};
 
     private User user;
     private String userID;
     private String userGrp;
+    private String[] userGroupList;
     GoogleApiClient mGoogleApiClient;
+
+    //To locate staff coordinates
+    private StaffLocationService staffLocationService = null;
 
     private String abbr;
 
@@ -85,8 +100,6 @@ public class MainActivity extends AppCompatActivity  implements
         }
 
         startService(new Intent(this, ListenerService.class));
-
-
         System.out.println("MainActivity - User ID from Intent mainActivity: " + userID);
         System.out.println("MainActivity - Firebase user ID: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
 
@@ -97,6 +110,8 @@ public class MainActivity extends AppCompatActivity  implements
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Store user's details into User object
                 user = dataSnapshot.getValue(User.class);
+                userGroupList = user.getGroup().keySet().toArray(new String[user.getGroup().keySet().size()]);
+
                 for (String key : user.getGroup().keySet()) {
                     userGrp = key;
                 }
@@ -115,10 +130,17 @@ public class MainActivity extends AppCompatActivity  implements
                 tabLayout.setupWithViewPager(viewPager);
 
                 //Assign tabs with their respective icon
-                setupTabIcons(user.getType());
+                setupTabIcons();
 
                 //Set title
                 setTitle("Welcome " + user.getName());
+
+                //Set user status as "working"
+                FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").setValue("working");
+                for(String groupName : user.getGroup().keySet()) {
+                    FirebaseDatabase.getInstance().getReference().child("group").child(groupName).child(user.getGroup().get(groupName)).child(userID).setValue("working");
+                }
+
                 new SendActivityPhoneMessage("TEST--" + userID, "").start();
                 getNeaDataset();
                 trackDataChange("weather");
@@ -127,6 +149,9 @@ public class MainActivity extends AppCompatActivity  implements
 
                 //Start listening to user's subscribed service for notification of changes
                 new ServiceSubscribeListener(userID, user.getService()).startListening();
+
+                //Check app permission to access location service
+                checkLocationPermission();
             }
 
             @Override
@@ -137,10 +162,44 @@ public class MainActivity extends AppCompatActivity  implements
         });
     }
 
-    //For fragment
-    public String getUserID(){ return userID; }
+    //To check whether user has granted permission to access location service for this app
+    private void checkLocationPermission() {
+        //If location permission is not granted
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            //Display toast if user denied permission
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+                Toast.makeText(this, "Please enable Location permission at:\nSettings>Apps>Visualise Mandai>Permissions>Location", Toast.LENGTH_LONG).show();
+            }
+            else {
+                //Request user to grant permission for location service and callback to onRequestPermissionsResult()
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_REQUEST);
+            }
+        }
+        else {
+            //Callback to onRequestPermissionsResult() when user already granted permission
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSIONS_REQUEST);
+        }
+    }
 
-    //Send userid to ListenerService
+    //Callback method from ActivityCompat.requestPermissions()
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_PERMISSIONS_REQUEST: {
+                //If user granted permission to access location
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //Start staff location service to update user coordinates
+                    staffLocationService = new StaffLocationService(this, userID);
+                    System.out.println("MainActivity - Location permission granted");
+                }
+                else {
+                    //Display toast if user denied permission
+                    Toast.makeText(this, "Please enable Location permission at:\n" +
+                            "Settings>Apps>Visualise Mandai>Permissions>Location", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
 
     @Override
     public void onConnectionSuspended(int cause) {
@@ -405,19 +464,24 @@ public class MainActivity extends AppCompatActivity  implements
     {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
 
-        if(userType.equals("manager")) {
-            //Create Bundle to pass value from MainActivity to information fragment
-            Bundle infoBundle = new Bundle();
-            infoBundle.putString("userID", userID);
-            infoBundle.putString("group",userGrp);
+        //Create Bundle to pass value from MainActivity to information fragment
+        Bundle infoBundle = new Bundle();
+        infoBundle.putString("userID", userID);
+        infoBundle.putString("group",userGrp);
+        infoBundle.putCharSequenceArray("groupList",userGroupList);
 
+
+        if(userType.equals("manager")) {
             ManagerInfoFragment managerInfoFragment = new ManagerInfoFragment();
             managerInfoFragment.setArguments(infoBundle);
 
             adapter.addFragment(managerInfoFragment, "Info");
         }
         else {
-            //adapter.addFragment(new InfoFragment(), "Info");
+            StaffInfoFragment staffInfoFragment = new StaffInfoFragment();
+            staffInfoFragment.setArguments(infoBundle);
+
+            adapter.addFragment(staffInfoFragment, "Info");
         }
 
         //Create Bundle to pass value from MainActivity to notification fragment
@@ -428,27 +492,23 @@ public class MainActivity extends AppCompatActivity  implements
         notificationFragment.setArguments(notificationBundle);
 
         adapter.addFragment(notificationFragment, "Notification");
+
+        if(userType.equals("manager")) {
+            SendNotificationFragment sendNotificationFragment = new SendNotificationFragment();
+            adapter.addFragment(sendNotificationFragment, "Send Notice");
+        }
+
         viewPager.setAdapter(adapter);
     }
 
     //Add icons to respective tabs
-    private void setupTabIcons(String userType)
+    private void setupTabIcons()
     {
-        int j = 0;
-
-        for(int i=0; i<tabIcons.length; i++){
-            if(!userType.equals("manager")){
-                tabLayout.getTabAt(j).setIcon(tabIcons[i]);
-            }
-            else {
-                tabLayout.getTabAt(j).setIcon(tabIcons[i]);
-                j++;
-            }
-        }
+        for(int i=0; i<tabLayout.getTabCount(); i++)
+            tabLayout.getTabAt(i).setIcon(tabIcons[i]);
     }
 
-    class ViewPagerAdapter extends FragmentPagerAdapter
-    {
+    class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> mFragmentList = new ArrayList<>();
         private final List<String> mFragmentTitleList = new ArrayList<>();
 
@@ -480,6 +540,16 @@ public class MainActivity extends AppCompatActivity  implements
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        //Set user status as "off" duty
+        FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").setValue("off");
+        for(String groupName : user.getGroup().keySet()) {
+            FirebaseDatabase.getInstance().getReference().child("group").child(groupName).child(user.getGroup().get(groupName)).child(userID).setValue("off");
+        }
+
+        //Stop user location update
+        if(staffLocationService != null)
+            staffLocationService.stopLocationUpdate();
 
         //Sign out from Firebase Authentication account
         FirebaseAuth.getInstance().signOut();

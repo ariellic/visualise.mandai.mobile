@@ -10,17 +10,12 @@ import android.view.ViewGroup;
 
 import java.util.HashMap;
 
-
-import android.util.Log;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  *  This fragment contain RecyclerView which contain necessary cards for
@@ -37,8 +32,8 @@ public class ManagerInfoFragment extends Fragment {
     ArrayList<String> workingList = new ArrayList<>();
     ArrayList<String> breakList = new ArrayList<>();
      
-    private String userID;
-    private String userGroup;
+    private String userID, userGroup;
+    private String[] userGroupList;
 
     public ManagerInfoFragment() {
         // Required empty public constructor
@@ -52,55 +47,28 @@ public class ManagerInfoFragment extends Fragment {
         Bundle bundle = getArguments();
         userID = bundle.getString("userID");
         userGroup = bundle.getString("group");
+        userGroupList = (String[]) bundle.getCharSequenceArray("userGroup");
 
         //Create and add neccessary cards
         cardDataSet = new HashMap<>();
-        cardDataSet.put(CardType.CHECK_SHOWTIME, "");
-
-        //Get list of users in the group under Manager
-        DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff");
-        db.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot sp : dataSnapshot.getChildren()) {
-                    userList.add(sp.getKey());
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                //Failed to staff list
-                System.out.println("ManagerInfoFragment - Failed to staff list: "+error.toException());
-            }
-        });
+        //cardDataSet.put(CardType.CHECK_SHOWTIME, "");
 
         //Get the group users' status
-        DatabaseReference db1 = FirebaseDatabase.getInstance().getReference();
-        db1.addValueEventListener(new ValueEventListener() {
+        FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 workingList.clear();
                 breakList.clear();
-                for (DataSnapshot postSnapshot : dataSnapshot.child("user").getChildren()) {
-                    String userID = postSnapshot.getKey();
-                    if (userList.contains(userID)) {
-                        String status = postSnapshot.child("status").getValue(String.class);
-                        Log.e("Status", status);
-                        if (status.equals("working")) {
-                            if (!workingList.contains(userID)) {
-                                workingList.add(userID);
-                            }
-                        } else {
-                            breakList.add(userID);
-                        }
+
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    if (postSnapshot.getValue(String.class).equals("working")) {
+                        workingList.add(userID);
+                    } else if (!postSnapshot.getValue(String.class).equals("off")){
+                        breakList.add(userID);
                     }
                 }
 
-                String grpNum = String.valueOf(workingList.size());
-                String breakNum = String.valueOf(breakList.size());
-                cardDataSet.put(CardType.STAFF_WORKING, grpNum);
-                cardDataSet.put(CardType.STAFF_BREAK,breakNum);
+                cardDataSet.put(CardType.STAFF_STATUS, workingList.size()+"-"+breakList.size());
 
                 customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
                 recyclerView.setAdapter(customCardAdapter);
