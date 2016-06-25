@@ -46,9 +46,9 @@ public class NotificationFragment extends Fragment {
         Bundle bundle = getArguments();
         userID = bundle.getString("userID");
 
-        updateEnvData("weather", "NEA forecast");
-        updateEnvData("psi", "NEA forecast");
-        updateEnvData("temperature", "OpenWeather forecast");
+        //updateEnvData("weather", "NEA forecast");
+        //updateEnvData("psi", "NEA forecast");
+        //updateEnvData("temperature", "OpenWeather forecast");
         updateList();
     }
 

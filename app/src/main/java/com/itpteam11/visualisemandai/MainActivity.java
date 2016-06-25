@@ -74,8 +74,6 @@ public class MainActivity extends AppCompatActivity implements
     //To locate staff coordinates
     private StaffLocationService staffLocationService = null;
 
-    private String abbr;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,7 +82,6 @@ public class MainActivity extends AppCompatActivity implements
         //Get authenticated user ID from sign in activity
         Intent intent = getIntent();
         userID = intent.getStringExtra("userID");
-        abbr = "";
         if(null == mGoogleApiClient) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addApi(Wearable.API)
@@ -99,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements
             Log.v(TAG, "Connecting to GoogleApiClient..");
         }
 
+        final Intent climateServiceIntent = new Intent(this, CheckClimateService.class);
         startService(new Intent(this, ListenerService.class));
         System.out.println("MainActivity - User ID from Intent mainActivity: " + userID);
         System.out.println("MainActivity - Firebase user ID: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
@@ -142,10 +140,7 @@ public class MainActivity extends AppCompatActivity implements
                 }
 
                 new SendActivityPhoneMessage("TEST--" + userID, "").start();
-                getNeaDataset();
-                trackDataChange("weather");
-                trackDataChange("temperature");
-                trackDataChange("psi");
+                startService(climateServiceIntent);
 
                 //Start listening to user's subscribed service for notification of changes
                 new ServiceSubscribeListener(userID, user.getService()).startListening();
@@ -244,192 +239,6 @@ public class MainActivity extends AppCompatActivity implements
             }
 
         }
-    }
-
-    // To check if the PSI/weather data from the database has changed
-    private void trackDataChange(final String dataCat) {
-        final DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("service").child(dataCat).child("value");
-        dataRef.keepSynced(true);
-        dataRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    Log.d("DATACHANGE", dataCat + " data changed: " + dataSnapshot.getValue().toString());
-                    // To get the full weather description from the abbreviations retrieved
-                    if (dataCat.equals("weather")) {
-                        String weather = dataSnapshot.getValue().toString();
-                        if (isAbbr(weather)) {
-                            abbr = weather;
-                            Log.d("ABBR", "abbr is " + abbr);
-                            Log.d("WEATHER", "weather is " + weather);
-                            getAbbrTranslatedWeather(weather);
-                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS"};
-                            List rainyAbbrList = Arrays.asList(rainyWeather);
-                            if (rainyAbbrList.contains(abbr)) {
-                                Log.d("NOTIFY", "Notify rainy");
-                                notifyWeather("rain");
-                            } else if (abbr.equals("SU")) {
-                                Log.d("NOTIFY", "Notify sunny");
-                                notifyWeather("sunny");
-                            }
-                        }
-                    }
-                    else if (dataCat.equals("temperature")){
-                        double temp = Double.parseDouble(dataSnapshot.getValue().toString());
-                        if (temp > 32.0) {
-                            notifyTemp(temp);
-                        }
-                    }
-                    else if (dataCat.equals("psi")) {
-                        int psi = Integer.parseInt(dataSnapshot.getValue().toString());
-                        if (inUnhealthyRange(psi)) {
-                            notifyPsi(psi, "Unhealthy");
-                        } else if (inVeryUnhealthyRange(psi)) {
-                            notifyPsi(psi, "Very unhealthy");
-                        } else if (inHazardousRange(psi)) {
-                            notifyPsi(psi, "Hazardous");
-                        }
-                    }
-                } else {
-                    Log.d("DATACHANGE", "Data not found");
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
-    private void setNotification(String title, String intro, String desc) {
-        Log.d("NOTIFY", "In setNotification method");
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(MainActivity.this)
-                        .setSmallIcon(R.drawable.notification )
-                        .setContentTitle(title)
-                        .setContentText(intro)
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(desc));
-
-        NotificationManagerCompat notificationManager =
-                NotificationManagerCompat.from(MainActivity.this);
-        notificationManager.notify(0, mBuilder.build());
-    }
-
-    private void notifyTemp(final double temp){
-        DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("service").child("temperature").child("notifications");
-        // Setting values for notification
-        String title = "Temperature alert: " + temp + " degree Celsius";
-        String intro = "It's getting hot!";
-        String desc = "Hi " + user.getName() + "! Do drink more water as the weather is getting warmer.";
-        // Setting timestamp and weather alert title as a notification node and child respectively
-        Map<String, Object> timeTitle = new HashMap<String, Object>();
-        timeTitle.put(new Date().getTime() + "/title", title);
-        dataRef.updateChildren(timeTitle);
-        setNotification(title, intro, desc);
-    }
-
-    private void notifyWeather(final String weather){
-        final DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("valueLong");
-        dataRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("VALUELONG", dataSnapshot.getValue().toString());
-
-                // Setting values for notification
-                String title = "";
-                String intro = "";
-                String desc = "";
-                if (weather.equals("rain")) {
-                    title = "Weather alert: " + dataSnapshot.getValue().toString();
-                    intro = "It's going to rain!";
-                    desc = "Hi " + user.getName() + "! It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!";
-                }
-                else if (weather.equals("sunny")){
-                    title = "Weather alert: Sunny";
-                    intro = "The sun is smiling at us!";
-                    desc = "Hi " + user.getName() + "! Do drink more water as the weather is getting warmer.";
-                }
-
-                // Setting timestamp and weather alert title as a notification node and child respectively
-                Map<String, Object> timeTitle = new HashMap<String, Object>();
-                timeTitle.put(new Date().getTime() + "/title", title);
-
-                // Insert notification details to DB
-                final DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("notifications");
-                notiRef.updateChildren(timeTitle);
-                setNotification(title, intro, desc);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {}
-        });
-    }
-
-    private void notifyPsi(final int psi, final String descriptor){
-        //setNotification("Haze alert: " + descriptor, "PSI is at " + psi, user.getName() + ", PSI is at " + psi + " now! Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
-        final DatabaseReference dataRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("valueLong");
-        dataRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Log.d("VALUELONG", dataSnapshot.getValue().toString());
-
-                // Setting values for notification
-                String title = "Haze alert: " + psi;
-                String intro = "PSI is at " + descriptor + "range";
-                String desc = user.getName() + ", PSI is at " + psi + " now! Do wear a mask if you are outdoors and do alert the visitors to wear one too.";
-
-                // Setting timestamp and weather alert title as a notification node and child respectively
-                Map<String, Object> timeTitle = new HashMap<String, Object>();
-                timeTitle.put(new Date().getTime() + "/title", title);
-
-                // Insert notification details to DB
-                final DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child("psi").child("notifications");
-                notiRef.updateChildren(timeTitle);
-                setNotification(title, intro, desc);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
-    private boolean inUnhealthyRange(int psi){
-        return (psi>=101 && psi<=200);
-    }
-
-    private boolean inVeryUnhealthyRange(int psi){
-        return (psi>=201 && psi<=300);
-    }
-
-    private boolean inHazardousRange(int psi){
-        return (psi>300);
-    }
-    // To get the full weather description from the abbreviation
-    private void getAbbrTranslatedWeather(String weatherData){
-        final DatabaseReference weatherRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("valueLong");
-        DatabaseReference abbrRef = FirebaseDatabase.getInstance().getReference().child("service").child("weather").child("abbreviations").child(weatherData);
-        abbrRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot abbrDataSnapshot) {
-                if (abbrDataSnapshot.exists()){
-                    String abbrTranslated = abbrDataSnapshot.getValue().toString();
-                    Log.d("DATACHANGE", "Abbreviation translate to " + abbrTranslated);
-                    weatherRef.setValue(abbrTranslated); // Change abbreviation value in DB to the full weather description
-                }
-                else {
-                    Log.d("DATACHANGE", "No such abbreviation exists");
-                }
-            }
-            @Override
-            public void onCancelled(DatabaseError firebaseError) {
-                Log.d("DATACHANGE", "onCancelled");
-            }
-        });
-    }
-
-    // Check if data in DB is an abbreviation or an already translated description
-    private boolean isAbbr(String weatherData) {
-        return (weatherData.length() == 2);
     }
 
     // Execute the asynchronous task to retrieve the weather and PSI data from NEA website

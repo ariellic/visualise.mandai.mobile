@@ -3,7 +3,7 @@ package com.itpteam11.visualisemandai;
 /**
  * This class represents the Showtime data model
  */
-public class Showtime {
+public class  Showtime {
     private String description;
     private String value;
     private String url;

@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.itpteam11.visualisemandai">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/icon"
@@ -11,7 +13,9 @@
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
+
         <uses-permission android:name="android.permission.INTERNET" />
+
         <service
             android:name=".ListenerService"
             android:enabled="true"
@@ -20,13 +24,11 @@
                 <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />
             </intent-filter>
         </service>
-
         <activity
             android:name=".SignInActivity"
             android:noHistory="true"
-            android:theme="@style/SignIn"
-            android:screenOrientation="portrait">
-
+            android:screenOrientation="portrait"
+            android:theme="@style/SignIn">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -35,15 +37,15 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:theme="@style/Main"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:theme="@style/Main" />
 
         <service
             android:name=".CheckShowtimeService"
+            android:exported="false" />
+        <service
+            android:name=".CheckClimateService"
             android:exported="false"></service>
-
     </application>
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 
 </manifest>
