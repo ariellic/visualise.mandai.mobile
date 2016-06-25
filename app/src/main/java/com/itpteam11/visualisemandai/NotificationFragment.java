@@ -1,5 +1,6 @@
 package com.itpteam11.visualisemandai;
 
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
@@ -46,9 +47,6 @@ public class NotificationFragment extends Fragment {
         Bundle bundle = getArguments();
         userID = bundle.getString("userID");
 
-        //updateEnvData("weather", "NEA forecast");
-        //updateEnvData("psi", "NEA forecast");
-        //updateEnvData("temperature", "OpenWeather forecast");
         updateList();
     }
 
@@ -85,18 +83,26 @@ public class NotificationFragment extends Fragment {
                 NotificationItem notificationItem = new NotificationItem(dataSnapshot.child("title").getValue().toString(), sender, Long.parseLong(dataSnapshot.getKey()));
                 Log.d("NOTITITLE getMessage", notificationItem.getContent());
                 Log.d("NOTITITLE getSender", notificationItem.getSender());
-                Log.d("NOTITITLE getTimestamp", notificationItem.getTimestamp()+"");
+                Log.d("NOTITITLE getTimestamp", notificationItem.getTimestamp() + "");
                 notificationList.add(notificationItem);
                 notificationAdapter.notifyDataSetChanged();
             }
+
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {
+            }
         });
     }
 
@@ -111,7 +117,7 @@ public class NotificationFragment extends Fragment {
                 boolean notified = dataSnapshot.getValue(Boolean.class);
 
                 //Show notification alert when record is a new notification. Else past notifications will not be alert
-                if(!notified) {
+                if (!notified) {
                     //Retrieve the actual notification by ID
                     FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -125,10 +131,36 @@ public class NotificationFragment extends Fragment {
 
                             //Build system notification to notify the user
                             NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
-                                    .setContentTitle("Notification from " + notification.getSender())
+                                    .setContentTitle(notification.getSender())
                                     .setContentText(notification.getContent())
-                                    .setSmallIcon(R.drawable.notification);
+                                    .setSmallIcon(R.drawable.notification)
+                                    .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
 
+                            NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
+
+                            String desc = "";
+                            switch (dataSnapshot.child("sender").getValue().toString()) {
+                                case "NEA - Weather (Rain)":
+                                    wearableExtender = getWearableDesign(R.drawable.rain, R.drawable.rainy);
+                                    desc = "It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!";
+                                    break;
+                                case "NEA - Weather (Sun)":
+                                    wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
+                                    desc = "Do drink more water as the weather is getting warmer.";
+                                    break;
+                                case "NEA - PSI":
+                                    wearableExtender = getWearableDesign(R.drawable.haze, R.drawable.hazy);
+                                    desc = "Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.";
+                                    break;
+                                case "OpenWeather":
+                                    wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
+                                    desc = "Do drink more water as the weather is getting warmer.";
+                                    break;
+                            }
+
+                            notify.setStyle(new NotificationCompat.BigTextStyle()
+                                    .bigText(desc));
+                            notify.extend(wearableExtender);
                             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
                             notificationManager.notify(0, notify.build());
 
@@ -144,8 +176,8 @@ public class NotificationFragment extends Fragment {
                         public void onCancelled(DatabaseError error) {
                         }
                     });
-                }
-                else {
+                } else {
+                    Log.d("ELSE", "Notification ID: " + notificationID);
                     //Retrieve the actual notification by ID
                     FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -153,6 +185,9 @@ public class NotificationFragment extends Fragment {
                             //Store notification details into Notification object
                             Notification notification = dataSnapshot.getValue(Notification.class);
 
+                            Log.d("ELSE", "Notification content: " + notification.getContent());
+                            Log.d("ELSE", "Notification sender: " + notification.getSender());
+                            Log.d("ELSE", "Notification timestamp: " + notification.getTimestamp());
                             //Create a NotificationItem to be added into the notification list
                             NotificationItem notificationItem = new NotificationItem(notification.getContent(), notification.getSender(), notification.getTimestamp());
                             notificationList.add(notificationItem);
@@ -173,16 +208,32 @@ public class NotificationFragment extends Fragment {
             }
 
             @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {}
+            public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+            }
+
             @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
             @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {}
+            public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+            }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 //Failed listen for notification
                 System.out.println("NotificationFragment - Failed listen for notification: " + databaseError.toException());
             }
         });
+    }
+
+    private NotificationCompat.WearableExtender getWearableDesign(int icon, int bg) {
+        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
+                .setHintHideIcon(true)
+                .setContentIcon(icon)
+                .setBackground(BitmapFactory.decodeResource(getContext().getResources(), bg));
+
+        return extender;
+
     }
 }

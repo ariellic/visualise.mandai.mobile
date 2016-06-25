@@ -143,49 +143,35 @@ public class CheckClimateService extends IntentService {
                             climateRef.child("valueLong").setValue(valueLong);
                             Notification weatherNotification = new Notification();
                             String content = "Weather alert: " + valueLong;
-                            String sender = "NEA weather update";
+                            String sender = "NEA - Weather ";
                             long timestamp = new Date().getTime();
                             //climate.setValueLong(valueLong);
-                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS"};
+                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS", "PN"};
                             List rainyAbbrList = Arrays.asList(rainyWeather);
                             if (rainyAbbrList.contains(result) || result.equals("SU")) {
                                 if (rainyAbbrList.contains(result)) {
                                     Log.d("NOTIFY", "Notify rainy");
                                     //climateRef.child("valueLong").setValue(valueLong);
                                     //content = "Weather alert: " + valueLong;
-
-                                    weatherNotification.setContent(content);
-                                    weatherNotification.setSender(sender);
-                                    weatherNotification.setTimestamp(timestamp);
-                                    String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
-                                    FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(weatherNotification);
-
-                                    //Change notification ID to alert listening subscriber about changes
-                                    FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("notification-id").setValue(notificationID);
-
-                                    //Update new show time
-                                    FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("value").setValue(result);
-
-                                    System.out.println("Climate Service - Weather value changes");
+                                    weatherNotification.setSender(sender + "(Rain)");
                                 } else if (result.equals("SU")) {
                                     //climateRef.child("valueLong").setValue(valueLong);
                                     //content = "Weather alert: " + valueLong;
+                                    weatherNotification.setSender(sender + "(Sun)");
 
-                                    weatherNotification.setContent(content);
-                                    weatherNotification.setSender(sender);
-                                    weatherNotification.setTimestamp(timestamp);
-                                    String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
-                                    FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(weatherNotification);
-
-                                    //Change notification ID to alert listening subscriber about changes
-                                    FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("notification-id").setValue(notificationID);
-
-                                    //Update new show time
-                                    FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("value").setValue(result);
-
-                                    System.out.println("Climate Service - Weather value changes");
                                 }
+                                weatherNotification.setContent(content);
+                                weatherNotification.setTimestamp(timestamp);
+                                String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
+                                FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(weatherNotification);
 
+                                //Change notification ID to alert listening subscriber about changes
+                                FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("notification-id").setValue(notificationID);
+
+                                //Update new show time
+                                FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("value").setValue(result);
+
+                                System.out.println("Climate Service - Weather value changes");
                             }
 
                         }
@@ -200,7 +186,7 @@ public class CheckClimateService extends IntentService {
                     int psi = Integer.parseInt(result);
                     if (psi >= 101 || psi > 300) {
                         content = "Haze alert: " + getRangeDesriptor(psi);
-                        sender = "NEA PSI update";
+                        sender = "NEA - PSI";
                         timestamp = new Date().getTime();
 
                         notification.setContent(content);
@@ -221,7 +207,7 @@ public class CheckClimateService extends IntentService {
                     double temp = Double.parseDouble(result);
                     if (temp > 32.0) {
                         content = "Temperature alert: " + temp;
-                        sender = "OpenWeather update";
+                        sender = "OpenWeather";
                         timestamp = new Date().getTime();
 
                         notification.setContent(content);
