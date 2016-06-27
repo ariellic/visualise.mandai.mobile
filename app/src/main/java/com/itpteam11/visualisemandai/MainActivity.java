@@ -140,7 +140,27 @@ public class MainActivity extends AppCompatActivity implements
                 }
 
                 new SendActivityPhoneMessage("TEST--" + userID, "").start();
-                startService(climateServiceIntent);
+
+                // To start the service to check the climate data every 20 seconds (can be changed)
+                final Handler handler = new Handler();
+                Timer timer = new Timer();
+                TimerTask backtask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        handler.post(new Runnable() {
+                            public void run() {
+                                try {
+                                    startService(climateServiceIntent);
+                                    Log.d("ClimateService", "Service started");
+                                } catch (Exception e) {
+                                    // TODO Auto-generated catch block
+                                }
+                            }
+                        });
+                    }
+                };
+                Log.d("TimerTask", "TimerTask completed");
+                timer.schedule(backtask, 0, 20000); //execute in every 20000 ms*/
 
                 //Start listening to user's subscribed service for notification of changes
                 new ServiceSubscribeListener(userID, user.getService()).startListening();
