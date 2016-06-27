@@ -28,9 +28,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *  This service retrieve all different showtime from Singapore Zoo website.
- *  Retrieved showtime will be compared with existing database time.
- *  When different between website and database showtime occurs, notification will be send to the requested user.
+ *  This service retrieves climatic data from NEA and OpenWeather with the XML text from their API
+ *  There are 3 climate types: PSI, temperature and weather
+ *  Notification and notification-lookup node in Firebase will be updated if the data retrieved
+ *  met certain conditions.
+ *  Notifications will then be sent (refer to NotificationFragment)
  */
 public class CheckClimateService extends IntentService {
     public final static String USER_ID = "userID";
@@ -47,9 +49,9 @@ public class CheckClimateService extends IntentService {
         //Get authenticated user ID from Intent
         userID = intent.getStringExtra(USER_ID);
 
-        //Check online showtime value for every show
+        //Check value of every climate type
         for (int i = 0; i < CLIMATE_TYPES.length; i++) {
-            //Get database reference node of the show
+            //Get database reference node of the climate type
             Log.d("CLIMATETYPE", CLIMATE_TYPES[i]);
             FirebaseDatabase.getInstance().getReference().child("service").child(CLIMATE_TYPES[i]).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -57,7 +59,7 @@ public class CheckClimateService extends IntentService {
                     //Store climate's details into Climate object
                     Climate climate = dataSnapshot.getValue(Climate.class);
 
-                    //Retrieve HTML document from a URL that is contain inside the given showtime object
+                    //Retrieve HTML document from a URL that is contain inside the newly created climate object
                     //Process is done using AsyncTask method
                     HTMLParsingAsyncTask htmlParsing = new HTMLParsingAsyncTask();
                     htmlParsing.execute(climate, dataSnapshot.getKey(), userID);
@@ -65,7 +67,7 @@ public class CheckClimateService extends IntentService {
 
                 @Override
                 public void onCancelled(DatabaseError error) {
-                    // Failed to get showtime
+                    // Failed to get climate value
                     System.out.println("Failed to get climate: " + error.toException());
                 }
             });
@@ -73,7 +75,9 @@ public class CheckClimateService extends IntentService {
     }
 
 
-    //AsyncTask for getting and parsing HTML document to get showtime
+    /**
+     * AsyncTask for getting and parsing XML content to get climate type's value
+     */
     private class HTMLParsingAsyncTask extends AsyncTask<Object, Void, String> {
         private Climate climate;
         private String climateType;
@@ -84,6 +88,12 @@ public class CheckClimateService extends IntentService {
             super.onPreExecute();
         }
 
+        /**
+         * To download URL content of API and parse XML of the content after the user
+         * has logged in
+         * @param params
+         * @return
+         */
         @Override
         protected String doInBackground(Object... params) {
             climate = (Climate) params[0];
@@ -118,6 +128,11 @@ public class CheckClimateService extends IntentService {
             return result;
         }
 
+        /**
+         * Update notification and notification-lookup nodes based on the result after parsing the XML
+         * from NEA and OpenWeather API
+         * @param result
+         */
         @Override
         protected void onPostExecute(final String result) {
             System.out.println("In onPostExecute");
@@ -135,32 +150,35 @@ public class CheckClimateService extends IntentService {
 
                 climateRef.child("value").setValue(result);
 
+                // If climate type 'weather' is being processed from NEA
                 if (climateType.equals("weather")) {
+                    // Retrieves the translated weather description from the abbreviation parsed
                     climateRef.child("abbreviations").child(result).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
 
+                            // Save the long description of abbreviation in db
                             String valueLong = dataSnapshot.getValue().toString();
                             climateRef.child("valueLong").setValue(valueLong);
+
+                            // Set up content for notification
                             Notification weatherNotification = new Notification();
                             String content = "Weather alert: " + valueLong;
                             String sender = "NEA - Weather ";
                             long timestamp = new Date().getTime();
-                            //climate.setValueLong(valueLong);
+
+                            // Abbreviations of weather considered as rainy
                             String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS"};
                             List rainyAbbrList = Arrays.asList(rainyWeather);
+
                             if (rainyAbbrList.contains(result) || result.equals("SU")) {
                                 if (rainyAbbrList.contains(result)) {
-                                    Log.d("NOTIFY", "Notify rainy");
-                                    //climateRef.child("valueLong").setValue(valueLong);
-                                    //content = "Weather alert: " + valueLong;
                                     weatherNotification.setSender(sender + "(Rain)");
                                 } else if (result.equals("SU")) {
-                                    //climateRef.child("valueLong").setValue(valueLong);
-                                    //content = "Weather alert: " + valueLong;
                                     weatherNotification.setSender(sender + "(Sun)");
 
                                 }
+
                                 weatherNotification.setContent(content);
                                 weatherNotification.setTimestamp(timestamp);
                                 String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
@@ -169,7 +187,7 @@ public class CheckClimateService extends IntentService {
                                 //Change notification ID to alert listening subscriber about changes
                                 FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("notification-id").setValue(notificationID);
 
-                                //Update new show time
+                                //Update new value for climate type
                                 FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("value").setValue(result);
 
                                 System.out.println("Climate Service - Weather value changes");
@@ -183,7 +201,9 @@ public class CheckClimateService extends IntentService {
                         }
                     });
 
-                } else if (climateType.equals("psi")){
+                }
+                // If climate type 'psi' is being processed from NEA
+                else if (climateType.equals("psi")) {
                     int psi = Integer.parseInt(result);
                     if (psi >= 101 || psi > 300) {
                         content = "Haze alert: " + getRangeDesriptor(psi);
@@ -204,7 +224,9 @@ public class CheckClimateService extends IntentService {
 
                         System.out.println("Climate Service - PSI value changes");
                     }
-                } else if (climateType.equals("temperature")){
+                }
+                // If climate type 'temperature' is being processed from OpenWeather
+                else if (climateType.equals("temperature")){
                     double temp = Double.parseDouble(result);
                     if (temp > 32.0) {
                         content = "Temperature alert: " + temp;
@@ -234,7 +256,12 @@ public class CheckClimateService extends IntentService {
             }
         }
 
-        // Download of XML from NEA API
+        /**
+         * Download of XML from NEA/OpenWeather API
+         * @param myurl
+         * @return
+         * @throws IOException
+         */
         private String downloadUrlHTTP(String myurl) throws IOException {
             BufferedReader reader = null;
 
@@ -257,6 +284,13 @@ public class CheckClimateService extends IntentService {
             return myurl;
         }
 
+        /**
+         * To parse the XML from url content of API and grab the value that is required from the XML
+         * @param xml
+         * @return
+         * @throws XmlPullParserException
+         * @throws IOException
+         */
         private String parseXML(String xml) throws XmlPullParserException, IOException {
 
             // Create the pull parser
@@ -327,6 +361,11 @@ public class CheckClimateService extends IntentService {
             return value;
         }
 
+        /**
+         * Return descriptor - what PSI value represents to set in notification
+         * @param psi
+         * @return
+         */
         private String getRangeDesriptor(int psi){
             String descriptor = "";
             if (psi>=101 && psi<=200) {

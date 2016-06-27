@@ -31,6 +31,10 @@ import java.util.List;
 public class NotificationFragment extends Fragment {
     private String userID;
 
+    private int pendingNotifications = 0;
+    private int id = 0;
+    private ArrayList<NotificationItem> groupedNotifications = new ArrayList<>();
+
     private List<NotificationItem> notificationList = new ArrayList<>();
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager recyclerLayoutManager;
@@ -71,48 +75,12 @@ public class NotificationFragment extends Fragment {
         return view;
     }
 
+
     /**
-     * This method set an event listener for an addition to the respective notification node
-     * for weather/temp/PSI when an alert has been added in.
-     * @param type
+     * This method set an event listener to observe for next addition for notification
+     * on the user's receive notification node. After which notification will be build
+     * to notify the user
      */
-    public void updateEnvData(String type, final String sender) {
-        DatabaseReference notiRef = FirebaseDatabase.getInstance().getReference().child("service").child(type).child("notifications");
-        notiRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                NotificationItem notificationItem = new NotificationItem(dataSnapshot.child("title").getValue().toString(), sender, Long.parseLong(dataSnapshot.getKey()));
-                Log.d("NOTITITLE getMessage", notificationItem.getContent());
-                Log.d("NOTITITLE getSender", notificationItem.getSender());
-                Log.d("NOTITITLE getTimestamp", notificationItem.getTimestamp() + "");
-                notificationList.add(notificationItem);
-                notificationAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
-    }
-
-    int pendingNotifications = 0;
-    int id = 0;
-    ArrayList<NotificationItem> groupedNotifications = new ArrayList<>();
-    //This method set an event listener to observe for next addition for notification
-    //on the user's receive notification node. After which notification will be build
-    //to notify the user
     public void updateList() {
         FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").addChildEventListener(new ChildEventListener() {
             @Override
@@ -132,7 +100,7 @@ public class NotificationFragment extends Fragment {
 
                             //Create a NotificationItem to be added into the notification list
                             NotificationItem notificationItem = new NotificationItem(notification.getContent(), notification.getSender(), notification.getTimestamp());
-                            groupedNotifications.add(notificationItem);
+                            groupedNotifications.add(notificationItem); // For stacking notifications
                             notificationList.add(notificationItem);
 
                             final String GROUP_NOTIFICATIONS = "group_notifications";
@@ -147,6 +115,7 @@ public class NotificationFragment extends Fragment {
 
                             NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
 
+                            // Customizing big text, icons and bg to appear for notifications on mobile/wearable
                             CharSequence desc = "";
                             switch (dataSnapshot.child("sender").getValue().toString()) {
                                 case "NEA - Weather (Rain)":
@@ -167,15 +136,17 @@ public class NotificationFragment extends Fragment {
                                     break;
                             }
 
+
                             String notificationWord = "";
                             if (pendingNotifications == 1) {
                                 notificationWord = " notification";
                             } else {
                                 notificationWord = " notifications";
                             }
-                                notify.setStyle(new NotificationCompat.BigTextStyle()
+
+                            notify.setStyle(new NotificationCompat.BigTextStyle()
                                         //.setSummaryText(Integer.toString(pendingNotifications) + notificationWord + " from Visualizing Mandai")
-                                        .bigText(desc));
+                                    .bigText(desc));
                             /*} else if (pendingNotifications > 1) {
                                 NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
                                 {
@@ -196,7 +167,7 @@ public class NotificationFragment extends Fragment {
 
                             notify.extend(wearableExtender);
                             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
-                            notificationManager.notify(id++, notify.build());
+                            notificationManager.notify(id++, notify.build()); // Display multiple notifications, prevent replacing of notification
 
                             //Update notification list
                             notificationAdapter.notifyDataSetChanged();
@@ -261,6 +232,12 @@ public class NotificationFragment extends Fragment {
         });
     }
 
+    /**
+     * This method sets background and icon for different types of notifications to appear on the wearable
+     * @param icon
+     * @param bg
+     * @return
+     */
     private NotificationCompat.WearableExtender getWearableDesign(int icon, int bg) {
         NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
                 .setHintHideIcon(true)
