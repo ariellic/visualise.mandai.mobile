@@ -50,6 +50,7 @@ public class CheckClimateService extends IntentService {
         //Check online showtime value for every show
         for (int i = 0; i < CLIMATE_TYPES.length; i++) {
             //Get database reference node of the show
+            Log.d("CLIMATETYPE", CLIMATE_TYPES[i]);
             FirebaseDatabase.getInstance().getReference().child("service").child(CLIMATE_TYPES[i]).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
@@ -146,7 +147,7 @@ public class CheckClimateService extends IntentService {
                             String sender = "NEA - Weather ";
                             long timestamp = new Date().getTime();
                             //climate.setValueLong(valueLong);
-                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS", "PN"};
+                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS"};
                             List rainyAbbrList = Arrays.asList(rainyWeather);
                             if (rainyAbbrList.contains(result) || result.equals("SU")) {
                                 if (rainyAbbrList.contains(result)) {

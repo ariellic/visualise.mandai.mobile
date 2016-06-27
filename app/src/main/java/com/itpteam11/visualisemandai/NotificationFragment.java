@@ -8,6 +8,7 @@ import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -106,6 +107,9 @@ public class NotificationFragment extends Fragment {
         });
     }
 
+    int pendingNotifications = 0;
+    int id = 0;
+    ArrayList<NotificationItem> groupedNotifications = new ArrayList<>();
     //This method set an event listener to observe for next addition for notification
     //on the user's receive notification node. After which notification will be build
     //to notify the user
@@ -119,6 +123,7 @@ public class NotificationFragment extends Fragment {
                 //Show notification alert when record is a new notification. Else past notifications will not be alert
                 if (!notified) {
                     //Retrieve the actual notification by ID
+                    pendingNotifications ++;
                     FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -127,42 +132,71 @@ public class NotificationFragment extends Fragment {
 
                             //Create a NotificationItem to be added into the notification list
                             NotificationItem notificationItem = new NotificationItem(notification.getContent(), notification.getSender(), notification.getTimestamp());
+                            groupedNotifications.add(notificationItem);
                             notificationList.add(notificationItem);
+
+                            final String GROUP_NOTIFICATIONS = "group_notifications";
 
                             //Build system notification to notify the user
                             NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
                                     .setContentTitle(notification.getSender())
                                     .setContentText(notification.getContent())
                                     .setSmallIcon(R.drawable.notification)
-                                    .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
+                                    .setGroup(GROUP_NOTIFICATIONS)
+                                    .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000 });
 
                             NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
 
-                            String desc = "";
+                            CharSequence desc = "";
                             switch (dataSnapshot.child("sender").getValue().toString()) {
                                 case "NEA - Weather (Rain)":
                                     wearableExtender = getWearableDesign(R.drawable.rain, R.drawable.rainy);
-                                    desc = "It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!";
+                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!");
                                     break;
                                 case "NEA - Weather (Sun)":
                                     wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
-                                    desc = "Do drink more water as the weather is getting warmer.";
+                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
                                     break;
                                 case "NEA - PSI":
                                     wearableExtender = getWearableDesign(R.drawable.haze, R.drawable.hazy);
-                                    desc = "Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.";
+                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
                                     break;
                                 case "OpenWeather":
                                     wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
-                                    desc = "Do drink more water as the weather is getting warmer.";
+                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
                                     break;
                             }
 
-                            notify.setStyle(new NotificationCompat.BigTextStyle()
-                                    .bigText(desc));
+                            String notificationWord = "";
+                            if (pendingNotifications == 1) {
+                                notificationWord = " notification";
+                            } else {
+                                notificationWord = " notifications";
+                            }
+                                notify.setStyle(new NotificationCompat.BigTextStyle()
+                                        //.setSummaryText(Integer.toString(pendingNotifications) + notificationWord + " from Visualizing Mandai")
+                                        .bigText(desc));
+                            /*} else if (pendingNotifications > 1) {
+                                NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
+                                {
+                                    for (NotificationItem item : groupedNotifications) {
+                                        String stackNotificationLine = item.getSender();
+                                        if (stackNotificationLine != null) {
+                                            inbox.addLine(stackNotificationLine);
+                                        }
+                                    }
+
+                                    // the summary text will appear at the bottom of the expanded stack notification
+                                    // we just display the same thing from above (don't forget to use string
+                                    // resource formats!)
+                                    inbox.setSummaryText(String.format("%d new notifications from Visualizing Mandai", groupedNotifications.size()));
+                                }
+                                notify.setStyle(inbox);
+                            } */
+
                             notify.extend(wearableExtender);
                             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
-                            notificationManager.notify(0, notify.build());
+                            notificationManager.notify(id++, notify.build());
 
                             //Update notification list
                             notificationAdapter.notifyDataSetChanged();
