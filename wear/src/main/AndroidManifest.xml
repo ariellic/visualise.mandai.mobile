@@ -3,7 +3,9 @@
     package="com.itpteam11.visualisemandai">
 
     <uses-feature android:name="android.hardware.type.watch" />
-    <meta-data android:name="com.google.android.gms.version"
+
+    <meta-data
+        android:name="com.google.android.gms.version"
         android:value="@integer/google_play_services_version" />
 
     <application
@@ -21,17 +23,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="android.support.wearable.activity.ConfirmationActivity">
-        </activity>
+        <activity android:name="android.support.wearable.activity.ConfirmationActivity"></activity>
         <activity
             android:name=".Show_StatusActivity"
-            android:label="@string/title_activity_show__status"></activity>
-
+            android:label="@string/title_activity_show__status" />
         <activity
             android:name=".ShowActivity"
-            android:label="@string/title_activity_show"></activity>
-
+            android:label="@string/title_activity_show" />
+        <activity android:name=".StatusActivity"></activity>
     </application>
 
 </manifest>
