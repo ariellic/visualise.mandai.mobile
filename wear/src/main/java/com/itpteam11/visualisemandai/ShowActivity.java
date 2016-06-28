@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.WearableListView;
+import android.widget.TextView;
 
 import com.itpteam11.visualisemandai.listview.ListViewAdapter;
 import com.itpteam11.visualisemandai.listview.ListViewItem;
@@ -15,11 +16,19 @@ public class ShowActivity extends Activity implements WearableListView.ClickList
 
     private List<ListViewItem> viewItemList = new ArrayList<>();
 
-
+    TextView mHeader;
+    String header;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show);
+
+        Bundle bundle = this.getIntent().getExtras();
+        header = bundle.getString("header");
+        mHeader = (TextView)findViewById(R.id.textView);
+        mHeader.setText(header);
+
         WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list_view);
 
         viewItemList.add(new ListViewItem(R.drawable.ic_running, "Splash Safari"));
