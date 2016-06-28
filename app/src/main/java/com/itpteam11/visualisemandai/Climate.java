@@ -15,4 +15,5 @@ public class Climate {
     public String getValueLong() { return valueLong; }
 
     public void setValueLong(String value) { this.valueLong = valueLong; }
+    public void setValue(Object value) { this.value = String.valueOf(value); }
 }

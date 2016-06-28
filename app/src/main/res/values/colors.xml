@@ -12,5 +12,5 @@
 
     <color name="signin_background">#ECEFF1</color>
 
-    <color name="staff_count_card_background">#7CB342</color> <!-- Light Green 600 -->
+    <color name="info_card_background">#7CB342</color> <!-- Light Green 600 -->
 </resources>

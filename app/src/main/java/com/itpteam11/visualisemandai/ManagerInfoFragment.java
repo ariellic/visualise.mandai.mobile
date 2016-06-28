@@ -51,7 +51,11 @@ public class ManagerInfoFragment extends Fragment {
 
         //Create and add neccessary cards
         cardDataSet = new HashMap<>();
-        //cardDataSet.put(CardType.CHECK_SHOWTIME, "");
+
+        //Todo: Get value from Firebase
+        cardDataSet.put(CardType.TRAM_STATION, "OK-OK-OK-OK");
+        cardDataSet.put(CardType.SHOWTIME, "Normal-Normal-Normal-Normal");
+        cardDataSet.put(CardType.WEATHER, "Sunny-35-23.5");
 
         //Get the group users' status
         FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff").addValueEventListener(new ValueEventListener() {
@@ -68,7 +72,7 @@ public class ManagerInfoFragment extends Fragment {
                     }
                 }
 
-                cardDataSet.put(CardType.STAFF_STATUS, workingList.size()+"-"+breakList.size());
+                cardDataSet.put(CardType.STAFF_COUNT, workingList.size()+"-"+breakList.size());
 
                 customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
                 recyclerView.setAdapter(customCardAdapter);

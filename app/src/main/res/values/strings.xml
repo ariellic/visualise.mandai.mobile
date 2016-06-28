@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">Visualise Mandai</string>
 
-    <!-- Firebase Authentication to use database TODO: confirm this-->
-    <string name="authentication_email">master@vm.com</string>
-    <string name="authentication_password">12345678</string>
-
     <!--Firebase Connection Activity-->
     <string name="firebaseconnection_edittext_hint_email">Email Address</string>
     <string name="firebaseconnection_edittext_hint_password">Password</string>
@@ -18,7 +14,7 @@
     <!-- Staff Info Fragment -->
     <string name="staff_info_fragment">This is staff info fragment</string>
 
-    <!-- Staff Info Fragment -->
+    <!-- Send Notice Fragment -->
     <string name="send_notification_fragment">This is send notification fragment</string>
 
     <!-- Staff Count Card -->
@@ -26,10 +22,28 @@
     <string name="staff_count_card_working_title">Currently Working</string>
     <string name="staff_count_card_break_title">Currently on Break</string>
 
-    <!-- Check Showtime Card -->
-    <string name="check_showtime_card_title">Check Website Showtime</string>
-    <string name="check_showtime_card_button">Check Now</string>
+    <!-- Showtime Status Card -->
+    <string name="showtime_status_card_title">Showtime Status</string>
+    <string name="showtime_status_card_show1_title">Splash Safari Show</string>
+    <string name="showtime_status_card_show2_title">Animal Friends Show</string>
+    <string name="showtime_status_card_show3_title">Elephants at Work &amp; Play Show</string>
+    <string name="showtime_status_card_show4_title">Rainforest Fights Back Show</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Tram Station Crowd Card -->
+    <string name="tram_station_crowd_card_title">Tram Station Crowd</string>
+    <string name="tram_station_crowd_card_station1_title">Tram Station 1</string>
+    <string name="tram_station_crowd_card_station2_title">Tram Station 2</string>
+    <string name="tram_station_crowd_card_station3_title">Tram Station 3</string>
+    <string name="tram_station_crowd_card_station4_title">Tram Station 4</string>
+
+    <!-- Weather Card -->
+    <string name="weather_card_title">Current Weather</string>
+    <string name="weather_card_weather_title">Condition</string>
+    <string name="weather_card_temperature_title">Temperature</string>
+    <string name="weather_card_psi_title">PSI Level</string>
+
+    <!-- Staff Status Card -->
+    <string name="staff_status_card_title">Your Status</string>
+    <string name="staff_status_card_work_status_title">Work Status</string>
+
 </resources>

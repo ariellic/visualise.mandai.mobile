@@ -198,7 +198,7 @@ public class NotificationFragment extends Fragment {
                             notificationList.add(notificationItem);
 
                             //Update notification list
-                            notificationAdapter.notifyDataSetChanged();
+                            notificationAdapter.notifyItemInserted(0);
 
                             //Set notification has received(set true)
                             FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);

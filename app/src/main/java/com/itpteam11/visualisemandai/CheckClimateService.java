@@ -57,7 +57,12 @@ public class CheckClimateService extends IntentService {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     //Store climate's details into Climate object
-                    Climate climate = dataSnapshot.getValue(Climate.class);
+                    Climate climate = new Climate();
+                    climate.setValue(dataSnapshot.child("value").getValue(Object.class));
+
+                    if(dataSnapshot.child("valueLong").exists()) {
+                        climate.setValueLong(dataSnapshot.child("valueLong").getValue(String.class));
+                    }
 
                     //Retrieve HTML document from a URL that is contain inside the newly created climate object
                     //Process is done using AsyncTask method

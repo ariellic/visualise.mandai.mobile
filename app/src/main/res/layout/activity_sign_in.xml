@@ -53,14 +53,6 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/margin_medium"/>
 
-        <!--<Button
-            android:id="@+id/signin_activity_button_testing"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Testing"
-            android:textSize="@dimen/textsize_medium"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/margin_medium"/>-->
     </LinearLayout>
 
 </RelativeLayout>
