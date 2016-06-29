@@ -53,10 +53,12 @@ import java.util.jar.*;
 public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
+    //Constants for granting permission on location service
     private final static int LOCATION_PERMISSIONS_REQUEST = 1;
 
     private static final String TAG = "MainActivity";
 
+    //Tab UI widgets
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -65,10 +67,12 @@ public class MainActivity extends AppCompatActivity implements
             R.drawable.notification,
             R.drawable.send};
 
+    //Value about the user to be pass to fragments
     private User user;
     private String userID;
     private String userGrp;
     private String[] userGroupList;
+
     GoogleApiClient mGoogleApiClient;
 
     //To locate staff coordinates
@@ -289,6 +293,7 @@ public class MainActivity extends AppCompatActivity implements
         timer.schedule(backtask, 0, 60000); //execute in every 20000 ms*/
     }
 
+    //This method setup the necessary tabs depending on user type
     private void setupViewPager(ViewPager viewPager, String userType)
     {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -297,9 +302,10 @@ public class MainActivity extends AppCompatActivity implements
         Bundle infoBundle = new Bundle();
         infoBundle.putString("userID", userID);
         infoBundle.putString("group",userGrp);
+        infoBundle.putParcelable("user", user);
         infoBundle.putCharSequenceArray("groupList",userGroupList);
 
-
+        //Information tab
         if(userType.equals("manager")) {
             ManagerInfoFragment managerInfoFragment = new ManagerInfoFragment();
             managerInfoFragment.setArguments(infoBundle);
@@ -317,11 +323,13 @@ public class MainActivity extends AppCompatActivity implements
         Bundle notificationBundle = new Bundle();
         notificationBundle.putString("userID", userID);
 
+        //Notification tab
         NotificationFragment notificationFragment = new NotificationFragment();
         notificationFragment.setArguments(notificationBundle);
 
         adapter.addFragment(notificationFragment, "Notification");
 
+        //Send Notice tab
         if(userType.equals("manager")) {
             SendNotificationFragment sendNotificationFragment = new SendNotificationFragment();
             adapter.addFragment(sendNotificationFragment, "Send Notice");
@@ -330,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements
         viewPager.setAdapter(adapter);
     }
 
-    //Add icons to respective tabs
+    //This method add icons to respective tabs
     private void setupTabIcons()
     {
         for(int i=0; i<tabLayout.getTabCount(); i++)

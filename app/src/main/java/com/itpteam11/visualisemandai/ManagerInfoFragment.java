@@ -31,7 +31,8 @@ public class ManagerInfoFragment extends Fragment {
     ArrayList<String> userList = new ArrayList<>();
     ArrayList<String> workingList = new ArrayList<>();
     ArrayList<String> breakList = new ArrayList<>();
-     
+
+    private User user;
     private String userID, userGroup;
     private String[] userGroupList;
 
@@ -47,15 +48,16 @@ public class ManagerInfoFragment extends Fragment {
         Bundle bundle = getArguments();
         userID = bundle.getString("userID");
         userGroup = bundle.getString("group");
+        user = bundle.getParcelable("user");
         userGroupList = (String[]) bundle.getCharSequenceArray("userGroup");
 
         //Create and add neccessary cards
         cardDataSet = new HashMap<>();
 
         //Todo: Get value from Firebase
-        cardDataSet.put(CardType.TRAM_STATION, "OK-OK-OK-OK");
-        cardDataSet.put(CardType.SHOWTIME, "Normal-Normal-Normal-Normal");
-        cardDataSet.put(CardType.WEATHER, "Sunny-35-23.5");
+        cardDataSet.put(CardType.TRAM_STATION, "NA-NA-NA-NA");
+        cardDataSet.put(CardType.SHOWTIME, "NA-NA-NA-NA");
+        cardDataSet.put(CardType.WEATHER, "#-#-#");
 
         //Get the group users' status
         FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff").addValueEventListener(new ValueEventListener() {
@@ -80,8 +82,8 @@ public class ManagerInfoFragment extends Fragment {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                //Failed to staff count value
-                System.out.println("ManagerInfoFragment - Failed to staff count value: " + error.toException());
+                //Failed on staff count value
+                System.out.println("ManagerInfoFragment - Failed on staff count value: " + error.toException());
             }
         });
     }
@@ -101,7 +103,8 @@ public class ManagerInfoFragment extends Fragment {
 
         return view;
     }
-     @Override
+
+    @Override
     public void onStart(){
         super.onStart();
     }

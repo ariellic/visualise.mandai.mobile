@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
@@ -26,21 +25,18 @@ import com.google.firebase.database.FirebaseDatabase;
  *  This service updates user's current coordinates in Firebase to locate staff
  */
 public class StaffLocationService extends Service implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
-    //Set minimum time to update user location at 20 seconds
-    private static final long MIN_TIME_TO_UPDATE = 1000*20;
-    //Set minimum distance changed to update user location at 3 metres
-    private static final long MIN_DISTANCE_TO_UPDATE = 3;
+    //Set minimum time to update user location at 30 seconds
+    private static final long MIN_TIME_TO_UPDATE = 1000*30;
+    //Set minimum distance changed to update user location at 5 metres
+    private static final long MIN_DISTANCE_TO_UPDATE = 5;
 
     private final Context context;
     private String userID;
 
     private boolean isLocationPermissionGranted = false;
 
-    private LocationManager locationManager;
-
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
-    private Location location;
 
     private double latitude;
     private double longitude;
@@ -56,6 +52,7 @@ public class StaffLocationService extends Service implements ConnectionCallbacks
         if(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             isLocationPermissionGranted = true;
 
+            //Initialise Google API Client
             if (googleApiClient == null) {
                 googleApiClient = new GoogleApiClient.Builder(context)
                         .addConnectionCallbacks(this)
@@ -64,43 +61,33 @@ public class StaffLocationService extends Service implements ConnectionCallbacks
                         .build();
             }
 
+            //Connect Google API Client
             if(!googleApiClient.isConnected()){
                 googleApiClient.connect();
             }
 
+            //Initialise location request
             locationRequest = LocationRequest.create()
                     .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                     .setInterval(MIN_TIME_TO_UPDATE)
-                    .setFastestInterval(1000*1);
-
-            //Todo: Delete after test
-            /*try {
-                locationManager = (LocationManager) context.getSystemService(LOCATION_SERVICE);
-
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, MIN_TIME_TO_UPDATE, MIN_DISTANCE_TO_UPDATE, this);
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_TO_UPDATE, MIN_DISTANCE_TO_UPDATE, this);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }*/
+                    .setSmallestDisplacement(MIN_DISTANCE_TO_UPDATE);
         }
     }
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         if(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            //location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-
-            //if (location != null) {
-                LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
-            //}
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
         }
     }
 
+    //Callback method from LocationRequest
     @Override
     public void onLocationChanged(Location location) {
         updateLocation(location.getLatitude(), location.getLongitude());
     }
 
+    //This method update user location into Firebase
     private void updateLocation(double latitude, double longitude) {
         this.latitude = latitude;
         this.longitude = longitude;
@@ -111,9 +98,9 @@ public class StaffLocationService extends Service implements ConnectionCallbacks
         Toast.makeText(context, latitude + "-" + longitude, Toast.LENGTH_LONG).show();
     }
 
+    //Stop receive location updates by disconnect Google API Client
     public void stopLocationUpdate() {
         if(ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            //locationManager.removeUpdates(this);
             googleApiClient.disconnect();
         }
     }
