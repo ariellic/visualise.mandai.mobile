@@ -24,12 +24,17 @@
             </intent-filter>
         </activity>
         <activity android:name="android.support.wearable.activity.ConfirmationActivity"></activity>
+
+
+
         <activity
             android:name=".Show_StatusActivity"
-            android:label="@string/title_activity_show__status" />
+            android:label="@string/title_activity_show__status" >
+    </activity>
         <activity
             android:name=".ShowActivity"
-            android:label="@string/title_activity_show" />
+            android:label="@string/title_activity_show" >
+</activity>
         <activity android:name=".StatusActivity"></activity>
     </application>
 
