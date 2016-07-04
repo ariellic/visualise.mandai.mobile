@@ -48,8 +48,9 @@ public class Show_StatusActivity extends Activity implements WearableListView.Cl
 
         Bundle bundle = this.getIntent().getExtras();
         header = bundle.getString("header");
+        String[] parts = header.split(";");
         mHeader = (TextView)findViewById(R.id.textView);
-        mHeader.setText(header);
+        mHeader.setText(parts[1]);
 
         WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list_view);
         viewItemList.add(new ListViewItem(R.drawable.ic_running, "Cancel"));

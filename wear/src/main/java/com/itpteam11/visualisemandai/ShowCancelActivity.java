@@ -56,7 +56,7 @@ public class ShowCancelActivity extends Activity implements WearableListView.Cli
         header = bundle.getString("header");
         String[] parts = header.split(";");
         mHeader = (TextView)findViewById(R.id.textView);
-        mHeader.setText(parts[1]);
+        mHeader.setText(parts[2]);
 
         WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list_view);
         viewItemList.add(new ListViewItem(R.drawable.ic_running, "Weather"));

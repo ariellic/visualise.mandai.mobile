@@ -144,5 +144,49 @@ public class ListenerService extends WearableListenerService implements Connecti
                 }
             });
         }
+
+        //Do action according to message type
+        if(parts[0].equals("Shows")){
+            //Shows;showname;showstatus;reason
+            //Get the list of current staff who is not on off
+            FirebaseDatabase.getInstance().getReference().child("user").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Map<String, Boolean> receiver = new HashMap<String, Boolean>();
+
+                    //Populate the list with staff who is not on off
+                    for(DataSnapshot child : dataSnapshot.getChildren()) {
+                        if(!child.child("status").getValue(String.class).equals("off")) {
+                            receiver.put(child.getKey(), false);
+                        }
+                    }
+
+                    //Get user's coordinates to indicate where the animal has escaped
+                    String coordinates = null;
+                    if(StaffLocationService.isLocationPermissionGranted()) {
+                        coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                    }
+                    if(parts[2].equals("full")) {
+                        //Create a notification with necessary information to notify staff who is not on off
+                        Notification notification = new Notification();
+                        notification.sendNotification(parts[1] + " is currently full.", coordinates, userID, receiver);
+                    }
+                    else if(parts[2].equals("delay")){
+                        Notification notification = new Notification();
+                        notification.sendNotification(parts[1] + " is delayed for"+parts[3]+ ".", coordinates, userID, receiver);
+                    }
+                    else{
+                        Notification notification = new Notification();
+                        notification.sendNotification(parts[1] + " is canceled due to"+parts[3]+".", coordinates, userID, receiver);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to get working staff list
+                    System.out.println("Failed to get working staff list: " + error.toException());
+                }
+            });
+        }
     }
 }

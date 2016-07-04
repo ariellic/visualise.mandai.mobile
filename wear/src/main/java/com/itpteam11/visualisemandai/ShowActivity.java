@@ -45,7 +45,7 @@ public class ShowActivity extends Activity implements WearableListView.ClickList
     public void onClick(WearableListView.ViewHolder viewHolder) {
       //  Toast.makeText(this, "Click on " + viewItemList.get(viewHolder.getLayoutPosition()).text, Toast.LENGTH_SHORT).show();
         Bundle b = new Bundle();
-        b.putString("header",viewItemList.get(viewHolder.getLayoutPosition()).text);
+        b.putString("header",header+";"+viewItemList.get(viewHolder.getLayoutPosition()).text);
         Intent intent = new Intent(this, Show_StatusActivity.class);
         intent.putExtras(b);
         startActivity(intent);
