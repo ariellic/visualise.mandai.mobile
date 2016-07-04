@@ -25,6 +25,7 @@ dependencies {
 
     compile 'com.google.android.gms:play-services-gcm:9.2.0'
     compile 'com.google.android.gms:play-services-wearable:9.2.0'
+    compile 'com.google.android.gms:play-services-location:9.2.0'   //Google Location API
     compile 'com.google.firebase:firebase-database:9.2.0'           //Firebase Realtime Database SDK
     compile 'com.google.firebase:firebase-auth:9.2.0'               //Firebase Authentication SDK
     compile 'com.android.support:design:23.4.0'                     //Google Design SDK for Tab
@@ -33,7 +34,6 @@ dependencies {
     compile 'org.jsoup:jsoup:1.9.2'                                 //jsoup HTML parser library
     compile 'com.android.support:support-v4:23.4.0'
 
-    compile 'com.google.android.gms:play-services-location:9.2.0'
 }
 
 apply plugin: 'com.google.gms.google-services'      //Google services plugin for Firebase

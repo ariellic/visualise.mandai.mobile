@@ -23,19 +23,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="android.support.wearable.activity.ConfirmationActivity"></activity>
-
-
-
+        <activity android:name="android.support.wearable.activity.ConfirmationActivity" />
         <activity
             android:name=".Show_StatusActivity"
-            android:label="@string/title_activity_show__status" >
-    </activity>
+            android:label="@string/title_activity_show__status"></activity>
         <activity
             android:name=".ShowActivity"
-            android:label="@string/title_activity_show" >
-</activity>
-        <activity android:name=".StatusActivity"></activity>
+            android:label="@string/title_activity_show"></activity>
+        <activity android:name=".StatusActivity" />
+        <activity android:name=".EscapeActivity"></activity>
     </application>
 
 </manifest>

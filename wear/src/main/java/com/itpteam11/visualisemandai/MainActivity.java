@@ -1,12 +1,9 @@
 package com.itpteam11.visualisemandai;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.WearableListView;
-import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itpteam11.visualisemandai.listview.ListViewAdapter;
@@ -20,7 +17,6 @@ public class MainActivity extends Activity implements WearableListView.ClickList
     private List<ListViewItem> mainItemList = new ArrayList<>();
     public static String TAG = "MainActivity";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,12 +28,8 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         mainItemList.add(new ListViewItem(R.drawable.ic_running, "Shows"));
         mainItemList.add(new ListViewItem(R.drawable.ic_running, "Tram"));
 
-
         wearableListView.setAdapter(new ListViewAdapter(this, mainItemList));
         wearableListView.setClickListener(this);
-
-
-
      }
 
     @Override
@@ -45,13 +37,12 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         super.onStart();
     }
 
-
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
         //  Toast.makeText(this, "Click on " + viewItemList.get(viewHolder.getLayoutPosition()).text, Toast.LENGTH_SHORT).show();
         String title = mainItemList.get(viewHolder.getLayoutPosition()).text;
         Bundle b = new Bundle();
-        b.putString("header",title);
+        b.putString("header", title);
         if(title.equals("Status")) {
             Intent intent = new Intent(this, StatusActivity.class);
             intent.putExtras(b);
@@ -62,17 +53,18 @@ public class MainActivity extends Activity implements WearableListView.ClickList
             intent.putExtras(b);
             startActivity(intent);
         }
+        else if(title.equals("Animal Escape")){
+            Intent intent = new Intent(this, EscapeActivity.class);
+            intent.putExtras(b);
+            startActivity(intent);
+        }
         else{
             Toast.makeText(this, "Click on " + mainItemList.get(viewHolder.getLayoutPosition()).text, Toast.LENGTH_SHORT).show();
         }
     }
 
-
     @Override
     public void onTopEmptyRegionClick() {
         Toast.makeText(this, "You tapped on Top empty area", Toast.LENGTH_SHORT).show();
     }
-
-
-
 }

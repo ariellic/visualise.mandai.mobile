@@ -33,13 +33,12 @@ public class StaffLocationService extends Service implements ConnectionCallbacks
     private final Context context;
     private String userID;
 
-    private boolean isLocationPermissionGranted = false;
-
     private GoogleApiClient googleApiClient;
     private LocationRequest locationRequest;
 
-    private double latitude;
-    private double longitude;
+    private static boolean isLocationPermissionGranted = false;
+    private static double latitude;
+    private static double longitude;
 
     public StaffLocationService(Context context, String userID) {
         this.context = context;
@@ -105,9 +104,9 @@ public class StaffLocationService extends Service implements ConnectionCallbacks
         }
     }
 
-    public boolean isLocationPermissionGranted() { return isLocationPermissionGranted; }
-    public double getLatitude() { return latitude; }
-    public double getLongitude() { return longitude; }
+    public static boolean isLocationPermissionGranted() { return isLocationPermissionGranted; }
+    public static double getLatitude() { return latitude; }
+    public static double getLongitude() { return longitude; }
 
     @Nullable
     @Override

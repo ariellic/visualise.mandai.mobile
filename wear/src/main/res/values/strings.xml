@@ -4,4 +4,7 @@
     <string name="hello_square">Hello Square World!</string>
     <string name="title_activity_show">ShowActivity</string>
     <string name="title_activity_show__status">Show_StatusActivity</string>
+
+    <!--Escape Activity-->
+    <string name="escape_activity_textview_title">Animal Escape</string>
 </resources>

@@ -1,28 +1,32 @@
 package com.itpteam11.visualisemandai;
 
-
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
-import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-public class ListenerService extends WearableListenerService implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
-    GoogleApiClient mGoogleApiClient;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ListenerService extends WearableListenerService implements ConnectionCallbacks, OnConnectionFailedListener {
     private final String TAG = ListenerService.class.getSimpleName();
-    String  userID;
-public ListenerService() {
 
-    }
+    private GoogleApiClient mGoogleApiClient;
+    private String userID;
+
+    public ListenerService() {}
 
     @Override
     public void onCreate() {
@@ -42,10 +46,11 @@ public ListenerService() {
             mGoogleApiClient.connect();
             Log.v(TAG, "Connecting to GoogleApiClient..");
         }
+
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
     @Override
     public void onDestroy() {
-
         Log.v(TAG, "Destroyed");
 
         if(null != mGoogleApiClient){
@@ -71,7 +76,6 @@ public ListenerService() {
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.v(TAG,"onConnected called");
-
     }
 
     @Override
@@ -79,7 +83,8 @@ public ListenerService() {
         super.onDataChanged(dataEvents);
         Log.v(TAG, "Data Changed");
     }
-    @Override
+
+    /*@Override
     public void onMessageReceived(MessageEvent messageEvent) {
         Log.v(TAG, "msg");
         String[] parts = messageEvent.getPath().split("--");
@@ -97,5 +102,47 @@ public ListenerService() {
 //    private void showToast(String message) {
 //        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 //        //Update database
-//    }
+//    }*/
+
+    @Override
+    public void onMessageReceived(MessageEvent messageEvent) {
+        Log.v(TAG, "onMessageReceived");
+
+        //Split string to get message type
+        final String[] parts = messageEvent.getPath().split(";");
+
+        //Do action according to message type
+        if(parts[0].equals("escape")){
+            //Get the list of current staff who is not on off
+            FirebaseDatabase.getInstance().getReference().child("user").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Map<String, Boolean> receiver = new HashMap<String, Boolean>();
+
+                    //Populate the list with staff who is not on off
+                    for(DataSnapshot child : dataSnapshot.getChildren()) {
+                        if(!child.child("status").getValue(String.class).equals("off")) {
+                            receiver.put(child.getKey(), false);
+                        }
+                    }
+
+                    //Get user's coordinates to indicate where the animal has escaped
+                    String coordinates = null;
+                    if(StaffLocationService.isLocationPermissionGranted()) {
+                        coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                    }
+
+                    //Create a notification with necessary information to notify staff who is not on off
+                    Notification notification = new Notification();
+                    notification.sendNotification(parts[1] + " has ESCAPE! Do take a look out for it. Ensure your and visitor's safety.", coordinates, userID, receiver);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to get working staff list
+                    System.out.println("Failed to get working staff list: " + error.toException());
+                }
+            });
+        }
+    }
 }
