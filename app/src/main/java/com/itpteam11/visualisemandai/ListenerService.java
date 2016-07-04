@@ -166,16 +166,16 @@ public class ListenerService extends WearableListenerService implements Connecti
                     if(StaffLocationService.isLocationPermissionGranted()) {
                         coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
                     }
-                    if(parts[2].equals("full")) {
+                    if(parts[2].equals("Full")) {
                         //Create a notification with necessary information to notify staff who is not on off
                         Notification notification = new Notification();
                         notification.sendNotification(parts[1] + " is currently full.", coordinates, userID, receiver);
                     }
-                    else if(parts[2].equals("delay")){
+                    else if(parts[2].equals("Delay")){
                         Notification notification = new Notification();
                         notification.sendNotification(parts[1] + " is delayed for"+parts[3]+ ".", coordinates, userID, receiver);
                     }
-                    else{
+                    else{ //Cancel
                         Notification notification = new Notification();
                         notification.sendNotification(parts[1] + " is canceled due to"+parts[3]+".", coordinates, userID, receiver);
                     }
