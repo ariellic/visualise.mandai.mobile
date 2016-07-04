@@ -1,8 +1,12 @@
 package com.itpteam11.visualisemandai;
 
+/**
+ * Created by Anita Koo on 7/5/2016.
+ */
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
@@ -22,11 +26,13 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Show_StatusActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class ShowCancelActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     private List<ListViewItem> viewItemList = new ArrayList<>();
     TextView mHeader;
     String header;
+
+    private Handler mHandler = new Handler();
 
     Node mNode; // the connected device to send the message to
     GoogleApiClient mGoogleApiClient;
@@ -48,13 +54,14 @@ public class Show_StatusActivity extends Activity implements WearableListView.Cl
 
         Bundle bundle = this.getIntent().getExtras();
         header = bundle.getString("header");
+        String[] parts = header.split(";");
         mHeader = (TextView)findViewById(R.id.textView);
-        mHeader.setText(header);
+        mHeader.setText(parts[1]);
 
         WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list_view);
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Cancel"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Delay"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Full"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Weather"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Animal Unwell"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Environmental Unsuitable"));
 
 
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
@@ -64,34 +71,28 @@ public class Show_StatusActivity extends Activity implements WearableListView.Cl
 
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
-        //Toast.makeText(this, "Click on " + viewItemList.get(viewHolder.getLayoutPosition()).text, Toast.LENGTH_SHORT).show();
         String key = viewItemList.get(viewHolder.getLayoutPosition()).text;
-        Bundle b = new Bundle();
-        b.putString("header", header+";"+key);
+        sendMessage(header+";"+key);
+        if(send == 1) {
 
-        if(key.equals("Cancel")){
-            Intent intent = new Intent(this, ShowCancelActivity.class);
-            intent.putExtras(b);
+            Intent intent = new Intent(this, ConfirmationActivity.class);
+            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
+                    ConfirmationActivity.SUCCESS_ANIMATION);
+            intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Success!");
             startActivity(intent);
-        }
-        else if(key.equals("Delay")){
-            Intent intent = new Intent(this, ShowDelayActivity.class);
-            intent.putExtras(b);
-            startActivity(intent);
-        }
-        else {
-            sendMessage(header + ";" + key);
-            if (send == 1) {
 
-                Intent intent = new Intent(this, ConfirmationActivity.class);
-                intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
-                        ConfirmationActivity.SUCCESS_ANIMATION);
-                intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Success!");
-                startActivity(intent);
-                finish();
-            }
+            mHandler.postDelayed(mUpdateTimeTask, 1000);
         }
     }
+
+    private Runnable mUpdateTimeTask = new Runnable() {
+        public void run() {
+            // After delay
+            Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+            intent1.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent1);
+        }
+    };
 
     @Override
     public void onTopEmptyRegionClick() {
@@ -168,3 +169,4 @@ public class Show_StatusActivity extends Activity implements WearableListView.Cl
     }
 
 }
+

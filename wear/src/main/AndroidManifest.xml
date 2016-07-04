@@ -30,6 +30,8 @@
         <activity
             android:name=".ShowActivity"
             android:label="@string/title_activity_show"></activity>
+        <activity android:name=".ShowDelayActivity"></activity>
+        <activity android:name=".ShowCancelActivity"></activity>
         <activity android:name=".StatusActivity" />
         <activity android:name=".EscapeActivity"></activity>
     </application>
