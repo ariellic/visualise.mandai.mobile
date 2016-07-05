@@ -36,8 +36,6 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         wearableListView.setAdapter(new ListViewAdapter(this, mainItemList));
         wearableListView.setClickListener(this);
 
-
-
      }
 
     @Override

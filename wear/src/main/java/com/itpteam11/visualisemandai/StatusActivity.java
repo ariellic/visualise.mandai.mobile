@@ -73,10 +73,10 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         mHeader.setText(header);
 
         WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list_view);
-        viewItemList.add(new ListViewItem(R.drawable.ic_local_dining_black_24dp, "Meal Break"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Back to Work"));
+        viewItemList.add(new ListViewItem(R.drawable.meal, "Meal Break"));
+        viewItemList.add(new ListViewItem(R.drawable.toilet, "Toilet Break"));
+        viewItemList.add(new ListViewItem(R.drawable.endwork, "End Work"));
+        viewItemList.add(new ListViewItem(R.drawable.backtowork, "Back to Work"));
 
 
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
