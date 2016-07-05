@@ -9,4 +9,5 @@ public class ListViewItem {
         this.imageRes = imageRes;
         this.text = text;
     }
+
 }

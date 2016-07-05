@@ -1,25 +1,16 @@
 package com.itpteam11.visualisemandai;
 
+
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-
-import android.content.Context;
 import android.content.DialogInterface;
-
-
-
 import android.content.Intent;
 import android.content.IntentSender;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.LightingColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,11 +28,23 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.itpteam11.visualisemandai.R.drawable.ic_local_dining_black_24dp;
+/**
+ *  This activity shows all the tram stations' number. When user tapped on a tram station number,
+ *  a notification will be sent to non off duty relevant staff notifying them to send more trams
+ *  to the station.
+ */
 
-public class StatusActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class TramActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+    // Request code to use when launching the resolution activity
+    private static final int REQUEST_RESOLVE_ERROR = 1001;
+    // Unique tag for the error dialog fragment
+    private static final String DIALOG_ERROR = "dialog_error";
+
+    public static String TAG = "TramActivity";
 
     private List<ListViewItem> viewItemList = new ArrayList<>();
+
     TextView mHeader;
     String header;
 
@@ -49,16 +52,12 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
     GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError=false;
     int send = 0;
-    // Request code to use when launching the resolution activity
-    private static final int REQUEST_RESOLVE_ERROR = 1001;
-    // Unique tag for the error dialog fragment
-    private static final String DIALOG_ERROR = "dialog_error";
 
-    public static String TAG = "StatusActivity";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_show);
+        setContentView(R.layout.activity_tram);
 
         //Connect the GoogleApiClient
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -68,16 +67,16 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
                 .build();
 
         Bundle bundle = this.getIntent().getExtras();
-        header = bundle.getString("header");
+        header = bundle.getString("tramheader");
         mHeader = (TextView)findViewById(R.id.textView);
         mHeader.setText(header);
 
-        WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list_view);
-        viewItemList.add(new ListViewItem(R.drawable.ic_local_dining_black_24dp, "Meal Break"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Back to Work"));
+        WearableListView wearableListView = (WearableListView) findViewById(R.id.image_list_view);
 
+        viewItemList.add(new ListViewItem(R.drawable.one, "1"));
+        viewItemList.add(new ListViewItem(R.drawable.two, "2"));
+        viewItemList.add(new ListViewItem(R.drawable.three, "3"));
+        viewItemList.add(new ListViewItem(R.drawable.four, "4"));
 
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
         wearableListView.setClickListener(this);
@@ -86,39 +85,15 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
 
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
-        //Toast.makeText(this, "Click on " + viewItemList.get(viewHolder.getLayoutPosition()).text, Toast.LENGTH_SHORT).show();
+        //  Toast.makeText(this, "Click on " + viewItemList.get(viewHolder.getLayoutPosition()).text, Toast.LENGTH_SHORT).show();
         String key = viewItemList.get(viewHolder.getLayoutPosition()).text;
-        sendMessage(key);
-        if(send == 1) {
-            Intent intent = new Intent(this, ConfirmationActivity.class);
-            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
-                    ConfirmationActivity.SUCCESS_ANIMATION);
-            intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Success!");
-            startActivity(intent);
-            finish();
-        }
-    }
-
-    @Override
-    public void onTopEmptyRegionClick() {
-
-    }
-
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (!mResolvingError) {
-            Toast.makeText(this, "connected", Toast.LENGTH_SHORT).show();
-            mGoogleApiClient.connect();
-        }
+        sendMessage("tram;" + key);
     }
 
     /*
      * Resolve the node = the connected device to send the message to
      */
     private void resolveNode() {
-        Toast.makeText(this, "resolve", Toast.LENGTH_SHORT).show();
 
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
@@ -132,44 +107,39 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
-        Toast.makeText(this, "call", Toast.LENGTH_LONG).show();
-
-        resolveNode();
+    protected void onStart() {
+        super.onStart();
+        if (!mResolvingError) {
+            mGoogleApiClient.connect();
+        }
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-        Toast.makeText(this, "suspend", Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        Toast.makeText(this, "fail", Toast.LENGTH_LONG).show();
-        Log.v(TAG, "onConnectionFailed:" + result.getErrorCode() + "," + result.getErrorMessage());
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.v(TAG, "onConnectionFailed:" + connectionResult.getErrorCode() + ", " + connectionResult.getErrorMessage());
         if (mResolvingError) {
             // Already attempting to resolve an error.
             return;
-        } else if (result.hasResolution()) {
+        } else if (connectionResult.hasResolution()) {
             try {
                 mResolvingError = true;
-                result.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
+                connectionResult.startResolutionForResult(this, REQUEST_RESOLVE_ERROR);
             } catch (IntentSender.SendIntentException e) {
                 // There was an error with the resolution intent. Try again.
                 mGoogleApiClient.connect();
             }
         } else {
             // Show dialog using GoogleApiAvailability.getErrorDialog()
-            showErrorDialog(result.getErrorCode());
+            showErrorDialog(connectionResult.getErrorCode());
             mResolvingError = true;
         }
     }
 
     private void sendMessage(String Key) {
 
-                if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
+        if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
             Log.d(TAG, "-- " + mGoogleApiClient.isConnected());
-            Log.d(TAG, "connected");
+            Log.d(TAG, "Watch connected");
             Wearable.MessageApi.sendMessage(
                     mGoogleApiClient, mNode.getId(), Key, null).setResultCallback(
 
@@ -182,18 +152,22 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
                                         + sendMessageResult.getStatus().getStatusCode());
                             }
                             else{
-                                send = 1;
+                                Intent intent = new Intent(getBaseContext(), ConfirmationActivity.class);
+                                intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
+                                        ConfirmationActivity.SUCCESS_ANIMATION);
+                                intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Notice Sent!");
+                                startActivity(intent);
+                                finish();
                             }
                         }
                     }
             );
-        }else{
-            Toast.makeText(this, "Not connected", Toast.LENGTH_SHORT).show();
+        } else{
+            Toast.makeText(this, "Watch not connected", Toast.LENGTH_SHORT).show();
 
         }
 
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -201,8 +175,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
             mResolvingError = false;
             if (resultCode == RESULT_OK) {
                 // Make sure the app is not already connected or attempting to connect
-                if (!mGoogleApiClient.isConnecting() &&
-                        !mGoogleApiClient.isConnected()) {
+                if (!mGoogleApiClient.isConnecting() && !mGoogleApiClient.isConnected()) {
                     mGoogleApiClient.connect();
                 }
             }
@@ -225,6 +198,19 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         mResolvingError = false;
     }
 
+    @Override
+    public void onTopEmptyRegionClick() {
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        resolveNode();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {}
+
     /* A fragment to display an error dialog */
     public static class ErrorDialogFragment extends DialogFragment {
         public ErrorDialogFragment() { }
@@ -233,17 +219,13 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Get the error code and retrieve the appropriate dialog
             int errorCode = this.getArguments().getInt(DIALOG_ERROR);
-            return GoogleApiAvailability.getInstance().getErrorDialog(
-                    this.getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
+            return GoogleApiAvailability.getInstance().getErrorDialog( this.getActivity(), errorCode, REQUEST_RESOLVE_ERROR);
         }
 
         @Override
         public void onDismiss(DialogInterface dialog) {
-            ((StatusActivity) getActivity()).onDialogDismissed();
+            ((TramActivity) getActivity()).onDialogDismissed();
         }
-
-
-
     }
 
 }

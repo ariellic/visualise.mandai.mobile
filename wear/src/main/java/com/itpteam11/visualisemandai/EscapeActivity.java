@@ -143,7 +143,7 @@ public class EscapeActivity extends Activity implements ClickListener, Connectio
                         //Show Notice Send confirmation and return to MainActivity
                         Intent intent = new Intent(getBaseContext(), ConfirmationActivity.class);
                         intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION);
-                        intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Notice Send!");
+                        intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Notice Sent!");
                         startActivity(intent);
                         finish();
                     }
@@ -151,7 +151,7 @@ public class EscapeActivity extends Activity implements ClickListener, Connectio
             });
         }
         else {
-            Toast.makeText(this, "Watch Not Connected", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Watch not connected", Toast.LENGTH_SHORT).show();
         }
     }
 

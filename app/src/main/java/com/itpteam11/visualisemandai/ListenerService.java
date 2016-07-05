@@ -188,5 +188,34 @@ public class ListenerService extends WearableListenerService implements Connecti
                 }
             });
         }
+        else if (parts[0].equals("tram")) {
+            //Get the list of current staff who is not on off
+            FirebaseDatabase.getInstance().getReference().child("user").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Map<String, Boolean> receiver = new HashMap<String, Boolean>();
+
+                    //Populate the list with staff who is not on off
+                    for (DataSnapshot child : dataSnapshot.getChildren()) {
+                        if (!child.child("status").getValue(String.class).equals("off")) {
+                            receiver.put(child.getKey(), false);
+                        }
+                    }
+                    //Get user's coordinates to indicate where the animal has escaped
+                    String coordinates = null;
+                    if(StaffLocationService.isLocationPermissionGranted()) {
+                        coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                    }
+                    Notification notification = new Notification();
+                    notification.sendNotification("Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", coordinates, userID, receiver);
+
+                }
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to get working staff list
+                    System.out.println("Failed to get working staff list: " + error.toException());
+                }
+            });
+        }
     }
 }

@@ -1,9 +1,12 @@
 package com.itpteam11.visualisemandai;
 
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.WearableListView;
+import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itpteam11.visualisemandai.listview.ListViewAdapter;
@@ -17,25 +20,31 @@ public class MainActivity extends Activity implements WearableListView.ClickList
     private List<ListViewItem> mainItemList = new ArrayList<>();
     public static String TAG = "MainActivity";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         WearableListView wearableListView = (WearableListView) findViewById(R.id.listview);
 
-        mainItemList.add(new ListViewItem(R.drawable.ic_running, "Animal Escape"));
-        mainItemList.add(new ListViewItem(R.drawable.ic_running, "Status"));
-        mainItemList.add(new ListViewItem(R.drawable.ic_running, "Shows"));
-        mainItemList.add(new ListViewItem(R.drawable.ic_running, "Tram"));
+        mainItemList.add(new ListViewItem(R.drawable.escape, "Animal Escape"));
+        mainItemList.add(new ListViewItem(R.drawable.dine, "Status"));
+        mainItemList.add(new ListViewItem(R.drawable.show, "Shows"));
+        mainItemList.add(new ListViewItem(R.drawable.tram, "Tram"));
+
 
         wearableListView.setAdapter(new ListViewAdapter(this, mainItemList));
         wearableListView.setClickListener(this);
+
+
+
      }
 
     @Override
     protected void onStart() {
         super.onStart();
     }
+
 
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
@@ -53,6 +62,12 @@ public class MainActivity extends Activity implements WearableListView.ClickList
             intent.putExtras(b);
             startActivity(intent);
         }
+        else if(title.equals("Tram")){
+            Intent intent = new Intent(this, TramActivity.class);
+            b.putString("tramheader", "Tram Stations");
+            intent.putExtras(b);
+            startActivity(intent);
+        }
         else if(title.equals("Animal Escape")){
             Intent intent = new Intent(this, EscapeActivity.class);
             intent.putExtras(b);
@@ -63,8 +78,12 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         }
     }
 
+
     @Override
     public void onTopEmptyRegionClick() {
         Toast.makeText(this, "You tapped on Top empty area", Toast.LENGTH_SHORT).show();
     }
+
+
+
 }
