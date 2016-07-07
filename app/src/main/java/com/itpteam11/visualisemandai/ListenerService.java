@@ -14,6 +14,7 @@ import com.google.android.gms.wearable.WearableListenerService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -84,26 +85,6 @@ public class ListenerService extends WearableListenerService implements Connecti
         Log.v(TAG, "Data Changed");
     }
 
-    /*@Override
-    public void onMessageReceived(MessageEvent messageEvent) {
-        Log.v(TAG, "msg");
-        String[] parts = messageEvent.getPath().split("--");
-        if(parts[0].equals("TEST")){
-            Log.v(TAG, parts[0] + parts[1]);
-            userID = parts[1];
-        }
-        else {
-            DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
-            db.child(userID).child("status").setValue(messageEvent.getPath());
-           // showToast(messageEvent.getPath());
-        }
-    }
-
-//    private void showToast(String message) {
-//        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-//        //Update database
-//    }*/
-
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         Log.v(TAG, "onMessageReceived");
@@ -145,8 +126,23 @@ public class ListenerService extends WearableListenerService implements Connecti
             });
         }
 
+        else if(parts[0].equals("status")){
+
+            if(parts[1].contains("Break")){
+                DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
+                db.child(userID).child("status").setValue("break");
+            }
+            else if(parts[1].equals("Back to Work")){
+                DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
+                db.child(userID).child("status").setValue("working");
+            }
+            else{ //off work
+                DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
+                db.child(userID).child("status").setValue("off");
+            }
+        }
         //Do action according to message type
-        if(parts[0].equals("Shows")){
+        else if(parts[0].equals("Shows")){
             //Shows;showname;showstatus;reason
             //Get the list of current staff who is not on off
             FirebaseDatabase.getInstance().getReference().child("user").addListenerForSingleValueEvent(new ValueEventListener() {

@@ -88,7 +88,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
     public void onClick(WearableListView.ViewHolder viewHolder) {
         //Toast.makeText(this, "Click on " + viewItemList.get(viewHolder.getLayoutPosition()).text, Toast.LENGTH_SHORT).show();
         String key = viewItemList.get(viewHolder.getLayoutPosition()).text;
-        sendMessage(key);
+        sendMessage("status;"+key);
         if(send == 1) {
             Intent intent = new Intent(this, ConfirmationActivity.class);
             intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
