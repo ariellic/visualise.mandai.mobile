@@ -9,6 +9,10 @@ import java.util.Map;
  * This class represents the Notification data model
  */
 public class Notification {
+    public static final String NORMAL_NOTIFICATION = "normal";
+    public static final String ESCAPE_NOTIFICATION = "escape";
+
+    private String type;
     private String content;
     private String location;
     private String sender;
@@ -17,12 +21,14 @@ public class Notification {
 
     public Notification() {}
 
+    public String getType() { return type; }
     public String getContent() { return content; }
     public String getLocation() {  return location; }
     public String getSender() { return sender; }
     public Map<String, Boolean> getReceiver() { return receiver; }
     public long getTimestamp() { return timestamp; }
 
+    public void setType(String type) { this.type = type; }
     public void setContent(String content) { this.content = content; }
     public void setLocation(String location) { this.location = location; }
     public void setSender(String sender) { this.sender = sender; }
@@ -32,12 +38,14 @@ public class Notification {
     /**
      * Create notification in Firebase and send to recipient if receiver list is provided
      *
+     * @param  type     Type of notification
      * @param  content  Content of notification
      * @param  location Latitude and longitude of user's coordinates where this notice is created
      * @param  sender   Sender user ID or provider name
      * @param  receiver List of recipients
      */
-    public void sendNotification(String content, String location, String sender, Map<String, Boolean> receiver) {
+    public void sendNotification(String type, String content, String location, String sender, Map<String, Boolean> receiver) {
+        this.type = type;
         this.content = content;
         this.location = location;
         this.sender = sender;

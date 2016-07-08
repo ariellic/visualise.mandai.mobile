@@ -110,7 +110,7 @@ public class NotificationFragment extends Fragment {
                                     Notification notification = dataSnapshot.getValue(Notification.class);
 
                                     //Create a NotificationItem to be added into the notification list
-                                    NotificationItem notificationItem = new NotificationItem(notification.getContent(), resolvedSenderName(notification.getSender()), notification.getTimestamp());
+                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());
                                     groupedNotifications.add(notificationItem); // For stacking notifications
                                     notificationList.add(notificationItem);
 
@@ -118,7 +118,7 @@ public class NotificationFragment extends Fragment {
 
                                     //Build system notification to notify the user
                                     NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
-                                            .setContentTitle(notification.getSender())
+                                            .setContentTitle(resolveSenderName(notification.getSender()))
                                             .setContentText(notification.getContent())
                                             .setSmallIcon(R.drawable.notification)
                                             .setGroup(GROUP_NOTIFICATIONS)
@@ -144,6 +144,9 @@ public class NotificationFragment extends Fragment {
                                         case "OpenWeather":
                                             wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
                                             desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
+                                            break;
+                                        default:
+                                            desc = Html.fromHtml("<b>Notice from " + resolveSenderName(notification.getSender()) + "</b><br />" + notification.getContent());
                                             break;
                                     }
 
@@ -207,8 +210,9 @@ public class NotificationFragment extends Fragment {
                                     Log.d("ELSE", "Notification content: " + notification.getContent());
                                     Log.d("ELSE", "Notification sender: " + notification.getSender());
                                     Log.d("ELSE", "Notification timestamp: " + notification.getTimestamp());
+
                                     //Create a NotificationItem to be added into the notification list
-                                    NotificationItem notificationItem = new NotificationItem(notification.getContent(), resolvedSenderName(notification.getSender()), notification.getTimestamp());
+                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());
                                     notificationList.add(notificationItem);
 
                                     //Sort latest item to be at top of notification list
@@ -269,7 +273,7 @@ public class NotificationFragment extends Fragment {
     /*
      * This method will resolve sender into actual user name if exist
      */
-    private String resolvedSenderName(String sender) {
+    private String resolveSenderName(String sender) {
         if(staffIDDirectory.containsKey(sender)) {
             return staffIDDirectory.get(sender);
         }

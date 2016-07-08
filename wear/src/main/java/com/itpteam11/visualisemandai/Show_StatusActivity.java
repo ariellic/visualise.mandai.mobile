@@ -53,10 +53,13 @@ public class Show_StatusActivity extends Activity implements WearableListView.Cl
         mHeader.setText(parts[1]);
 
         WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list_view);
-        viewItemList.add(new ListViewItem(R.drawable.cancel, "Cancel"));
-        viewItemList.add(new ListViewItem(R.drawable.delay, "Delay"));
-        viewItemList.add(new ListViewItem(R.drawable.full, "Full"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Cancel"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Delay"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Full"));
 
+        /*viewItemList.add(new ListViewItem(R.drawable.cancel, "Cancel"));
+        viewItemList.add(new ListViewItem(R.drawable.delay, "Delay"));
+        viewItemList.add(new ListViewItem(R.drawable.full, "Full"));*/
 
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
         wearableListView.setClickListener(this);

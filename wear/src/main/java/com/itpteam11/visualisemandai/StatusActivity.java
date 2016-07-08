@@ -11,6 +11,7 @@ import android.content.DialogInterface;
 
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.LightingColorFilter;
@@ -37,7 +38,7 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.itpteam11.visualisemandai.R.drawable.ic_local_dining_black_24dp;
+//import static com.itpteam11.visualisemandai.R.drawable.ic_local_dining_black_24dp;
 
 public class StatusActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
@@ -79,6 +80,30 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         String previousStatus = prefs.getString("status", null);
         if(previousStatus!= null) {
             if (previousStatus.equals("Toilet Break")) {
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Meal Break"));
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Back to Work"));
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
+
+            } else if (previousStatus.equals("Meal Break")) {
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Back to Work"));
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
+
+            }
+            else{
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Meal Break"));
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
+                viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
+            }
+        }
+        else{
+            viewItemList.add(new ListViewItem(R.drawable.ic_running, "Meal Break"));
+            viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
+            viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
+        }
+
+        /*if(previousStatus!= null) {
+            if (previousStatus.equals("Toilet Break")) {
                 viewItemList.add(new ListViewItem(R.drawable.meal, "Meal Break"));
                 viewItemList.add(new ListViewItem(R.drawable.backtowork, "Back to Work"));
                 viewItemList.add(new ListViewItem(R.drawable.endwork, "End Work"));
@@ -99,9 +124,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
             viewItemList.add(new ListViewItem(R.drawable.meal, "Meal Break"));
             viewItemList.add(new ListViewItem(R.drawable.toilet, "Toilet Break"));
             viewItemList.add(new ListViewItem(R.drawable.endwork, "End Work"));
-        }
-
-
+        }*/
 
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
         wearableListView.setClickListener(this);
@@ -113,7 +136,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         String key = viewItemList.get(viewHolder.getLayoutPosition()).text;
         sendMessage("status;"+key);
         
-        if(send == 1) 
+        if(send == 1) {
             //Store current status in shared preference
             SharedPreferences.Editor editor = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
             editor.putString("status", key);

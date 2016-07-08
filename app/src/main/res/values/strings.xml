@@ -46,4 +46,7 @@
     <string name="staff_status_card_title">Your Status</string>
     <string name="staff_status_card_work_status_title">Work Status</string>
 
+    <!-- Notification List (Escape) -->
+    <string name="notification_list_escape_resolve_button">Resolve</string>
+
 </resources>

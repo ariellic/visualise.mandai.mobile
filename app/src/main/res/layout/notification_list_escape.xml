@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/margin_normal">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/margin_xsmall">
+
+        <TextView
+            android:id="@+id/notification_list_escape_sender"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/textsize_small"
+            android:layout_alignParentLeft="true" />
+
+        <TextView
+            android:id="@+id/notification_list_escape_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/textsize_small"
+            android:layout_alignParentRight="true" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/notification_list_escape_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/textsize_medium"
+        android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/notification_list_escape_resolve_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_xsmall"
+        android:text="@string/notification_list_escape_resolve_button"
+        android:background="@color/button_backgroundcolor"
+        android:textColor="@color/button_textcolor"
+        android:layout_gravity="center_horizontal" />
+</LinearLayout>

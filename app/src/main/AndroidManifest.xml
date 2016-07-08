@@ -47,9 +47,6 @@
             android:theme="@style/Main" />
 
         <service
-            android:name=".CheckShowtimeService"
-            android:exported="false" />
-        <service
             android:name=".CheckClimateService"
             android:exported="false"></service>
     </application>

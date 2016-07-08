@@ -31,10 +31,15 @@ public class ShowActivity extends Activity implements WearableListView.ClickList
 
         WearableListView wearableListView = (WearableListView) findViewById(R.id.wearable_list_view);
 
-        viewItemList.add(new ListViewItem(R.drawable.splash, "Splash Safari"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Splash Safari"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Elephant Show"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Animal Friends"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Rainforest Fights Back"));
+
+        /*viewItemList.add(new ListViewItem(R.drawable.splash, "Splash Safari"));
         viewItemList.add(new ListViewItem(R.drawable.elephant, "Elephant Show"));
         viewItemList.add(new ListViewItem(R.drawable.animalfriends, "Animal Friends"));
-        viewItemList.add(new ListViewItem(R.drawable.rainforest, "Rainforest Fights Back"));
+        viewItemList.add(new ListViewItem(R.drawable.rainforest, "Rainforest Fights Back"));*/
 
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
         wearableListView.setClickListener(this);
