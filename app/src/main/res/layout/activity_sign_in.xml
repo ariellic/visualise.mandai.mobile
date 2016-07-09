@@ -21,7 +21,7 @@
             android:id="@+id/signin_activity_logo"
             android:layout_width="match_parent"
             android:layout_height="@dimen/logo_height"
-            android:src="@mipmap/logo"/>
+            android:src="@drawable/logo"/>
 
         <EditText
             android:id="@+id/signin_activity_edittext_email"

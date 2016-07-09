@@ -9,8 +9,14 @@ import java.util.Map;
  * This class represents the Notification data model
  */
 public class Notification {
+    //Notification type constants
     public static final String NORMAL_NOTIFICATION = "normal";
     public static final String ESCAPE_NOTIFICATION = "escape";
+
+    //Service type constants
+    public static final String PSI_SERVICE = "psi";
+    public static final String TEMPERATURE_SERVICE = "temperature";
+    public static final String WEATHER_SERVICE = "weather";
 
     private String type;
     private String content;
@@ -65,5 +71,29 @@ public class Notification {
                 FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(recipient).child("receive").child(notificationID).setValue(false);
             }
         }
+    }
+
+    /**
+     * Handle sending of notification for services
+     *
+     * @param  service      Type of service
+     * @param  content      Content of notification
+     * @param  sender       Sender user ID or provider name
+     * @param  latestValue  Latest comparable value
+     */
+    public void sendServiceNotification(String service, String content, String sender, Object latestValue) {
+        this.content = content;
+        this.sender = sender;
+        this.timestamp = new Date().getTime();
+
+        //Get unique notification ID and store the notice into Firebase
+        String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
+        FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(this);
+
+        //Change notification ID to alert listening subscriber about changes
+        FirebaseDatabase.getInstance().getReference().child("service").child(service).child("notification-id").setValue(notificationID);
+
+        //Update new value for climate type
+        FirebaseDatabase.getInstance().getReference().child("service").child(service).child("value").setValue(latestValue);
     }
 }

@@ -78,7 +78,6 @@ public class NotificationFragment extends Fragment {
         return view;
     }
 
-
     /**
      * This method set an event listener to observe for next addition for notification
      * on the user's receive notification node. After which notification will be build
@@ -93,148 +92,153 @@ public class NotificationFragment extends Fragment {
                     staffIDDirectory.put(staff.getKey(), staff.child("name").getValue(String.class));
                 }
 
+                //Create a receive node if not exist to prevent null exception when added event listener
+                FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child("notificationid").setValue(true);
+
                 FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                         String notificationID = dataSnapshot.getKey();
                         boolean notified = dataSnapshot.getValue(Boolean.class);
 
-                        //Show notification alert when record is a new notification. Else past notifications will not be alert
-                        if (!notified) {
-                            //Retrieve the actual notification by ID
-                            pendingNotifications ++;
-                            FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    //Store notification details into Notification object
-                                    Notification notification = dataSnapshot.getValue(Notification.class);
+                        //Ignore notificationid record
+                        if (!notificationID.equals("notificationid")) {
+                            //Show notification alert when record is a new notification. Else past notifications will not be alert
+                            if (!notified) {
+                                //Retrieve the actual notification by ID
+                                pendingNotifications++;
+                                FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        //Store notification details into Notification object
+                                        Notification notification = dataSnapshot.getValue(Notification.class);
 
-                                    //Create a NotificationItem to be added into the notification list
-                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());
-                                    groupedNotifications.add(notificationItem); // For stacking notifications
-                                    notificationList.add(notificationItem);
+                                        //Create a NotificationItem to be added into the notification list
+                                        NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());
+                                        groupedNotifications.add(notificationItem); // For stacking notifications
+                                        notificationList.add(notificationItem);
 
-                                    final String GROUP_NOTIFICATIONS = "group_notifications";
+                                        final String GROUP_NOTIFICATIONS = "group_notifications";
 
-                                    //Build system notification to notify the user
-                                    NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
-                                            .setContentTitle(resolveSenderName(notification.getSender()))
-                                            .setContentText(notification.getContent())
-                                            .setSmallIcon(R.drawable.notification)
-                                            .setGroup(GROUP_NOTIFICATIONS)
-                                            .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000 });
+                                        //Build system notification to notify the user
+                                        NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
+                                                .setContentTitle(resolveSenderName(notification.getSender()))
+                                                .setContentText(notification.getContent())
+                                                .setSmallIcon(R.drawable.notification)
+                                                .setGroup(GROUP_NOTIFICATIONS)
+                                                .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
 
-                                    NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
+                                        NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
 
-                                    // Customizing big text, icons and bg to appear for notifications on mobile/wearable
-                                    CharSequence desc = "";
-                                    switch (dataSnapshot.child("sender").getValue().toString()) {
-                                        case "NEA - Weather (Rain)":
-                                            wearableExtender = getWearableDesign(R.drawable.rain, R.drawable.rainy);
-                                            desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!");
-                                            break;
-                                        case "NEA - Weather (Sun)":
-                                            wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
-                                            desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
-                                            break;
-                                        case "NEA - PSI":
-                                            wearableExtender = getWearableDesign(R.drawable.haze, R.drawable.hazy);
-                                            desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
-                                            break;
-                                        case "OpenWeather":
-                                            wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
-                                            desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
-                                            break;
-                                        default:
-                                            desc = Html.fromHtml("<b>Notice from " + resolveSenderName(notification.getSender()) + "</b><br />" + notification.getContent());
-                                            break;
-                                    }
-
-
-                                    String notificationWord = "";
-                                    if (pendingNotifications == 1) {
-                                        notificationWord = " notification";
-                                    } else {
-                                        notificationWord = " notifications";
-                                    }
-
-                                    notify.setStyle(new NotificationCompat.BigTextStyle()
-                                            //.setSummaryText(Integer.toString(pendingNotifications) + notificationWord + " from Visualizing Mandai")
-                                            .bigText(desc));
-                            /*} else if (pendingNotifications > 1) {
-                                NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
-                                {
-                                    for (NotificationItem item : groupedNotifications) {
-                                        String stackNotificationLine = item.getSender();
-                                        if (stackNotificationLine != null) {
-                                            inbox.addLine(stackNotificationLine);
+                                        // Customizing big text, icons and bg to appear for notifications on mobile/wearable
+                                        CharSequence desc = "";
+                                        switch (dataSnapshot.child("sender").getValue().toString()) {
+                                            case "NEA - Weather (Rain)":
+                                                wearableExtender = getWearableDesign(R.drawable.rain, R.drawable.rainy);
+                                                desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!");
+                                                break;
+                                            case "NEA - Weather (Sun)":
+                                                wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
+                                                desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
+                                                break;
+                                            case "NEA - PSI":
+                                                wearableExtender = getWearableDesign(R.drawable.haze, R.drawable.hazy);
+                                                desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
+                                                break;
+                                            case "OpenWeather":
+                                                wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
+                                                desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
+                                                break;
+                                            default:
+                                                desc = Html.fromHtml("<b>Notice from " + resolveSenderName(notification.getSender()) + "</b><br />" + notification.getContent());
+                                                break;
                                         }
+
+
+                                        String notificationWord = "";
+                                        if (pendingNotifications == 1) {
+                                            notificationWord = " notification";
+                                        } else {
+                                            notificationWord = " notifications";
+                                        }
+
+                                        notify.setStyle(new NotificationCompat.BigTextStyle()
+                                                //.setSummaryText(Integer.toString(pendingNotifications) + notificationWord + " from Visualizing Mandai")
+                                                .bigText(desc));
+                                /*} else if (pendingNotifications > 1) {
+                                    NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
+                                    {
+                                        for (NotificationItem item : groupedNotifications) {
+                                            String stackNotificationLine = item.getSender();
+                                            if (stackNotificationLine != null) {
+                                                inbox.addLine(stackNotificationLine);
+                                            }
+                                        }
+
+                                        // the summary text will appear at the bottom of the expanded stack notification
+                                        // we just display the same thing from above (don't forget to use string
+                                        // resource formats!)
+                                        inbox.setSummaryText(String.format("%d new notifications from Visualizing Mandai", groupedNotifications.size()));
+                                    }
+                                    notify.setStyle(inbox);
+                                } */
+
+                                        notify.extend(wearableExtender);
+                                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+                                        notificationManager.notify(id++, notify.build()); // Display multiple notifications, prevent replacing of notification
+
+                                        //Sort latest item to be at top of notification list
+                                        Collections.sort(notificationList, new NotificationItem());
+
+                                        //Update notification list
+                                        notificationAdapter.notifyDataSetChanged();
+
+                                        //Set notification has received(set true)
+                                        FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
+                                        FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                     }
 
-                                    // the summary text will appear at the bottom of the expanded stack notification
-                                    // we just display the same thing from above (don't forget to use string
-                                    // resource formats!)
-                                    inbox.setSummaryText(String.format("%d new notifications from Visualizing Mandai", groupedNotifications.size()));
-                                }
-                                notify.setStyle(inbox);
-                            } */
+                                    @Override
+                                    public void onCancelled(DatabaseError error) {
+                                    }
+                                });
+                            } else {
+                                Log.d("ELSE", "Notification ID: " + notificationID);
+                                //Retrieve the actual notification by ID
+                                FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        //Store notification details into Notification object
+                                        Notification notification = dataSnapshot.getValue(Notification.class);
 
-                                    notify.extend(wearableExtender);
-                                    NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
-                                    notificationManager.notify(id++, notify.build()); // Display multiple notifications, prevent replacing of notification
+                                        Log.d("ELSE", "Notification content: " + notification.getContent());
+                                        Log.d("ELSE", "Notification sender: " + notification.getSender());
+                                        Log.d("ELSE", "Notification timestamp: " + notification.getTimestamp());
 
-                                    //Sort latest item to be at top of notification list
-                                    Collections.sort(notificationList, new NotificationItem());
+                                        //Create a NotificationItem to be added into the notification list
+                                        NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());
+                                        notificationList.add(notificationItem);
 
-                                    //Update notification list
-                                    notificationAdapter.notifyDataSetChanged();
+                                        //Sort latest item to be at top of notification list
+                                        Collections.sort(notificationList, new NotificationItem());
 
-                                    //Set notification has received(set true)
-                                    FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
-                                    FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
-                                }
+                                        //Update notification list
+                                        notificationAdapter.notifyDataSetChanged();
 
-                                @Override
-                                public void onCancelled(DatabaseError error) {
-                                }
-                            });
-                        } else {
-                            Log.d("ELSE", "Notification ID: " + notificationID);
-                            //Retrieve the actual notification by ID
-                            FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    //Store notification details into Notification object
-                                    Notification notification = dataSnapshot.getValue(Notification.class);
+                                        //Set notification has received(set true)
+                                        FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
+                                        FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
+                                    }
 
-                                    Log.d("ELSE", "Notification content: " + notification.getContent());
-                                    Log.d("ELSE", "Notification sender: " + notification.getSender());
-                                    Log.d("ELSE", "Notification timestamp: " + notification.getTimestamp());
-
-                                    //Create a NotificationItem to be added into the notification list
-                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());
-                                    notificationList.add(notificationItem);
-
-                                    //Sort latest item to be at top of notification list
-                                    Collections.sort(notificationList, new NotificationItem());
-
-                                    //Update notification list
-                                    notificationAdapter.notifyDataSetChanged();
-
-                                    //Set notification has received(set true)
-                                    FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
-                                    FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
-                                }
-
-                                @Override
-                                public void onCancelled(DatabaseError error) {
-                                }
-                            });
+                                    @Override
+                                    public void onCancelled(DatabaseError error) { }
+                                });
+                            }
                         }
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onCancelled (DatabaseError databaseError){
                         //Failed listen for notification
                         System.out.println("NotificationFragment - Failed listen for notification: " + databaseError.toException());
                     }
@@ -251,8 +255,6 @@ public class NotificationFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError error) {}
         });
-
-
     }
 
     /**

@@ -177,10 +177,13 @@ public class CheckClimateService extends IntentService {
                             if (rainyAbbrList.contains(result) || result.equals("SU")) {
                                 if (rainyAbbrList.contains(result)) {
                                     weatherNotification.setSender(sender + "(Rain)");
+                                    //sender = sender + "(Rain)"; TODO: New code. Replacing above code
                                 } else if (result.equals("SU")) {
                                     weatherNotification.setSender(sender + "(Sun)");
-
+                                    //sender = sender + "(Sun)"; TODO: New code. Replacing above code
                                 }
+
+                                //weatherNotification.sendServiceNotification(Notification.WEATHER_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 188 to 197
 
                                 weatherNotification.setContent(content);
                                 weatherNotification.setTimestamp(timestamp);
@@ -213,6 +216,8 @@ public class CheckClimateService extends IntentService {
                         sender = "NEA - PSI";
                         timestamp = new Date().getTime();
 
+                        //notification.sendServiceNotification(Notification.PSI_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 221 to 231
+
                         notification.setContent(content);
                         notification.setSender(sender);
                         notification.setTimestamp(timestamp);
@@ -235,6 +240,8 @@ public class CheckClimateService extends IntentService {
                         content = "Temperature alert: " + temp;
                         sender = "OpenWeather";
                         timestamp = new Date().getTime();
+
+                        //notification.sendServiceNotification(Notification.TEMPERATURE_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 246 to 256
 
                         notification.setContent(content);
                         notification.setSender(sender);

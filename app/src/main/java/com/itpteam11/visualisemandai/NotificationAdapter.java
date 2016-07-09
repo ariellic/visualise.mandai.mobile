@@ -91,7 +91,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     //Super CardView
-    public static class NotificationViewHolder extends RecyclerView.ViewHolder {
+    public class NotificationViewHolder extends RecyclerView.ViewHolder {
         public NotificationViewHolder(View v) {
             super(v);
         }
@@ -111,9 +111,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     //Animal escape notification item
     private class EscapeNotificationViewHolder extends NotificationViewHolder {
-        public TextView message, sender, timestamp;
-        public Button resolve;
-        public View view;
+        private TextView message, sender, timestamp;
+        private Button resolve;
+        private View view;
 
         public EscapeNotificationViewHolder(View view) {
             super(view);
