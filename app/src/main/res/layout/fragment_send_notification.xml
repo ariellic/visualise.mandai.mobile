@@ -1,13 +1,30 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.itpteam11.visualisemandai.SendNotificationFragment">
+    tools:context="com.itpteam11.visualisemandai.SendNotificationFragment"
+    android:id="@+id/send_notification_container">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/send_notification_fragment"
         android:layout_margin="@dimen/margin_normal"
-        android:layout_gravity="center_horizontal"/>
-</RelativeLayout>
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/textView" />
+
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:text="Message"
+        android:onClick="navToSendMessage"
+        android:id="@+id/message"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:drawableTint="#27a890"
+        android:background="#5de0c8" />
+
+</FrameLayout>

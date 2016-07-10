@@ -4,6 +4,7 @@ import android.*;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
@@ -373,6 +374,11 @@ public class MainActivity extends AppCompatActivity implements
             return mFragmentTitleList.get(position);
         }
     }
+
+    public void onFragmentInteraction(Uri uri){
+        //you can leave it empty
+    }
+
 
     @Override
     public void onDestroy() {

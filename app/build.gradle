@@ -33,6 +33,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.4.0'            //Android RecycleView
     compile 'com.android.support:support-v4:23.4.0'
 
+    compile 'com.android.support:support-v4:23.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'      //Google services plugin for Firebase

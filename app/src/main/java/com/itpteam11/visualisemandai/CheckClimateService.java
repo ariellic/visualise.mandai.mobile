@@ -171,7 +171,7 @@ public class CheckClimateService extends IntentService {
                             long timestamp = new Date().getTime();
 
                             // Abbreviations of weather considered as rainy
-                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS"};
+                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS", "PC"};
                             List rainyAbbrList = Arrays.asList(rainyWeather);
 
                             if (rainyAbbrList.contains(result) || result.equals("SU")) {
@@ -211,7 +211,7 @@ public class CheckClimateService extends IntentService {
                 // If climate type 'psi' is being processed from NEA
                 else if (climateType.equals("psi")) {
                     int psi = Integer.parseInt(result);
-                    if (psi >= 101 || psi > 300) {
+                    if (psi >= 0 || psi > 300) {
                         content = "Haze alert: " + getRangeDesriptor(psi);
                         sender = "NEA - PSI";
                         timestamp = new Date().getTime();
@@ -236,7 +236,7 @@ public class CheckClimateService extends IntentService {
                 // If climate type 'temperature' is being processed from OpenWeather
                 else if (climateType.equals("temperature")){
                     double temp = Double.parseDouble(result);
-                    if (temp > 32.0) {
+                    if (temp > 0) {
                         content = "Temperature alert: " + temp;
                         sender = "OpenWeather";
                         timestamp = new Date().getTime();
