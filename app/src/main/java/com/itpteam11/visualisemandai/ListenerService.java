@@ -26,6 +26,7 @@ public class ListenerService extends WearableListenerService implements Connecti
 
     private GoogleApiClient mGoogleApiClient;
     private String userID;
+    private String groupID;
 
     public ListenerService() {}
 
@@ -91,7 +92,10 @@ public class ListenerService extends WearableListenerService implements Connecti
 
         //Split string to get message type
         final String[] parts = messageEvent.getPath().split(";");
-
+        if(parts[0].equals("GROUP")){
+            groupID = parts[1];
+            Log.v(TAG,"the group is "+ groupID);
+        }
         //Do action according to message type
         if(parts[0].equals("escape")){
             //Get the list of current staff who is not on off
@@ -125,20 +129,27 @@ public class ListenerService extends WearableListenerService implements Connecti
                 }
             });
         }
-
+        // Status
         else if(parts[0].equals("status")){
 
             if(parts[1].contains("Break")){
                 DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
                 db.child(userID).child("status").setValue("break");
+                DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("group");
+                db1.child(groupID).child("staff").child(userID).setValue("break");
             }
             else if(parts[1].equals("Back to Work")){
                 DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
                 db.child(userID).child("status").setValue("working");
+                DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("group");
+                db1.child(groupID).child("staff").child(userID).setValue("working");
+
             }
             else{ //off work
                 DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
                 db.child(userID).child("status").setValue("off");
+                DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("group");
+                db1.child(groupID).child("staff").child(userID).setValue("off");
             }
         }
         //Do action according to message type

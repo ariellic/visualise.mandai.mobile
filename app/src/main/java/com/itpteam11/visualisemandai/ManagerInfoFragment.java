@@ -138,22 +138,64 @@ public class ManagerInfoFragment extends Fragment {
 
                 Date current = new Date();
                 String currentDate =   (new SimpleDateFormat("dd MMM yyyy").format(current));
-
+                String currentDateTime = (new SimpleDateFormat("dd MMM yyyy HH:mm:ss").format(current));
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     String notiDate = new SimpleDateFormat("dd MMM yyyy").format(new Date(postSnapshot.child("timestamp").getValue(Long.class)));
+                    String notiDateTime = new SimpleDateFormat("dd MMM yyyy HH:mm:ss").format(new Date(postSnapshot.child("timestamp").getValue(Long.class)));
+
                     if (notiDate.equals(currentDate)) {
+                            //11 am show
                         if (postSnapshot.child("content").getValue(String.class).contains("Friends")) {
-                            fNotiStatus = postSnapshot.child("content").getValue(String.class);
+                            if(currentDateTime.compareTo(currentDate + " 11:30") < 0) {
+                               if(notiDateTime.compareTo(currentDate+" 11:20") < 0) {
+                                   fNotiStatus = postSnapshot.child("content").getValue(String.class);
+                               }
+
+                            }
+                            else{ //4pm show
+                                if(notiDateTime.compareTo(currentDate+" 16:30") < 0) {
+                                    fNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                }
+                            }
 
                         } else if (postSnapshot.child("content").getValue(String.class).contains("Elephants")) {
-                            eNotiStatus = postSnapshot.child("content").getValue(String.class);
-
+                            //11:30am
+                            if(currentDateTime.compareTo(currentDate + " 12:00") < 0) {
+                                if(notiDateTime.compareTo(currentDate+" 11:50") < 0) {
+                                    eNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                }
+                            }
+                            else{ //3.30pm
+                                if(notiDateTime.compareTo(currentDate+" 15:50") < 0) {
+                                    eNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                }
+                            }
                         } else if (postSnapshot.child("content").getValue(String.class).contains("RainForest")) {
-                            rNotiStatus = postSnapshot.child("content").getValue(String.class);
+                            //12:30pm
+                            if(currentDateTime.compareTo(currentDate + " 13:00") < 0) {
+                                if(notiDateTime.compareTo(currentDate+" 12:50") < 0) {
+                                    rNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                }
+                            }
+                            else{ //2.30pm
+                                if(notiDateTime.compareTo(currentDate+" 14:50") < 0) {
+                                    rNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                }
+                            }
 
                         } else if (postSnapshot.child("content").getValue(String.class).contains("Splash")) {
-                            sNotiStatus = postSnapshot.child("content").getValue(String.class);
+                            //10:30pm
+                            if(currentDateTime.compareTo(currentDate + " 11:00") < 0) {
+                                if(notiDateTime.compareTo(currentDate+" 10:50") < 0) {
+                                    sNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                }
+                            }
+                            else{ //5pm
+                                if(notiDateTime.compareTo(currentDate+" 17:20") < 0) {
+                                    sNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                }
+                            }
                         }
 
                     }
