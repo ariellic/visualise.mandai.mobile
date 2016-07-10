@@ -30,6 +30,10 @@ public class StaffInfoFragment extends Fragment {
 
     private HashMap<Integer, String> cardDataSet;
 
+    private String psi = null;
+    private String temp = null;
+    private String weather = null;
+
     public StaffInfoFragment() {
         // Required empty public constructor
     }
@@ -63,6 +67,31 @@ public class StaffInfoFragment extends Fragment {
             public void onCancelled(DatabaseError error) {
                 //Failed on staff count value
                 System.out.println("StaffInfoFragment - Failed on staff status value: " + error.toException());
+            }
+        });
+
+        //Get the climate information
+        FirebaseDatabase.getInstance().getReference().child("service").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    if (postSnapshot.getKey().equals("psi")) {
+                        psi = postSnapshot.child("value").getValue().toString();
+                    } else if (postSnapshot.getKey().equals("temperature")) {
+                        temp = postSnapshot.child("value").getValue().toString();
+                    } else if (postSnapshot.getKey().equals("weather")) {
+                        weather = postSnapshot.child("valueLong").getValue().toString();
+                    }
+                }
+
+                cardDataSet.put(CardType.WEATHER, weather + "-" + temp + "-" + psi);
+                customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
+                recyclerView.setAdapter(customCardAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                System.out.println("ManagerInfoFragment - Failed on climate retrieval value: " + error.toException());
             }
         });
     }

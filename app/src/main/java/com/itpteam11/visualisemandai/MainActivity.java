@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements
     private String userGrp;
     private String[] userGroupList;
 
+    TimerTask backtask = null;
+
     GoogleApiClient mGoogleApiClient;
 
     //To locate staff coordinates
@@ -147,25 +149,27 @@ public class MainActivity extends AppCompatActivity implements
                 new SendActivityPhoneMessage("TEST--" + userID, "").start();
 
                 // To start the service to check the climate data every 20 seconds (can be changed)
-                final Handler handler = new Handler();
-                Timer timer = new Timer();
-                TimerTask backtask = new TimerTask() {
-                    @Override
-                    public void run() {
-                        handler.post(new Runnable() {
-                            public void run() {
-                                try {
-                                    startService(climateServiceIntent);
-                                    Log.d("ClimateService", "Service started");
-                                } catch (Exception e) {
-                                    // TODO Auto-generated catch block
+                if (userID.equals("SUk69wtTSbSTLUSQj5CavCJUyop1")) {
+                    final Handler handler = new Handler();
+                    Timer timer = new Timer();
+                    backtask = new TimerTask() {
+                        @Override
+                        public void run() {
+                            handler.post(new Runnable() {
+                                public void run() {
+                                    try {
+                                        startService(climateServiceIntent);
+                                        Log.d("ClimateService", "Service started");
+                                    } catch (Exception e) {
+                                        // TODO Auto-generated catch block
+                                    }
                                 }
-                            }
-                        });
-                    }
-                };
-                Log.d("TimerTask", "TimerTask completed");
-                timer.schedule(backtask, 0, 20000); //execute in every 20000 ms*/
+                            });
+                        }
+                    };
+                    Log.d("TimerTask", "TimerTask completed");
+                    timer.schedule(backtask, 0, 20000); //execute in every 20000 ms*/
+                }
 
                 //Start listening to user's subscribed service for notification of changes
                 new ServiceSubscribeListener(userID, user.getService()).startListening();
@@ -393,6 +397,11 @@ public class MainActivity extends AppCompatActivity implements
         //Stop user location update
         if(staffLocationService != null)
             staffLocationService.stopLocationUpdate();
+
+        //Stop climate service
+        if(backtask != null) {
+            backtask.cancel();
+        }
 
         //Sign out from Firebase Authentication account
         FirebaseAuth.getInstance().signOut();

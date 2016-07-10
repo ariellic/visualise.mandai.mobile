@@ -89,12 +89,15 @@ public class RecipientsAdapter extends BaseAdapter {
                     itemChecked[position] = false;
                     checkedValue.remove(textViewValue);
                 }
+
+                /*
                 String stringChain = "Values:";
                 for(String value : checkedValue) {
                     stringChain = stringChain + ", " + value;
                 }
 
                 Toast.makeText(v.getContext(), stringChain, Toast.LENGTH_SHORT).show();
+                */
             }
         });
 

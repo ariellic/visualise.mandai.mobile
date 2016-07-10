@@ -20,19 +20,33 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-
+    /*
     compile 'com.google.android.gms:play-services-gcm:9.2.0'
     compile 'com.google.android.gms:play-services-wearable:9.2.0'
-    compile 'com.google.android.gms:play-services-location:9.2.0'   //Google Location API
-    compile 'com.google.firebase:firebase-database:9.2.0'           //Firebase Realtime Database SDK
-    compile 'com.google.firebase:firebase-auth:9.2.0'               //Firebase Authentication SDK
-    compile 'com.android.support:design:23.4.0'                     //Google Design SDK for Tab
-    compile 'com.android.support:cardview-v7:23.4.0'                //Android CardView
-    compile 'com.android.support:recyclerview-v7:23.4.0'            //Android RecycleView
-    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.google.android.gms:play-services-location:9.2.0'
+    //Google Location API
+    compile 'com.google.firebase:firebase-database:9.2.0'
+    //Firebase Realtime Database SDK
+    compile 'com.google.firebase:firebase-auth:9.2.0'
+    */
+    compile 'com.google.android.gms:play-services-gcm:9.0.2'
+    compile 'com.google.android.gms:play-services-wearable:9.0.2'
+    compile 'com.google.android.gms:play-services-location:9.0.2'
+    //Google Location API
+    compile 'com.google.firebase:firebase-database:9.0.2'
+    //Firebase Realtime Database SDK
+    compile 'com.google.firebase:firebase-auth:9.0.2'
 
+    //Firebase Authentication SDK
+    compile 'com.android.support:design:23.4.0'
+    //Google Design SDK for Tab
+    compile 'com.android.support:cardview-v7:23.4.0'
+    //Android CardView
+    compile 'com.android.support:recyclerview-v7:23.4.0'
+    //Android RecycleView
+    compile 'com.android.support:support-v4:23.4.0'
     compile 'com.android.support:support-v4:23.0.1'
 }
 

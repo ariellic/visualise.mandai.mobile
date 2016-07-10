@@ -212,7 +212,7 @@ public class CheckClimateService extends IntentService {
                 else if (climateType.equals("psi")) {
                     int psi = Integer.parseInt(result);
                     if (psi >= 0 || psi > 300) {
-                        content = "Haze alert: " + getRangeDesriptor(psi);
+                        content = "Haze alert: PSI " + psi; //getRangeDesriptor(psi);
                         sender = "NEA - PSI";
                         timestamp = new Date().getTime();
 

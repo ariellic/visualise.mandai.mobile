@@ -44,6 +44,10 @@ public class ManagerInfoFragment extends Fragment {
     private String rNotiStatus = null;
     private String sNotiStatus = null;
 
+    private String psi = null;
+    private String temp = null;
+    private String weather = null;
+
     private final String TAG = "MInfo";
 
     public ManagerInfoFragment() {
@@ -69,6 +73,35 @@ public class ManagerInfoFragment extends Fragment {
         cardDataSet.put(CardType.SHOWTIME, "NA-NA-NA-NA");
         cardDataSet.put(CardType.WEATHER, "#-#-#");
 
+        //Get the climate information
+        FirebaseDatabase.getInstance().getReference().child("service").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    Log.d("POSTSNAPSHOT", postSnapshot.toString());
+                    if (postSnapshot.getKey().equals("psi")) {
+                        psi = postSnapshot.child("value").getValue().toString();
+                    } else if (postSnapshot.getKey().equals("temperature")) {
+                        temp = postSnapshot.child("value").getValue().toString();
+                    } else if (postSnapshot.getKey().equals("weather")) {
+                        weather = postSnapshot.child("valueLong").getValue().toString();
+                    }
+                }
+
+                Log.d("TEMPSIWEATHER", temp + psi + weather);
+                cardDataSet.put(CardType.WEATHER, weather + "-" + temp + "-" + psi);
+                customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
+                recyclerView.setAdapter(customCardAdapter);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                System.out.println("ManagerInfoFragment - Failed on climate retrieval value: " + error.toException());
+            }
+        });
+
+
+
         //Get the group users' status
         FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff").addValueEventListener(new ValueEventListener() {
             @Override
@@ -79,12 +112,12 @@ public class ManagerInfoFragment extends Fragment {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     if (postSnapshot.getValue(String.class).equals("working")) {
                         workingList.add(userID);
-                    } else if (!postSnapshot.getValue(String.class).equals("off")){
+                    } else if (!postSnapshot.getValue(String.class).equals("off")) {
                         breakList.add(userID);
                     }
                 }
 
-                cardDataSet.put(CardType.STAFF_COUNT, workingList.size()+"-"+breakList.size());
+                cardDataSet.put(CardType.STAFF_COUNT, workingList.size() + "-" + breakList.size());
 
                 customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
                 recyclerView.setAdapter(customCardAdapter);

@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,8 +21,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CustomMessageRecipientsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
@@ -29,7 +32,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
     private String userGrp;
     private DatabaseReference dbRef;
 
-    private ArrayList<Map<String, User>> userInfoPairList;
+    private ArrayList<Map<String, String>> userInfoPairList;
     private List<User> listOfUsers;
     private RecipientsAdapter adapter = null;
 
@@ -44,27 +47,27 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
 
         getSupportActionBar().setTitle("Select Recipients");
 
-        Intent intent = getIntent();
-        String message = intent.getStringExtra("CustomMessage");
+        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        Intent intent = getIntent();
+        final String message = intent.getStringExtra("CustomMessage");
 
         sendButton = (Button) findViewById(R.id.buttonSend);
         recipientsListView = (ListView) findViewById(R.id.listViewRecipients);
 
         dbRef = FirebaseDatabase.getInstance().getReference();
-        userInfoPairList = new ArrayList<Map<String, User>>();
+        userInfoPairList = new ArrayList<Map<String, String>>();
         listOfUsers = new ArrayList<>();
-        //checkedValue = new ArrayList<>();
 
         dbRef.child("user").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     User user = child.getValue(User.class);
-                    if (!user.getStatus().equals("off")) {
-                        Map<String, User> userIdAndInfo = new HashMap<String, User>();
+                    if (!user.getStatus().equals("off") && (!child.getKey().equals(userID))) {
+                        Map<String, String> userIdAndInfo = new HashMap<String, String>();
                         listOfUsers.add(user);
-                        userIdAndInfo.put(child.getKey(), user);
+                        userIdAndInfo.put(user.getName(), child.getKey());
                         Log.d("UserKey", child.getKey().toString());
                         Log.d("UserListInLoop", user.getName() + ", " + user.getStatus());
                         userInfoPairList.add(userIdAndInfo);
@@ -88,7 +91,36 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(CustomMessageRecipientsActivity.this, adapter.checkedValue.toString(), Toast.LENGTH_SHORT).show();
+                dbRef.child("user").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Map<String, Boolean> receiver = new HashMap<String, Boolean>();
+                        for (DataSnapshot child : dataSnapshot.getChildren()) {
+                            User user = child.getValue(User.class);
+                            if ((!user.getStatus().equals("off")) && adapter.checkedValue.contains(user.getName()) && (!child.getKey().equals(userID))) {
+                                receiver.put(child.getKey(), false);
+                            }
+                        }
+
+                        Log.d("RECEIVER", receiver.toString());
+                        String coordinates = null;
+                        if (StaffLocationService.isLocationPermissionGranted()) {
+                            coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                        }
+
+                        Notification notification = new Notification();
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, message, coordinates, userID, receiver);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+                Toast.makeText(CustomMessageRecipientsActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(v.getContext(), MainActivity.class);
+                intent.putExtra("userID", userID);
+                startActivity(intent);
             }
         });
 

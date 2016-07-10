@@ -62,7 +62,7 @@ public class Notification {
         String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
         FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(this);
 
-        //Record notification has been by this user
+        //Record notification has been sent by this user
         FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(sender).child("send").child(notificationID).setValue(true);
 
         //Notify all recipients
