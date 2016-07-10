@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements
                     FirebaseDatabase.getInstance().getReference().child("group").child(groupName).child(user.getGroup().get(groupName)).child(userID).setValue("working");
                 }
 
-                new SendActivityPhoneMessage("TEST--" + userID, "").start();
+                new SendActivityPhoneMessage("GROUP;" + userGrp, "").start();
 
                 // To start the service to check the climate data every 20 seconds (can be changed)
                 final Handler handler = new Handler();
