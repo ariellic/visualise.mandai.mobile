@@ -203,17 +203,12 @@ public class NotificationFragment extends Fragment {
                                     }
                                 });
                             } else {
-                                Log.d("ELSE", "Notification ID: " + notificationID);
                                 //Retrieve the actual notification by ID
                                 FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).addListenerForSingleValueEvent(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         //Store notification details into Notification object
                                         Notification notification = dataSnapshot.getValue(Notification.class);
-
-                                        Log.d("ELSE", "Notification content: " + notification.getContent());
-                                        Log.d("ELSE", "Notification sender: " + notification.getSender());
-                                        Log.d("ELSE", "Notification timestamp: " + notification.getTimestamp());
 
                                         //Create a NotificationItem to be added into the notification list
                                         NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());

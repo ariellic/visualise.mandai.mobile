@@ -28,6 +28,7 @@ import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener {
     //Constants for granting permission on location service
     private final static int LOCATION_PERMISSIONS_REQUEST = 1;
+    private final static String MANAGER_ID = "SUk69wtTSbSTLUSQj5CavCJUyop1";
 
     private static final String TAG = "MainActivity";
 
@@ -149,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements
                 new SendActivityPhoneMessage("GROUP;" + userGrp, "").start();
 
                 // To start the service to check the climate data every 20 seconds (can be changed)
-                if (userID.equals("SUk69wtTSbSTLUSQj5CavCJUyop1")) {
+                if (userID.equals(MANAGER_ID)) {
                     final Handler handler = new Handler();
                     Timer timer = new Timer();
                     backtask = new TimerTask() {
@@ -379,11 +381,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    public void onFragmentInteraction(Uri uri){
-        //you can leave it empty
-    }
-
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -403,7 +400,11 @@ public class MainActivity extends AppCompatActivity implements
             backtask.cancel();
         }
 
+        //Stop listener service for wear
+        stopService(new Intent(this, ListenerService.class));
+
         //Sign out from Firebase Authentication account
         FirebaseAuth.getInstance().signOut();
+
     }
 }

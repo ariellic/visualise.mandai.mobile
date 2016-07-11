@@ -31,7 +31,7 @@ public class NotificationItem implements Comparator<NotificationItem> {
     //This method does the sorting of latest notification on top
     @Override
     public int compare(NotificationItem item1, NotificationItem item2) {
-        System.out.println("NotificationItem :" +  (item2.timestamp - item1.timestamp));
+        //System.out.println("NotificationItem :" +  (item2.timestamp - item1.timestamp));
         return ((int) item2.timestamp) - ((int) item1.timestamp);
     }
 }
