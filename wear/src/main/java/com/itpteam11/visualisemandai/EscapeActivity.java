@@ -71,15 +71,15 @@ public class EscapeActivity extends Activity implements ClickListener, Connectio
         tvTitle.setText(this.getIntent().getExtras().getString("header"));
 
         WearableListView wearableListView = (WearableListView) findViewById(R.id.escape_activity_wearable_listview);
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Polar Bear (Inuka)"));
+        /*viewItemList.add(new ListViewItem(R.drawable.ic_running, "Polar Bear (Inuka)"));
         viewItemList.add(new ListViewItem(R.drawable.ic_running, "White Tiger (Omar)"));
         viewItemList.add(new ListViewItem(R.drawable.ic_running, "Giraffe (Growie)"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Wolverine (Boris)"));
+        viewItemList.add(new ListViewItem(R.drawable.ic_running, "Wolverine (Boris)"));*/
 
-        /*viewItemList.add(new ListViewItem(R.drawable.inuka, "Polar Bear (Inuka)"));
+        viewItemList.add(new ListViewItem(R.drawable.inuka, "Polar Bear (Inuka)"));
         viewItemList.add(new ListViewItem(R.drawable.omar, "White Tiger (Omar)"));
         viewItemList.add(new ListViewItem(R.drawable.growie, "Giraffe (Growie)"));
-        viewItemList.add(new ListViewItem(R.drawable.boris, "Wolverine (Boris)"));*/
+        viewItemList.add(new ListViewItem(R.drawable.boris, "Wolverine (Boris)"));
 
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
         wearableListView.setClickListener(this);

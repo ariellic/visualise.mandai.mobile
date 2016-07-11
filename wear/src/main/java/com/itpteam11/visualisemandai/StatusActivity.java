@@ -78,7 +78,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         
         SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
         String previousStatus = prefs.getString("status", null);
-        if(previousStatus!= null) {
+        /*if(previousStatus!= null) {
             if (previousStatus.equals("Toilet Break")) {
                 viewItemList.add(new ListViewItem(R.drawable.ic_running, "Meal Break"));
                 viewItemList.add(new ListViewItem(R.drawable.ic_running, "Back to Work"));
@@ -100,9 +100,9 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
             viewItemList.add(new ListViewItem(R.drawable.ic_running, "Meal Break"));
             viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
             viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
-        }
+        }*/
 
-        /*if(previousStatus!= null) {
+        if(previousStatus!= null) {
             if (previousStatus.equals("Toilet Break")) {
                 viewItemList.add(new ListViewItem(R.drawable.meal, "Meal Break"));
                 viewItemList.add(new ListViewItem(R.drawable.backtowork, "Back to Work"));
@@ -124,7 +124,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
             viewItemList.add(new ListViewItem(R.drawable.meal, "Meal Break"));
             viewItemList.add(new ListViewItem(R.drawable.toilet, "Toilet Break"));
             viewItemList.add(new ListViewItem(R.drawable.endwork, "End Work"));
-        }*/
+        }
 
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
         wearableListView.setClickListener(this);
