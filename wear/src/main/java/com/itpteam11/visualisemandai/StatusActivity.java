@@ -78,29 +78,6 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         
         SharedPreferences prefs = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE);
         String previousStatus = prefs.getString("status", null);
-        /*if(previousStatus!= null) {
-            if (previousStatus.equals("Toilet Break")) {
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Meal Break"));
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Back to Work"));
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
-
-            } else if (previousStatus.equals("Meal Break")) {
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Back to Work"));
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
-
-            }
-            else{
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Meal Break"));
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
-                viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
-            }
-        }
-        else{
-            viewItemList.add(new ListViewItem(R.drawable.ic_running, "Meal Break"));
-            viewItemList.add(new ListViewItem(R.drawable.ic_running, "Toilet Break"));
-            viewItemList.add(new ListViewItem(R.drawable.ic_running, "End Work"));
-        }*/
 
         if(previousStatus!= null) {
             if (previousStatus.equals("Toilet Break")) {

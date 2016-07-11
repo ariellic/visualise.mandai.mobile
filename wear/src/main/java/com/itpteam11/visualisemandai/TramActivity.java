@@ -73,11 +73,6 @@ public class TramActivity extends Activity implements WearableListView.ClickList
 
         WearableListView wearableListView = (WearableListView) findViewById(R.id.image_list_view);
 
-        /*viewItemList.add(new ListViewItem(R.drawable.ic_running, "1"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "2"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "3"));
-        viewItemList.add(new ListViewItem(R.drawable.ic_running, "4"));*/
-
         viewItemList.add(new ListViewItem(R.drawable.one, "1"));
         viewItemList.add(new ListViewItem(R.drawable.two, "2"));
         viewItemList.add(new ListViewItem(R.drawable.three, "3"));

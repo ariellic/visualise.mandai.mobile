@@ -27,11 +27,6 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         setContentView(R.layout.activity_main);
         WearableListView wearableListView = (WearableListView) findViewById(R.id.listview);
 
-        /*mainItemList.add(new ListViewItem(R.drawable.ic_running, "Animal Escape"));
-        mainItemList.add(new ListViewItem(R.drawable.ic_running, "Status"));
-        mainItemList.add(new ListViewItem(R.drawable.ic_running, "Shows"));
-        mainItemList.add(new ListViewItem(R.drawable.ic_running, "Tram"));*/
-
         mainItemList.add(new ListViewItem(R.drawable.escape, "Animal Escape"));
         mainItemList.add(new ListViewItem(R.drawable.dine, "Status"));
         mainItemList.add(new ListViewItem(R.drawable.show, "Shows"));
