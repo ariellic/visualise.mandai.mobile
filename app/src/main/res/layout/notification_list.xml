@@ -24,6 +24,15 @@
             android:textSize="@dimen/textsize_small"
             android:layout_alignParentRight="true" />
 
+        <TextView
+            android:id="@+id/notification_list_proxi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="@dimen/textsize_small"
+            android:layout_alignParentRight="true"
+            android:layout_below="@+id/notification_list_timestamp"
+            />
+
     </RelativeLayout>
 
     <TextView

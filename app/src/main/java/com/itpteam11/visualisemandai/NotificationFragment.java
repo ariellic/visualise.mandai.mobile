@@ -1,6 +1,7 @@
 package com.itpteam11.visualisemandai;
 
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
@@ -20,6 +21,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,6 +44,8 @@ public class NotificationFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager recyclerLayoutManager;
     private NotificationAdapter notificationAdapter;
+
+   // private String userlocation;
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -114,7 +118,7 @@ public class NotificationFragment extends Fragment {
                                         Notification notification = dataSnapshot.getValue(Notification.class);
 
                                         //Create a NotificationItem to be added into the notification list
-                                        NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());
+                                        NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null);
                                         groupedNotifications.add(notificationItem); // For stacking notifications
                                         notificationList.add(notificationItem);
 
@@ -209,10 +213,19 @@ public class NotificationFragment extends Fragment {
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         //Store notification details into Notification object
                                         Notification notification = dataSnapshot.getValue(Notification.class);
+                                        String userlocation = null;
+                                        if(StaffLocationService.isLocationPermissionGranted()) {
+                                            userlocation = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                                        }
 
                                         //Create a NotificationItem to be added into the notification list
-                                        NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp());
-                                        notificationList.add(notificationItem);
+                                        if (notification.getLocation() != null) {
+                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(userlocation,notification.getLocation()));
+                                            notificationList.add(notificationItem);
+                                        } else {
+                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null);
+                                            notificationList.add(notificationItem);
+                                        }
 
                                         //Sort latest item to be at top of notification list
                                         Collections.sort(notificationList, new NotificationItem());
@@ -276,5 +289,44 @@ public class NotificationFragment extends Fragment {
         }
 
         return sender;
+    }
+    public String calculateProxi(String userlocation,String Loc){
+
+        DecimalFormat numberFormat = new DecimalFormat("#.0");
+
+        if (userlocation != null) {
+            String[] parts = userlocation.split("-");
+            double userLat = (Double.parseDouble(parts[0]));
+            double userLon = (Double.parseDouble(parts[1]));
+
+            String[] part = Loc.split("-");
+            double notiLat = Double.parseDouble(part[0]);
+            double notiLon = Double.parseDouble(part[1]);
+
+            //double distM = userLoc.distanceTo(notiLoc);
+            double distM = distance(notiLat,notiLon,userLat,userLon);
+            distM = distM * 1000;
+            String proxi = numberFormat.format(distM) ;
+            return proxi;
+        }
+        else{
+            return null;
+        }
+    }
+
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        double theta = lon1 - lon2;
+        double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+        dist = Math.acos(dist);
+        dist = rad2deg(dist);
+        dist = dist * 60 * 1.1515* 1.609344;
+        return (dist);
+    }
+
+    private double deg2rad(double deg) {
+        return (deg * Math.PI / 180.0);
+    }
+    private double rad2deg(double rad) {
+        return (rad * 180.0 / Math.PI);
     }
 }

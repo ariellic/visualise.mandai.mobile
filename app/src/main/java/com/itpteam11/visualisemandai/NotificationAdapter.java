@@ -1,5 +1,6 @@
 package com.itpteam11.visualisemandai;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,12 +56,32 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 normalNotificationViewHolder.message.setText(notification.getContent());
                 normalNotificationViewHolder.sender.setText(notification.getSender());
                 normalNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
+                if(notification.getProxi()!=null) {
+                    double proximi = Double.parseDouble(notification.getProxi());
+                    if (proximi > 200.0) {
+                        normalNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
+                        normalNotificationViewHolder.proxi.setTextColor(Color.RED);
+                    } else {
+                        normalNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
+                        normalNotificationViewHolder.proxi.setTextColor(Color.GREEN);
+                    }
+                }
                 break;
             case 1:
                 EscapeNotificationViewHolder escapeNotificationViewHolder = (EscapeNotificationViewHolder) holder;
                 escapeNotificationViewHolder.message.setText(notification.getContent());
                 escapeNotificationViewHolder.sender.setText(notification.getSender());
                 escapeNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
+                if(notification.getProxi()!=null) {
+                    double Eproximi = Double.parseDouble(notification.getProxi());
+                    if (Eproximi > 200.0) {
+                        escapeNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
+                        escapeNotificationViewHolder.proxi.setTextColor(Color.RED);
+                    } else {
+                        escapeNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
+                        escapeNotificationViewHolder.proxi.setTextColor(Color.GREEN);
+                    }
+                }
                 escapeNotificationViewHolder.setResolveButtonListener(notification.getNotificationID(), notification.getContent());
                 break;
         }
@@ -99,19 +120,20 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     //Normal notification item
     private class NormalNotificationViewHolder extends NotificationViewHolder {
-        public TextView message, sender, timestamp;
+        public TextView message, sender, timestamp, proxi;
 
         public NormalNotificationViewHolder(View view) {
             super(view);
             message = (TextView) view.findViewById(R.id.notification_list_message);
             sender = (TextView) view.findViewById(R.id.notification_list_sender);
             timestamp = (TextView) view.findViewById(R.id.notification_list_timestamp);
+            proxi = (TextView) view.findViewById(R.id.notification_list_proxi);
         }
     }
 
     //Animal escape notification item
     private class EscapeNotificationViewHolder extends NotificationViewHolder {
-        private TextView message, sender, timestamp;
+        private TextView message, sender, timestamp, proxi;
         private Button resolve;
         private View view;
 
@@ -122,6 +144,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             sender = (TextView) view.findViewById(R.id.notification_list_escape_sender);
             timestamp = (TextView) view.findViewById(R.id.notification_list_escape_timestamp);
             resolve = (Button) view.findViewById(R.id.notification_list_escape_resolve_button);
+            proxi = (TextView) view.findViewById(R.id.notification_list_escape_proxi);
         }
 
         //Set listener for Resolve button
