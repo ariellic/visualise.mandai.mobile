@@ -81,10 +81,19 @@ public class ManagerInfoFragment extends Fragment {
                     Log.d("POSTSNAPSHOT", postSnapshot.toString());
                     if (postSnapshot.getKey().equals("psi")) {
                         psi = postSnapshot.child("value").getValue().toString();
+                        if (psi.equals("")){
+                            psi = "NA";
+                        }
                     } else if (postSnapshot.getKey().equals("temperature")) {
                         temp = postSnapshot.child("value").getValue().toString();
+                        if (temp.equals("")){
+                            temp = "NA";
+                        }
                     } else if (postSnapshot.getKey().equals("weather")) {
                         weather = postSnapshot.child("valueLong").getValue().toString();
+                        if (weather.equals("")){
+                            weather = "NA";
+                        }
                     }
                 }
 

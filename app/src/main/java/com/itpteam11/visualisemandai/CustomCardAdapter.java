@@ -3,6 +3,7 @@ package com.itpteam11.visualisemandai;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -192,6 +193,7 @@ public class CustomCardAdapter extends RecyclerView.Adapter<CustomCardAdapter.Vi
 
         public void setContent(String text) {
             String[] value = text.split("-");
+            Log.d("SETCONTENTWEATHER", value.toString());
             weather.setText(value[0]);
             temperature.setText(value[1]);
             psi.setText(value[2]);

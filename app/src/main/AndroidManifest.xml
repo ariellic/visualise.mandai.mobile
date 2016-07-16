@@ -15,6 +15,8 @@
             android:value="@integer/google_play_services_version" />
 
         <uses-permission android:name="android.permission.INTERNET" />
+        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        <uses-feature android:name="android.hardware.camera"></uses-feature>
 
         <service
             android:name=".ListenerService"
@@ -32,7 +34,17 @@
                 -->
             </intent-filter>
         </service>
-
+        <!--
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.example.android.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+-->
         <activity
             android:name=".SignInActivity"
             android:noHistory="true"
@@ -55,7 +67,8 @@
 
         <activity android:name=".CustomMessageActivity" />
         <activity android:name=".CustomMessageRecipientsActivity" />
-        <activity android:name=".RecipientsAdapter"></activity>
+        <activity android:name=".RecipientsAdapter" />
+        <activity android:name=".CustomAlertCameraActivity"></activity>
     </application>
 
 </manifest>

@@ -32,8 +32,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
     private String userGrp;
     private DatabaseReference dbRef;
 
-    private ArrayList<Map<String, String>> userInfoPairList;
-    private List<User> listOfUsers;
+    private List<User> listOfWorkingUsers;
     private RecipientsAdapter adapter = null;
 
     ListView recipientsListView;
@@ -45,10 +44,13 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_custom_message_recipients);
 
+        //Name action bar
         getSupportActionBar().setTitle("Select Recipients");
 
+        //Get user ID
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
+        //Get message from textbox in prev activity
         Intent intent = getIntent();
         final String message = intent.getStringExtra("CustomMessage");
 
@@ -56,8 +58,8 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
         recipientsListView = (ListView) findViewById(R.id.listViewRecipients);
 
         dbRef = FirebaseDatabase.getInstance().getReference();
-        userInfoPairList = new ArrayList<Map<String, String>>();
-        listOfUsers = new ArrayList<>();
+
+        listOfWorkingUsers = new ArrayList<>();
 
         dbRef.child("user").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -66,16 +68,14 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                     User user = child.getValue(User.class);
                     if (!user.getStatus().equals("off") && (!child.getKey().equals(userID))) {
                         Map<String, String> userIdAndInfo = new HashMap<String, String>();
-                        listOfUsers.add(user);
+                        listOfWorkingUsers.add(user);
                         userIdAndInfo.put(user.getName(), child.getKey());
                         Log.d("UserKey", child.getKey().toString());
                         Log.d("UserListInLoop", user.getName() + ", " + user.getStatus());
-                        userInfoPairList.add(userIdAndInfo);
                     }
                 }
 
-                Log.d("UserList", userInfoPairList.toString());
-                adapter = new RecipientsAdapter(CustomMessageRecipientsActivity.this, listOfUsers);
+                adapter = new RecipientsAdapter(CustomMessageRecipientsActivity.this, listOfWorkingUsers);
                 recipientsListView.setAdapter(adapter);
 
             }
@@ -97,6 +97,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                         Map<String, Boolean> receiver = new HashMap<String, Boolean>();
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             User user = child.getValue(User.class);
+                            //Get selected users from checkbox in adapter
                             if ((!user.getStatus().equals("off")) && adapter.checkedValue.contains(user.getName()) && (!child.getKey().equals(userID))) {
                                 receiver.put(child.getKey(), false);
                             }
@@ -107,7 +108,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                         if (StaffLocationService.isLocationPermissionGranted()) {
                             coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
                         }
-
+                        //Send notifications to users that are selected
                         Notification notification = new Notification();
                         notification.sendNotification(Notification.NORMAL_NOTIFICATION, message, coordinates, userID, receiver);
                     }
