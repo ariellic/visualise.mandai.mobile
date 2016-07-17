@@ -112,14 +112,16 @@ public class ListenerService extends WearableListenerService implements Connecti
                     }
 
                     //Get user's coordinates to indicate where the animal has escaped
-                    String coordinates = null;
-                    if(StaffLocationService.isLocationPermissionGranted()) {
-                        coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                    Double latitude = null;
+                    Double longitude = null;
+                    if (StaffLocationService.isLocationPermissionGranted()) {
+                        latitude = StaffLocationService.getLatitude();
+                        longitude = StaffLocationService.getLongitude();
                     }
 
                     //Create a notification with necessary information to notify staff who is not on off
                     Notification notification = new Notification();
-                    notification.sendNotification(Notification.ESCAPE_NOTIFICATION, parts[1] + " has ESCAPE! Do take a look out for it. Ensure your and visitor's safety.", coordinates, userID, receiver, "NA");
+                    notification.sendNotification(Notification.ESCAPE_NOTIFICATION, parts[1] + " has ESCAPE! Do take a look out for it. Ensure your and visitor's safety.", latitude, longitude, userID, receiver, "NA");
                 }
 
                 @Override
@@ -143,7 +145,6 @@ public class ListenerService extends WearableListenerService implements Connecti
                 db.child(userID).child("status").setValue("working");
                 DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("group");
                 db1.child(groupID).child("staff").child(userID).setValue("working");
-
             }
             else{ //off work
                 DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
@@ -168,23 +169,26 @@ public class ListenerService extends WearableListenerService implements Connecti
                         }
                     }
 
-                    //Get user's coordinates to indicate where the animal has escaped
-                    String coordinates = null;
-                    if(StaffLocationService.isLocationPermissionGranted()) {
-                        coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                    //Get user's coordinates
+                    Double latitude = null;
+                    Double longitude = null;
+                    if (StaffLocationService.isLocationPermissionGranted()) {
+                        latitude = StaffLocationService.getLatitude();
+                        longitude = StaffLocationService.getLongitude();
                     }
+
                     if(parts[2].equals("Full")) {
                         //Create a notification with necessary information to notify staff who is not on off
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is currently full.", coordinates, userID, receiver, "NA");
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is currently full.", latitude, longitude, userID, receiver, "NA");
                     }
                     else if(parts[2].equals("Delay")){
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is delayed for"+parts[3]+ ".", coordinates, userID, receiver, "NA");
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is delayed for"+parts[3]+ ".", latitude, longitude, userID, receiver, "NA");
                     }
                     else{ //Cancel
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is canceled due to"+parts[3]+".", coordinates, userID, receiver, "NA");
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is canceled due to"+parts[3]+".", latitude, longitude, userID, receiver, "NA");
                     }
                 }
 
@@ -208,13 +212,17 @@ public class ListenerService extends WearableListenerService implements Connecti
                             receiver.put(child.getKey(), false);
                         }
                     }
-                    //Get user's coordinates to indicate where the animal has escaped
-                    String coordinates = null;
-                    if(StaffLocationService.isLocationPermissionGranted()) {
-                        coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+
+                    //Get user's coordinates
+                    Double latitude = null;
+                    Double longitude = null;
+                    if (StaffLocationService.isLocationPermissionGranted()) {
+                        latitude = StaffLocationService.getLatitude();
+                        longitude = StaffLocationService.getLongitude();
                     }
+
                     Notification notification = new Notification();
-                    notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", coordinates, userID, receiver, "NA");
+                    notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", latitude, longitude, userID, receiver, "NA");
 
                 }
                 @Override

@@ -36,7 +36,7 @@ import java.util.Set;
 
 public class CustomMessageRecipientsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    private static final String TAG = "CustomMessageRecipientsActivity";
+    private static final String TAG = "CustomMessageRecipients";
 
     private String userID;
     private DatabaseReference dbRef;
@@ -121,9 +121,11 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                             Log.d("RECEIVER", receiver.toString());
 
                             //Get user's coordinates
-                            String coordinates = null;
+                            Double latitude = null;
+                            Double longitude = null;
                             if (StaffLocationService.isLocationPermissionGranted()) {
-                                coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                                latitude = StaffLocationService.getLatitude();
+                                longitude = StaffLocationService.getLongitude();
                             }
 
                             Log.d(TAG, "Image path: " + imgPath);
@@ -131,11 +133,11 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                             Notification notification = new Notification();
 
                             //Store image if available
-                            if (!imgPath.equals("")){
+                            if (!imgPath.equals("")) {
                                 String imgName = uploadImage(imgPath);
-                                notification.sendNotification(Notification.NORMAL_NOTIFICATION, message, coordinates, userID, receiver, imgName);
+                                notification.sendNotification(Notification.IMAGE_NOTIFICATION, message, latitude, longitude, userID, receiver, imgName);
                             } else {
-                                notification.sendNotification(Notification.NORMAL_NOTIFICATION, message, coordinates, userID, receiver, "NA");
+                                notification.sendNotification(Notification.NORMAL_NOTIFICATION, message, latitude, longitude, userID, receiver, null);
                             }
 
                             //Send notifications to users that are selected

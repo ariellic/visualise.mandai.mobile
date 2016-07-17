@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Visualise Mandai</string>
+    <!-- Action Bar Menu -->
+    <string name="action_bar_sign_out">Sign Out</string>
 
     <!--Firebase Connection Activity-->
     <string name="firebaseconnection_edittext_hint_email">Email Address</string>

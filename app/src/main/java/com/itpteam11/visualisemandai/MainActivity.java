@@ -2,6 +2,7 @@ package com.itpteam11.visualisemandai;
 
 import android.*;
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Handler;
@@ -12,10 +13,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -176,6 +181,51 @@ public class MainActivity extends AppCompatActivity implements
                 System.out.println("Failed to get user's detail: " + error.toException());
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.activity_main_actions, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_sign_out:
+
+                //Show dialog for signing out confirmation
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+                alertDialog.setTitle("Sign Out");
+                alertDialog.setMessage("Are you sure you want to sign out?");
+                alertDialog.setIcon(android.R.drawable.ic_dialog_alert);
+
+                //"Yes" Button
+                alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        signOut();
+
+                        //Back to sign in activity
+                        Intent signInActivity = new Intent(MainActivity.this, SignInActivity.class);
+                        signInActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(signInActivity);
+                    }
+                });
+
+                //"NO" Button
+                alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // No action
+                    }
+                });
+
+                alertDialog.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     //To check whether user has granted permission to access location service for this app
@@ -371,10 +421,7 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
+    private void signOut() {
         //Set user status as "off" duty
         FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").setValue("off");
         for(String groupName : user.getGroup().keySet()) {
@@ -391,10 +438,35 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         //Stop listener service for wear
-        stopService(new Intent(this, ListenerService.class));
+        stopService(new Intent(getBaseContext(), ListenerService.class));
 
         //Sign out from Firebase Authentication account
         FirebaseAuth.getInstance().signOut();
+    }
 
+    @Override
+    public void onBackPressed() {
+        //Show dialog for signing out confirmation
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle("Sign Out");
+        alertDialog.setMessage("Are you sure you want to sign out?");
+        alertDialog.setIcon(android.R.drawable.ic_dialog_alert);
+
+        //"Yes" Button
+        alertDialog.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                signOut();
+                finish();
+            }
+        });
+
+        //"NO" Button
+        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) {
+                // No action
+            }
+        });
+
+        alertDialog.show();
     }
 }

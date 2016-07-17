@@ -13,7 +13,8 @@ public class User implements Parcelable {
     private String status;
     private String email;
     private String type;
-    private String coordinates;
+    private Double latitude;
+    private Double longitude;
     private Map<String, String> group = null;
     private Map<String, Boolean> service = null;
 
@@ -25,7 +26,8 @@ public class User implements Parcelable {
         status = parcel.readString();
         email = parcel.readString();
         type = parcel.readString();
-        coordinates = parcel.readString();
+        latitude = parcel.readDouble();
+        longitude = parcel.readDouble();
 
         final int groupSize = parcel.readInt();
         for(int i=0; i<groupSize; i++) {
@@ -46,6 +48,8 @@ public class User implements Parcelable {
     public String getStatus() { return status; }
     public String getEmail() { return email; }
     public String getType() { return type; }
+    public Double getLatitude() { return latitude; }
+    public Double getLongitude() { return longitude; }
     public Map<String, String> getGroup() { return group; }
     public Map<String, Boolean> getService() { return service; }
 
@@ -61,7 +65,8 @@ public class User implements Parcelable {
         dest.writeString(status);
         dest.writeString(email);
         dest.writeString(type);
-        dest.writeString(coordinates);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
         
         if(group != null) {
             dest.writeInt(group.size());

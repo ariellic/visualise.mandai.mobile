@@ -63,6 +63,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             case 1:
                 item = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_list_escape, parent, false);
                 return new EscapeNotificationViewHolder(item);
+            case 2:
+                item = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_list_image, parent, false);
+                return new ImageNotificationViewHolder(item);
             default:
                 item = LayoutInflater.from(parent.getContext()).inflate(R.layout.notification_list, parent, false);
                 return new NormalNotificationViewHolder(item);
@@ -77,13 +80,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         switch (holder.getItemViewType()) {
             case 0:
                 Log.d(TAG, "In NormalNotificationViewHolder");
-                final NormalNotificationViewHolder normalNotificationViewHolder = (NormalNotificationViewHolder) holder;
+                NormalNotificationViewHolder normalNotificationViewHolder = (NormalNotificationViewHolder) holder;
                 normalNotificationViewHolder.message.setText(notification.getContent());
                 normalNotificationViewHolder.sender.setText(notification.getSender());
                 normalNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
 
 
-                // Check if item's ImageView in holder already has an image
+                /*// Check if item's ImageView in holder already has an image
                 if (normalNotificationViewHolder.img.getDrawable() == null) {
                     // If there is an image for the notification
                     if (!notification.getImageName().equals("NA") && notification.getImageName() != null) {
@@ -152,11 +155,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         normalNotificationViewHolder.img.setImageDrawable(null);
                         normalNotificationViewHolder.img.setVisibility(View.GONE);
                     }
-                }
-
+                }*/
 
                 if (notification.getProxi() != null) {
-                    double proximi = Double.parseDouble(notification.getProxi());
+                    double proximi = notification.getProxi();
                     if (proximi > 200.0) {
                         normalNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
                         normalNotificationViewHolder.proxi.setTextColor(Color.RED);
@@ -173,7 +175,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 escapeNotificationViewHolder.sender.setText(notification.getSender());
                 escapeNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
                 if (notification.getProxi() != null) {
-                    double Eproximi = Double.parseDouble(notification.getProxi());
+                    double Eproximi = notification.getProxi();
                     if (Eproximi > 200.0) {
                         escapeNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
                         escapeNotificationViewHolder.proxi.setTextColor(Color.RED);
@@ -183,6 +185,72 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     }
                 }
                 escapeNotificationViewHolder.setResolveButtonListener(notification.getNotificationID(), notification.getContent());
+                break;
+            case 2:
+                Log.d(TAG, "In ImageNotificationViewHolder");
+                final ImageNotificationViewHolder imageNotificationViewHolder = (ImageNotificationViewHolder) holder;
+                imageNotificationViewHolder.message.setText(notification.getContent());
+                imageNotificationViewHolder.sender.setText(notification.getSender());
+                imageNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
+
+                if (notification.getProxi() != null) {
+                    double Eproximi = notification.getProxi();
+                    if (Eproximi > 200.0) {
+                        imageNotificationViewHolder.proxi.setText(Eproximi + "m away");
+                        imageNotificationViewHolder.proxi.setTextColor(Color.RED);
+                    } else {
+                        imageNotificationViewHolder.proxi.setText(Eproximi + "m away");
+                        imageNotificationViewHolder.proxi.setTextColor(Color.GREEN);
+                    }
+                }
+
+                // If there is an image for the notification
+                if (notification.getImageName() != null) {
+
+                    Log.d(TAG, "notification.getImageName() not null");
+
+                    String imgName = notification.getImageName();
+                    StorageReference imgRef = storageRef.child("custom_alerts/" + notification.getImageName());
+
+                    // Create image path
+                    File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName);
+
+                    Log.d(TAG, "imgFile: " + imagePath.toString() + ", " + imagePath.getAbsolutePath());
+
+                    // If image path does not exist yet, create file and download image to file
+                    if (!imagePath.exists()) {
+                        Log.d(TAG, "Image does not exist");
+                        final File imgFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imgName);
+                        imgRef.getFile(imgFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                // Local temp file has been created
+                                Log.d(TAG, "taskSnapshot String: " + taskSnapshot.toString());
+                                Long bytes = taskSnapshot.getBytesTransferred();
+                                Log.d(TAG, "taskSnapshot getBytesTransferred: " + bytes);
+                                Long totalByteCount = taskSnapshot.getTotalByteCount();
+                                Log.d(TAG, "taskSnapshot gettotalByteCount: " + totalByteCount);
+                                String path = imgFile.getAbsolutePath();
+                                Log.d(TAG, "Image path: " + path);
+                                imageNotificationViewHolder.img.setImageBitmap(getThumbnail(path));
+                                imageNotificationViewHolder.img.setTag(position);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                //No image fail to download for notification, disable imageview
+                                imageNotificationViewHolder.img.setVisibility(View.GONE);
+                            }
+                        });
+                    }
+                    // If image exists in directory, set thumbnail of image
+                    else {
+                        Log.d(TAG, "Image exist");
+                        imageNotificationViewHolder.img.setImageBitmap(getThumbnail(imagePath.getAbsolutePath()));
+                        imageNotificationViewHolder.img.setTag(position);
+                    }
+                }
+
                 break;
         }
     }
@@ -206,6 +274,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         switch (type) {
             case Notification.ESCAPE_NOTIFICATION:
                 return 1;
+            case Notification.IMAGE_NOTIFICATION:
+                return 2;
             default:
                 return 0;
         }
@@ -221,7 +291,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     //Normal notification item
     private class NormalNotificationViewHolder extends NotificationViewHolder {
         public TextView message, sender, timestamp, proxi;
-        public ImageView img;
+        //public ImageView img;
 
         public NormalNotificationViewHolder(View view) {
             super(view);
@@ -229,7 +299,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             sender = (TextView) view.findViewById(R.id.notification_list_sender);
             timestamp = (TextView) view.findViewById(R.id.notification_list_timestamp);
             proxi = (TextView) view.findViewById(R.id.notification_list_proxi);
-            img = (ImageView) view.findViewById(R.id.notification_list_image);
+            //img = (ImageView) view.findViewById(R.id.notification_list_image);
         }
     }
 
@@ -237,11 +307,9 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private class EscapeNotificationViewHolder extends NotificationViewHolder {
         private TextView message, sender, timestamp, proxi;
         private Button resolve;
-        private View view;
 
         public EscapeNotificationViewHolder(View view) {
             super(view);
-            this.view = view;
             message = (TextView) view.findViewById(R.id.notification_list_escape_message);
             sender = (TextView) view.findViewById(R.id.notification_list_escape_sender);
             timestamp = (TextView) view.findViewById(R.id.notification_list_escape_timestamp);
@@ -270,14 +338,16 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                             }
 
                             //Get user's coordinates to indicate where the animal has captured
-                            String coordinates = null;
+                            Double latitude = null;
+                            Double longitude = null;
                             if (StaffLocationService.isLocationPermissionGranted()) {
-                                coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
+                                latitude = StaffLocationService.getLatitude();
+                                longitude = StaffLocationService.getLongitude();
                             }
 
                             //Create a notification with necessary information to notify staff who is not on off
                             Notification notification = new Notification();
-                            notification.sendNotification(Notification.NORMAL_NOTIFICATION, content.split(" has")[0] + " has been captured!", coordinates, FirebaseAuth.getInstance().getCurrentUser().getUid(), receiver, "NA");
+                            notification.sendNotification(Notification.NORMAL_NOTIFICATION, content.split(" has")[0] + " has been captured!", latitude, longitude, FirebaseAuth.getInstance().getCurrentUser().getUid(), receiver, "NA");
                         }
 
                         @Override
@@ -288,6 +358,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     });
                 }
             });
+        }
+    }
+
+    //Image notification item
+    private class ImageNotificationViewHolder extends NotificationViewHolder {
+        public TextView message, sender, timestamp, proxi;
+        public ImageView img;
+
+        public ImageNotificationViewHolder(View view) {
+            super(view);
+            message = (TextView) view.findViewById(R.id.notification_list_image_message);
+            sender = (TextView) view.findViewById(R.id.notification_list_image_sender);
+            timestamp = (TextView) view.findViewById(R.id.notification_list_image_timestamp);
+            proxi = (TextView) view.findViewById(R.id.notification_list_image_proxi);
+            img = (ImageView) view.findViewById(R.id.notification_list_image_imageview);
         }
     }
 

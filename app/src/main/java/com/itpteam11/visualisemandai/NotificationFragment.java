@@ -213,52 +213,17 @@ public class NotificationFragment extends Fragment {
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         //Store notification details into Notification object
                                         Notification notification = dataSnapshot.getValue(Notification.class);
-                                        String userlocation = null;
-                                        if(StaffLocationService.isLocationPermissionGranted()) {
-                                            userlocation = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
-                                        }
 
-                                        //Create a NotificationItem to be added into the notification list
-                                        // Location available
-                                        if (notification.getLocation() != null) {
-                                            // Image node available in Firebase
-                                            if (notification.getImageName() != null) {
-                                                // No picture attached
-                                                if (notification.getImageName().equals("NA")){
-                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(userlocation,notification.getLocation()), "NA");
-                                                    notificationList.add(notificationItem);
-                                                }
-                                                // Picture attached
-                                                else {
-                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(userlocation,notification.getLocation()), notification.getImageName());
-                                                    notificationList.add(notificationItem);
-                                                }
-                                            }
-                                            // Image node not available in Firebase
-                                            else {
-                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(userlocation,notification.getLocation()), "NA");
-                                                notificationList.add(notificationItem);
-                                            }
+                                        // Create a NotificationItem to be added into the notification list
+                                        // When notification's and user's location exist
+                                        if (notification.getLatitude() != null && notification.getLongitude() != null && StaffLocationService.isLocationPermissionGranted()) {
+                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(StaffLocationService.getLatitude(), StaffLocationService.getLongitude(), notification.getLatitude(),notification.getLongitude()), notification.getImageName());
+                                            notificationList.add(notificationItem);
                                         }
-                                        // // Location not available
+                                        // Image node not available in Firebase
                                         else {
-                                            if (notification.getImageName() != null) {
-                                                // No picture attached
-                                                if (notification.getImageName().equals("NA")){
-                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, "NA");
-                                                    notificationList.add(notificationItem);
-                                                }
-                                                // Picture attached
-                                                else {
-                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
-                                                    notificationList.add(notificationItem);
-                                                }
-                                            }
-                                            // Image node not available in Firebase
-                                            else {
-                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, "NA");
-                                                notificationList.add(notificationItem);
-                                            }
+                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
+                                            notificationList.add(notificationItem);
                                         }
 
                                         //Sort latest item to be at top of notification list
@@ -324,28 +289,13 @@ public class NotificationFragment extends Fragment {
 
         return sender;
     }
-    public String calculateProxi(String userlocation,String Loc){
 
-        DecimalFormat numberFormat = new DecimalFormat("#.0");
-
-        if (userlocation != null) {
-            String[] parts = userlocation.split("-");
-            double userLat = (Double.parseDouble(parts[0]));
-            double userLon = (Double.parseDouble(parts[1]));
-
-            String[] part = Loc.split("-");
-            double notiLat = Double.parseDouble(part[0]);
-            double notiLon = Double.parseDouble(part[1]);
-
-            //double distM = userLoc.distanceTo(notiLoc);
-            double distM = distance(notiLat,notiLon,userLat,userLon);
-            distM = distM * 1000;
-            String proxi = numberFormat.format(distM) ;
-            return proxi;
-        }
-        else{
-            return null;
-        }
+    public Double calculateProxi(double userLatitude, double userLongtitude, double notificationLatitude, double notificationLongtitude){
+        DecimalFormat round = new DecimalFormat("#.##");
+        //double distM = userLoc.distanceTo(notiLoc);
+        double distM = distance(notificationLatitude, notificationLongtitude, userLatitude, userLongtitude);
+        distM = distM * 1000;
+        return Double.parseDouble(round.format(distM));
     }
 
     private double distance(double lat1, double lon1, double lat2, double lon2) {

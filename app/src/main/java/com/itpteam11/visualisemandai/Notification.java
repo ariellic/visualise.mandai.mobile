@@ -12,6 +12,7 @@ public class Notification {
     //Notification type constants
     public static final String NORMAL_NOTIFICATION = "normal";
     public static final String ESCAPE_NOTIFICATION = "escape";
+    public static final String IMAGE_NOTIFICATION = "image";
 
     //Service type constants
     public static final String PSI_SERVICE = "psi";
@@ -20,7 +21,8 @@ public class Notification {
 
     private String type;
     private String content;
-    private String location;
+    private Double latitude;
+    private Double longitude;
     private String sender;
     private Map<String, Boolean> receiver;
     private long timestamp;
@@ -30,7 +32,8 @@ public class Notification {
 
     public String getType() { return type; }
     public String getContent() { return content; }
-    public String getLocation() {  return location; }
+    public Double getLatitude() { return latitude; }
+    public Double getLongitude() { return longitude; }
     public String getSender() { return sender; }
     public Map<String, Boolean> getReceiver() { return receiver; }
     public long getTimestamp() { return timestamp; }
@@ -38,7 +41,8 @@ public class Notification {
 
     public void setType(String type) { this.type = type; }
     public void setContent(String content) { this.content = content; }
-    public void setLocation(String location) { this.location = location; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
     public void setSender(String sender) { this.sender = sender; }
     public void setReceiver(Map<String, Boolean> receiver) { this.receiver = receiver; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
@@ -48,17 +52,19 @@ public class Notification {
     /**
      * Create notification in Firebase and send to recipient if receiver list is provided
      *
-     * @param  type     Type of notification
-     * @param  content  Content of notification
-     * @param  location Latitude and longitude of user's coordinates where this notice is created
-     * @param  sender   Sender user ID or provider name
-     * @param  receiver List of recipients
-     * @param  imgName  Image sent along with notification
+     * @param  type         Type of notification
+     * @param  content      Content of notification
+     * @param  latitude     latitude of user's coordinates where this notice was created
+     * @param  longitude    longitude of user's coordinates where this notice was created
+     * @param  sender       Sender user ID or provider name
+     * @param  receiver     List of recipients
+     * @param  imgName      Image sent along with notification
      */
-    public void sendNotification(String type, String content, String location, String sender, Map<String, Boolean> receiver, String imgName) {
+    public void sendNotification(String type, String content, Double latitude, Double longitude, String sender, Map<String, Boolean> receiver, String imgName) {
         this.type = type;
         this.content = content;
-        this.location = location;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.sender = sender;
         this.receiver = receiver;
         this.timestamp = new Date().getTime();

@@ -91,7 +91,8 @@ public class StaffLocationService extends Service implements ConnectionCallbacks
         this.latitude = latitude;
         this.longitude = longitude;
 
-        FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("coordinates").setValue(latitude + "-" + longitude);
+        FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("latitude").setValue(latitude);
+        FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("longitude").setValue(longitude);
 
         System.out.println("StaffLocationService - User location: " + latitude + "-" + longitude);
         Toast.makeText(context, latitude + "-" + longitude, Toast.LENGTH_LONG).show();

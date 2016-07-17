@@ -11,41 +11,41 @@
         android:layout_marginBottom="@dimen/margin_xsmall">
 
         <TextView
-            android:id="@+id/notification_list_sender"
+            android:id="@+id/notification_list_image_sender"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/textsize_small"
             android:layout_alignParentLeft="true" />
 
         <TextView
-            android:id="@+id/notification_list_timestamp"
+            android:id="@+id/notification_list_image_timestamp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/textsize_small"
             android:layout_alignParentRight="true" />
 
         <TextView
-            android:id="@+id/notification_list_proxi"
+            android:id="@+id/notification_list_image_proxi"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/textsize_small"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/notification_list_timestamp"
+            android:layout_below="@+id/notification_list_image_timestamp"
             />
 
     </RelativeLayout>
 
     <TextView
-        android:id="@+id/notification_list_message"
+        android:id="@+id/notification_list_image_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/textsize_medium"
         android:textStyle="bold" />
 
-    <!--<ImageView
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:id="@+id/notification_list_image"
-        android:layout_marginTop="5dp" />-->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/notification_list_image_imageview"
+        android:layout_marginTop="@dimen/margin_xsmall" />
 
 </LinearLayout>
