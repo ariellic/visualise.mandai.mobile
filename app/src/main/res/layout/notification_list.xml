@@ -41,4 +41,11 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/textsize_medium"
         android:textStyle="bold" />
+
+    <ImageView
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:id="@+id/notification_list_image"
+        android:layout_marginTop="5dp" />
+
 </LinearLayout>

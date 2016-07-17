@@ -119,7 +119,7 @@ public class ListenerService extends WearableListenerService implements Connecti
 
                     //Create a notification with necessary information to notify staff who is not on off
                     Notification notification = new Notification();
-                    notification.sendNotification(Notification.ESCAPE_NOTIFICATION, parts[1] + " has ESCAPE! Do take a look out for it. Ensure your and visitor's safety.", coordinates, userID, receiver);
+                    notification.sendNotification(Notification.ESCAPE_NOTIFICATION, parts[1] + " has ESCAPE! Do take a look out for it. Ensure your and visitor's safety.", coordinates, userID, receiver, "NA");
                 }
 
                 @Override
@@ -176,15 +176,15 @@ public class ListenerService extends WearableListenerService implements Connecti
                     if(parts[2].equals("Full")) {
                         //Create a notification with necessary information to notify staff who is not on off
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is currently full.", coordinates, userID, receiver);
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is currently full.", coordinates, userID, receiver, "NA");
                     }
                     else if(parts[2].equals("Delay")){
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is delayed for"+parts[3]+ ".", coordinates, userID, receiver);
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is delayed for"+parts[3]+ ".", coordinates, userID, receiver, "NA");
                     }
                     else{ //Cancel
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is canceled due to"+parts[3]+".", coordinates, userID, receiver);
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is canceled due to"+parts[3]+".", coordinates, userID, receiver, "NA");
                     }
                 }
 
@@ -214,7 +214,7 @@ public class ListenerService extends WearableListenerService implements Connecti
                         coordinates = StaffLocationService.getLatitude() + "-" + StaffLocationService.getLongitude();
                     }
                     Notification notification = new Notification();
-                    notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", coordinates, userID, receiver);
+                    notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", coordinates, userID, receiver, "NA");
 
                 }
                 @Override

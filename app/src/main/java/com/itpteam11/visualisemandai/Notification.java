@@ -24,6 +24,7 @@ public class Notification {
     private String sender;
     private Map<String, Boolean> receiver;
     private long timestamp;
+    private String imageName;
 
     public Notification() {}
 
@@ -33,6 +34,7 @@ public class Notification {
     public String getSender() { return sender; }
     public Map<String, Boolean> getReceiver() { return receiver; }
     public long getTimestamp() { return timestamp; }
+    public String getImageName() { return imageName; }
 
     public void setType(String type) { this.type = type; }
     public void setContent(String content) { this.content = content; }
@@ -40,6 +42,8 @@ public class Notification {
     public void setSender(String sender) { this.sender = sender; }
     public void setReceiver(Map<String, Boolean> receiver) { this.receiver = receiver; }
     public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
+    public void setImageName(String imgName) { this.imageName = imgName; }
+
 
     /**
      * Create notification in Firebase and send to recipient if receiver list is provided
@@ -49,14 +53,16 @@ public class Notification {
      * @param  location Latitude and longitude of user's coordinates where this notice is created
      * @param  sender   Sender user ID or provider name
      * @param  receiver List of recipients
+     * @param  imgName  Image sent along with notification
      */
-    public void sendNotification(String type, String content, String location, String sender, Map<String, Boolean> receiver) {
+    public void sendNotification(String type, String content, String location, String sender, Map<String, Boolean> receiver, String imgName) {
         this.type = type;
         this.content = content;
         this.location = location;
         this.sender = sender;
         this.receiver = receiver;
         this.timestamp = new Date().getTime();
+        this.imageName = imgName;
 
         //Get unique notification ID and store the notice into Firebase
         String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();

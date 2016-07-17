@@ -118,7 +118,7 @@ public class NotificationFragment extends Fragment {
                                         Notification notification = dataSnapshot.getValue(Notification.class);
 
                                         //Create a NotificationItem to be added into the notification list
-                                        NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null);
+                                        NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, "NA");
                                         groupedNotifications.add(notificationItem); // For stacking notifications
                                         notificationList.add(notificationItem);
 
@@ -219,12 +219,46 @@ public class NotificationFragment extends Fragment {
                                         }
 
                                         //Create a NotificationItem to be added into the notification list
+                                        // Location available
                                         if (notification.getLocation() != null) {
-                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(userlocation,notification.getLocation()));
-                                            notificationList.add(notificationItem);
-                                        } else {
-                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null);
-                                            notificationList.add(notificationItem);
+                                            // Image node available in Firebase
+                                            if (notification.getImageName() != null) {
+                                                // No picture attached
+                                                if (notification.getImageName().equals("NA")){
+                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(userlocation,notification.getLocation()), "NA");
+                                                    notificationList.add(notificationItem);
+                                                }
+                                                // Picture attached
+                                                else {
+                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(userlocation,notification.getLocation()), notification.getImageName());
+                                                    notificationList.add(notificationItem);
+                                                }
+                                            }
+                                            // Image node not available in Firebase
+                                            else {
+                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(userlocation,notification.getLocation()), "NA");
+                                                notificationList.add(notificationItem);
+                                            }
+                                        }
+                                        // // Location not available
+                                        else {
+                                            if (notification.getImageName() != null) {
+                                                // No picture attached
+                                                if (notification.getImageName().equals("NA")){
+                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, "NA");
+                                                    notificationList.add(notificationItem);
+                                                }
+                                                // Picture attached
+                                                else {
+                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
+                                                    notificationList.add(notificationItem);
+                                                }
+                                            }
+                                            // Image node not available in Firebase
+                                            else {
+                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, "NA");
+                                                notificationList.add(notificationItem);
+                                            }
                                         }
 
                                         //Sort latest item to be at top of notification list

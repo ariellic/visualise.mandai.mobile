@@ -12,16 +12,18 @@ public class NotificationItem implements Comparator<NotificationItem> {
     private String sender;
     private long timestamp;
     private String proxi;
+    private String imageName;
 
     public NotificationItem() {}
 
-    public NotificationItem(String notificationID, String type, String content, String sender, long timestamp, String proxi) {
+    public NotificationItem(String notificationID, String type, String content, String sender, long timestamp, String proxi, String img) {
         this.notificationID = notificationID;
         this.type = type;
         this.content = content;
         this.sender = sender;
         this.timestamp = timestamp;
         this.proxi = proxi;
+        this.imageName = img;
     }
 
     public String getNotificationID() { return notificationID; }
@@ -30,6 +32,7 @@ public class NotificationItem implements Comparator<NotificationItem> {
     public String getSender() { return sender; }
     public long getTimestamp() { return timestamp; }
     public String getProxi(){return proxi;}
+    public String getImageName(){return imageName;}
 
     //This method does the sorting of latest notification on top
     @Override
