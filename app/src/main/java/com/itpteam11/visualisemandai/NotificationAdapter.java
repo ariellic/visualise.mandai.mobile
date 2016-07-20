@@ -263,7 +263,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 public void onFailure(@NonNull Exception exception) {
                     // Handle any errors
                 }
-            }).add;
+            });
             return null;
         }
 
