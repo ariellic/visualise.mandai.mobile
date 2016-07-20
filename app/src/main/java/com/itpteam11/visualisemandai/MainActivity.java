@@ -471,6 +471,7 @@ public class MainActivity extends AppCompatActivity implements
         //Stop climate service
         if(backtask != null) {
             backtask.cancel();
+
         }
 
         //Stop listener service for wear
@@ -494,8 +495,24 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-        //Sign out from Firebase Authentication account
-        FirebaseAuth.getInstance().signOut();
+
+       
+        FirebaseDatabase.getInstance().getReference().child("user").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                user = dataSnapshot.getValue(User.class);
+                if(user.getStatus().equals("off")){
+                    //Sign out from Firebase Authentication account
+                    FirebaseAuth.getInstance().signOut();
+                }
+            }
+
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
