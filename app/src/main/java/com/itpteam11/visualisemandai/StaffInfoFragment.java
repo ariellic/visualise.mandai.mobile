@@ -54,7 +54,7 @@ public class StaffInfoFragment extends Fragment {
         cardDataSet.put(CardType.WEATHER, "#-#-#");
 
         //Get users' status
-        FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").addValueEventListener(new ValueEventListener() {
+        ValueEventListener statusListener = FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 cardDataSet.put(CardType.STAFF_STATUS, dataSnapshot.getValue(String.class));
@@ -70,8 +70,11 @@ public class StaffInfoFragment extends Fragment {
             }
         });
 
+        //Add created listener into list
+        MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status"), statusListener);
+
         //Get the climate information
-        FirebaseDatabase.getInstance().getReference().child("service").addValueEventListener(new ValueEventListener() {
+        ValueEventListener weatherServiceListener = FirebaseDatabase.getInstance().getReference().child("service").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
@@ -84,16 +87,19 @@ public class StaffInfoFragment extends Fragment {
                     }
                 }
 
-                cardDataSet.put(CardType.WEATHER, weather + "-" + temp + "-" + psi);
+                cardDataSet.put(CardType.WEATHER, weather + "-" + temp + "°C" + "-" + psi);
                 customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
                 recyclerView.setAdapter(customCardAdapter);
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
-                System.out.println("ManagerInfoFragment - Failed on climate retrieval value: " + error.toException());
+                System.out.println("StaffInfoFragment - Failed on climate retrieval value: " + error.toException());
             }
         });
+
+        //Add created listener into list
+        MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("service"), weatherServiceListener);
     }
 
     @Override

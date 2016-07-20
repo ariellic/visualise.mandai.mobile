@@ -56,7 +56,7 @@
                 android:id="@+id/tram_station_crowd_card_station1_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/textsize_xlarge"
+                android:textSize="@dimen/textsize_medium"
                 android:textStyle="bold"
                 android:layout_alignParentRight="true"/>
 
@@ -81,7 +81,7 @@
                 android:id="@+id/tram_station_crowd_card_station2_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/textsize_xlarge"
+                android:textSize="@dimen/textsize_medium"
                 android:textStyle="bold"
                 android:layout_alignParentRight="true"/>
 
@@ -106,7 +106,7 @@
                 android:id="@+id/tram_station_crowd_card_station3_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/textsize_xlarge"
+                android:textSize="@dimen/textsize_medium"
                 android:textStyle="bold"
                 android:layout_alignParentRight="true"/>
 
@@ -132,7 +132,7 @@
                 android:id="@+id/tram_station_crowd_card_station4_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/textsize_xlarge"
+                android:textSize="@dimen/textsize_medium"
                 android:textStyle="bold"
                 android:layout_alignParentRight="true"/>
 

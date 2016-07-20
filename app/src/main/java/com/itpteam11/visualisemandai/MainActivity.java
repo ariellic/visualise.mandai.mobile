@@ -30,6 +30,7 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,7 +38,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.jar.*;
@@ -55,6 +58,10 @@ public class MainActivity extends AppCompatActivity implements
     private final static String MANAGER_ID = "SUk69wtTSbSTLUSQj5CavCJUyop1";
 
     private static final String TAG = "MainActivity";
+
+    //Value and child event listener list stores all created listeners as a record to be removed when app is destroy
+    public static HashMap<DatabaseReference, ValueEventListener> valueEventListenerList = new HashMap<DatabaseReference, ValueEventListener>();
+    public static HashMap<DatabaseReference, ChildEventListener> childEventListenerList = new HashMap<DatabaseReference, ChildEventListener>();
 
     //Tab UI widgets
     private Toolbar toolbar;
@@ -101,9 +108,8 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         final Intent climateServiceIntent = new Intent(this, CheckClimateService.class);
+        climateServiceIntent.putExtra(CheckClimateService.USER_ID, userID);
         startService(new Intent(this, ListenerService.class));
-        System.out.println("MainActivity - User ID from Intent mainActivity: " + userID);
-        System.out.println("MainActivity - Firebase user ID: " + FirebaseAuth.getInstance().getCurrentUser().getUid());
 
         //Retrieve user's detail from database with authenticated user ID
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
@@ -112,67 +118,97 @@ public class MainActivity extends AppCompatActivity implements
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Store user's details into User object
                 user = dataSnapshot.getValue(User.class);
-                userGroupList = user.getGroup().keySet().toArray(new String[user.getGroup().keySet().size()]);
 
-                for (String key : user.getGroup().keySet()) {
-                    userGrp = key;
-                }
-                //Setup Action bar
-                toolbar = (Toolbar) findViewById(R.id.main_activity_toolbar);
-                setSupportActionBar(toolbar);
+                if (user.getType().equals("master")) {
+                    Intent specialPoerActivity = new Intent(MainActivity.this, SpecialPowerActivity.class);
+                    specialPoerActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(specialPoerActivity);
+                } else {
+                    if (user.getAccount_Status().equals("enable")) {
+                        userGroupList = user.getGroup().keySet().toArray(new String[user.getGroup().keySet().size()]);
 
-                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-
-                //Setup page viewer for fragments
-                viewPager = (ViewPager) findViewById(R.id.main_activity_viewpager);
-                setupViewPager(viewPager, user.getType());
-
-                //Setup tabs
-                tabLayout = (TabLayout) findViewById(R.id.main_activity_tabs);
-                tabLayout.setupWithViewPager(viewPager);
-
-                //Assign tabs with their respective icon
-                setupTabIcons();
-
-                //Set title
-                setTitle("Welcome " + user.getName());
-
-                //Set user status as "working"
-                FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").setValue("working");
-                for(String groupName : user.getGroup().keySet()) {
-                    FirebaseDatabase.getInstance().getReference().child("group").child(groupName).child(user.getGroup().get(groupName)).child(userID).setValue("working");
-                }
-
-                new SendActivityPhoneMessage("GROUP;" + userGrp, "").start();
-
-                // To start the service to check the climate data every 20 seconds (can be changed)
-                if (userID.equals(MANAGER_ID)) {
-                    final Handler handler = new Handler();
-                    Timer timer = new Timer();
-                    backtask = new TimerTask() {
-                        @Override
-                        public void run() {
-                            handler.post(new Runnable() {
-                                public void run() {
-                                    try {
-                                        startService(climateServiceIntent);
-                                        Log.d("ClimateService", "Service started");
-                                    } catch (Exception e) {
-                                        // TODO Auto-generated catch block
-                                    }
-                                }
-                            });
+                        for (String key : user.getGroup().keySet()) {
+                            userGrp = key;
                         }
-                    };
-                    Log.d("TimerTask", "TimerTask completed");
-                    timer.schedule(backtask, 0, 20000); //execute in every 20000 ms*/
+                        //Setup Action bar
+                        toolbar = (Toolbar) findViewById(R.id.main_activity_toolbar);
+                        setSupportActionBar(toolbar);
+
+                        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
+                        //Setup page viewer for fragments
+                        viewPager = (ViewPager) findViewById(R.id.main_activity_viewpager);
+                        setupViewPager(viewPager, user.getType());
+
+                        //Setup tabs
+                        tabLayout = (TabLayout) findViewById(R.id.main_activity_tabs);
+                        tabLayout.setupWithViewPager(viewPager);
+
+                        //Assign tabs with their respective icon
+                        setupTabIcons();
+
+                        //Set title
+                        setTitle("Welcome " + user.getName());
+
+                        //Set user status as "working"
+                        FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").setValue("working");
+                        for (String groupName : user.getGroup().keySet()) {
+                            FirebaseDatabase.getInstance().getReference().child("group").child(groupName).child(user.getGroup().get(groupName)).child(userID).setValue("working");
+                        }
+
+                        new SendActivityPhoneMessage("GROUP;" + userGrp, "").start();
+
+                        // To start the service to check the climate data every 20 seconds (can be changed)
+                        if (userID.equals(MANAGER_ID)) {
+                            final Handler handler = new Handler();
+                            Timer timer = new Timer();
+                            backtask = new TimerTask() {
+                                @Override
+                                public void run() {
+                                    handler.post(new Runnable() {
+                                        public void run() {
+                                            try {
+                                                startService(climateServiceIntent);
+                                                Log.d("ClimateService", "Service started");
+                                            } catch (Exception e) {
+                                                // TODO Auto-generated catch block
+                                            }
+                                        }
+                                    });
+                                }
+                            };
+                            Log.d("TimerTask", "TimerTask completed");
+                            timer.schedule(backtask, 0, 20000); //execute in every 20000 ms*/
+                        }
+
+                        //Start listening to user's subscribed service for notification of changes
+                        new ServiceSubscribeListener(userID, user.getService()).startListening();
+
+                        //Check app permission to access location service
+                        checkLocationPermission();
+                    } else {
+                        //Show dialog for disable user
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                        alertDialog.setTitle("Account Disabled");
+                        alertDialog.setMessage("Oops, your account has been disabled. Please contact your supervisor for assistance.");
+                        alertDialog.setIcon(android.R.drawable.ic_secure);
+                        alertDialog.setCancelable(false);
+
+                        alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Sign out from Firebase Authentication account
+                                FirebaseAuth.getInstance().signOut();
+
+                                //Back to sign in activity
+                                Intent signInActivity = new Intent(MainActivity.this, SignInActivity.class);
+                                signInActivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(signInActivity);
+                            }
+                        });
+
+                        alertDialog.show();
+                    }
                 }
-
-                //Start listening to user's subscribed service for notification of changes
-                new ServiceSubscribeListener(userID, user.getService()).startListening();
-
-                //Check app permission to access location service
-                checkLocationPermission();
             }
 
             @Override
@@ -439,6 +475,24 @@ public class MainActivity extends AppCompatActivity implements
 
         //Stop listener service for wear
         stopService(new Intent(getBaseContext(), ListenerService.class));
+
+        //Remove all value event listener
+        if(valueEventListenerList.size() != 0) {
+            for(Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerList.entrySet()) {
+                System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
+                System.out.println("MainActivity - entry.getValue(): " + entry.getValue());
+                entry.getKey().removeEventListener(entry.getValue());
+            }
+        }
+
+        //Remove all child event listener
+        if(childEventListenerList.size() != 0) {
+            for(Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerList.entrySet()) {
+                System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
+                System.out.println("MainActivity - entry.getValue(): " + entry.getValue());
+                entry.getKey().removeEventListener(entry.getValue());
+            }
+        }
 
         //Sign out from Firebase Authentication account
         FirebaseAuth.getInstance().signOut();

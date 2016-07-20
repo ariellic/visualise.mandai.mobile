@@ -33,7 +33,7 @@ public class ServiceSubscribeListener {
                 System.out.println("ServiceSubscribeListener - Start listening for: " + serviceName[i]);
 
                 //create event listener
-                FirebaseDatabase.getInstance().getReference().child("service").child(serviceName[i]).child("notification-id").addValueEventListener(new ValueEventListener() {
+                ValueEventListener serviceListener = FirebaseDatabase.getInstance().getReference().child("service").child(serviceName[i]).child("notification-id").addValueEventListener(new ValueEventListener() {
                     //To prevent writing added new notification into user node during initial setup of listener
                     private boolean firstRead = true;
 
@@ -60,6 +60,9 @@ public class ServiceSubscribeListener {
                         System.out.println("ServiceSubscribeListener - Failed on listening for changes: " + error.toException());
                     }
                 });
+
+                //Add created listener into list
+                MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("service").child(serviceName[i]).child("notification-id"), serviceListener);
             }
         }
     }

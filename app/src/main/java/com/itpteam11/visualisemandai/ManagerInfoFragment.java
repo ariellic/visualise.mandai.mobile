@@ -70,11 +70,11 @@ public class ManagerInfoFragment extends Fragment {
 
         //Todo: Get value from Firebase
         cardDataSet.put(CardType.TRAM_STATION, "NA-NA-NA-NA");
-        cardDataSet.put(CardType.SHOWTIME, "NA-NA-NA-NA");
+        cardDataSet.put(CardType.SHOWTIME, "OK-OK-OK-OK");
         cardDataSet.put(CardType.WEATHER, "#-#-#");
 
         //Get the climate information
-        FirebaseDatabase.getInstance().getReference().child("service").addValueEventListener(new ValueEventListener() {
+        ValueEventListener weatherServiceListener = FirebaseDatabase.getInstance().getReference().child("service").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
@@ -98,7 +98,7 @@ public class ManagerInfoFragment extends Fragment {
                 }
 
                 Log.d("TEMPSIWEATHER", temp + psi + weather);
-                cardDataSet.put(CardType.WEATHER, weather + "-" + temp + "-" + psi);
+                cardDataSet.put(CardType.WEATHER, weather + "-" + temp + "°C" + "-" + psi);
                 customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
                 recyclerView.setAdapter(customCardAdapter);
             }
@@ -109,10 +109,11 @@ public class ManagerInfoFragment extends Fragment {
             }
         });
 
-
+        //Add created listener into list
+        MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("service"), weatherServiceListener);
 
         //Get the group users' status
-        FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff").addValueEventListener(new ValueEventListener() {
+        ValueEventListener staffStatusListener = FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 workingList.clear();
@@ -139,8 +140,10 @@ public class ManagerInfoFragment extends Fragment {
             }
         });
 
+        //Add created listener into list
+        MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff"), staffStatusListener);
 
-                FirebaseDatabase.getInstance().getReference().child("notification").addValueEventListener(new ValueEventListener() {
+        ValueEventListener showtimeStatusListener = FirebaseDatabase.getInstance().getReference().child("notification").addValueEventListener(new ValueEventListener() {
 
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -255,7 +258,7 @@ public class ManagerInfoFragment extends Fragment {
                     recyclerView.setAdapter(customCardAdapter);
                 }
                 else{
-                    cardDataSet.put(CardType.SHOWTIME,"NA-NA-NA-NA");
+                    cardDataSet.put(CardType.SHOWTIME,"OK-OK-OK-OK");
                     customCardAdapter = new CustomCardAdapter(cardDataSet, userID);
                     recyclerView.setAdapter(customCardAdapter);
 
@@ -268,6 +271,32 @@ public class ManagerInfoFragment extends Fragment {
                 System.out.println("ManagerInfoFragment - Failed to get show notification: " + error.toException());
             }
         });
+
+        //Add created listener into list
+        MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("notification"), showtimeStatusListener);
+
+        ValueEventListener tramStationStatusListener = FirebaseDatabase.getInstance().getReference().child("service").child("tram").addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                ArrayList<String> stationStatus = new ArrayList<String>();
+
+                for(DataSnapshot station : dataSnapshot.getChildren()) {
+                    stationStatus.add(station.getValue(String.class));
+                }
+
+                cardDataSet.put(CardType.TRAM_STATION, stationStatus.get(0)+ "-" + stationStatus.get(1) + "-" + stationStatus.get(2) + "-" + stationStatus.get(3));
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                //Failed to get tram station status
+                System.out.println("ManagerInfoFragment - Failed to get tram station status: " + error.toException());
+            }
+        });
+
+        //Add created listener into list
+        MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("service").child("tram"), tramStationStatusListener);
     }
 
     @Override

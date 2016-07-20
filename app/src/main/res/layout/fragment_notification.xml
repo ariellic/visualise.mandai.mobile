@@ -4,6 +4,13 @@
     android:layout_height="match_parent"
     tools:context="com.itpteam11.visualisemandai.NotificationFragment">
 
+    <TextView
+        android:id="@+id/notification_fragment_no_notification"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/notification_fragment_no_notification"
+        android:gravity="center" />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/notification_fragment_recyclerview"
         android:layout_width="match_parent"

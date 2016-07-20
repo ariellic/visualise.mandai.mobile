@@ -96,11 +96,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 if (notification.getProxi() != null) {
                     double proximi = notification.getProxi();
                     if (proximi > 200.0) {
-                        normalNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
-                        normalNotificationViewHolder.proxi.setTextColor(Color.RED);
+                        normalNotificationViewHolder.proxi.setText(proximi + "m away");
+                        normalNotificationViewHolder.proxi.setBackgroundColor(Color.RED);
+                        normalNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     } else {
-                        normalNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
-                        normalNotificationViewHolder.proxi.setTextColor(Color.GREEN);
+                        normalNotificationViewHolder.proxi.setText(proximi + "m away");
+                        normalNotificationViewHolder.proxi.setBackgroundColor(Color.GREEN);
+                        normalNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     }
                 }
                 break;
@@ -111,13 +113,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 escapeNotificationViewHolder.sender.setText(notification.getSender());
                 escapeNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
                 if (notification.getProxi() != null) {
-                    double Eproximi = notification.getProxi();
-                    if (Eproximi > 200.0) {
-                        escapeNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
-                        escapeNotificationViewHolder.proxi.setTextColor(Color.RED);
+                    double proximi = notification.getProxi();
+                    if (proximi > 200.0) {
+                        escapeNotificationViewHolder.proxi.setText(proximi + "m away");
+                        escapeNotificationViewHolder.proxi.setBackgroundColor(Color.RED);
+                        escapeNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     } else {
-                        escapeNotificationViewHolder.proxi.setText(notification.getProxi() + "m away");
-                        escapeNotificationViewHolder.proxi.setTextColor(Color.GREEN);
+                        escapeNotificationViewHolder.proxi.setText(proximi + "m away");
+                        escapeNotificationViewHolder.proxi.setBackgroundColor(Color.GREEN);
+                        escapeNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     }
                 }
                 escapeNotificationViewHolder.setResolveButtonListener(notification.getNotificationID(), notification.getContent());
@@ -131,13 +135,15 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 imageNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
 
                 if (notification.getProxi() != null) {
-                    double Eproximi = notification.getProxi();
-                    if (Eproximi > 200.0) {
-                        imageNotificationViewHolder.proxi.setText(Eproximi + "m away");
-                        imageNotificationViewHolder.proxi.setTextColor(Color.RED);
+                    double proximi = notification.getProxi();
+                    if (proximi > 200.0) {
+                        imageNotificationViewHolder.proxi.setText(proximi + "m away");
+                        imageNotificationViewHolder.proxi.setBackgroundColor(Color.RED);
+                        imageNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     } else {
-                        imageNotificationViewHolder.proxi.setText(Eproximi + "m away");
-                        imageNotificationViewHolder.proxi.setTextColor(Color.GREEN);
+                        imageNotificationViewHolder.proxi.setText(proximi + "m away");
+                        imageNotificationViewHolder.proxi.setBackgroundColor(Color.GREEN);
+                        imageNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     }
                 }
 

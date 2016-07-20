@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -44,6 +45,7 @@ public class NotificationFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager recyclerLayoutManager;
     private NotificationAdapter notificationAdapter;
+    private TextView noNotification;
 
    // private String userlocation;
 
@@ -79,6 +81,8 @@ public class NotificationFragment extends Fragment {
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(notificationAdapter);
 
+        noNotification = (TextView) view.findViewById(R.id.notification_fragment_no_notification);
+
         return view;
     }
 
@@ -99,7 +103,7 @@ public class NotificationFragment extends Fragment {
                 //Create a receive node if not exist to prevent null exception when added event listener
                 FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child("notificationid").setValue(true);
 
-                FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").addChildEventListener(new ChildEventListener() {
+                ChildEventListener userNotificationListener = FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
                         String notificationID = dataSnapshot.getKey();
@@ -107,6 +111,8 @@ public class NotificationFragment extends Fragment {
 
                         //Ignore notificationid record
                         if (!notificationID.equals("notificationid")) {
+                            noNotification.setVisibility(View.GONE);
+
                             //Show notification alert when record is a new notification. Else past notifications will not be alert
                             if (!notified) {
                                 //Retrieve the actual notification by ID
@@ -117,10 +123,19 @@ public class NotificationFragment extends Fragment {
                                         //Store notification details into Notification object
                                         Notification notification = dataSnapshot.getValue(Notification.class);
 
-                                        //Create a NotificationItem to be added into the notification list
-                                        NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, "NA");
-                                        groupedNotifications.add(notificationItem); // For stacking notifications
-                                        notificationList.add(notificationItem);
+                                        // Create a NotificationItem to be added into the notification list
+                                        // When notification's and user's location exist
+                                        if (notification.getLatitude() != null && notification.getLongitude() != null) {
+                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
+                                            groupedNotifications.add(notificationItem); // For stacking notifications
+                                            notificationList.add(notificationItem);
+                                        }
+                                        // Image node not available in Firebase
+                                        else {
+                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
+                                            groupedNotifications.add(notificationItem); // For stacking notifications
+                                            notificationList.add(notificationItem);
+                                        }
 
                                         final String GROUP_NOTIFICATIONS = "group_notifications";
 
@@ -216,8 +231,8 @@ public class NotificationFragment extends Fragment {
 
                                         // Create a NotificationItem to be added into the notification list
                                         // When notification's and user's location exist
-                                        if (notification.getLatitude() != null && notification.getLongitude() != null && StaffLocationService.isLocationPermissionGranted()) {
-                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(StaffLocationService.getLatitude(), StaffLocationService.getLongitude(), notification.getLatitude(),notification.getLongitude()), notification.getImageName());
+                                        if (notification.getLatitude() != null && notification.getLongitude() != null) {
+                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
                                             notificationList.add(notificationItem);
                                         }
                                         // Image node not available in Firebase
@@ -257,6 +272,9 @@ public class NotificationFragment extends Fragment {
                     @Override
                     public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) { }
                 });
+
+                //Add created listener into list
+                MainActivity.childEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive"), userNotificationListener);
             }
 
             @Override
@@ -290,12 +308,16 @@ public class NotificationFragment extends Fragment {
         return sender;
     }
 
-    public Double calculateProxi(double userLatitude, double userLongtitude, double notificationLatitude, double notificationLongtitude){
+    public Double calculateProxi(double notificationLatitude, double notificationLongtitude){
         DecimalFormat round = new DecimalFormat("#.##");
         //double distM = userLoc.distanceTo(notiLoc);
-        double distM = distance(notificationLatitude, notificationLongtitude, userLatitude, userLongtitude);
-        distM = distM * 1000;
-        return Double.parseDouble(round.format(distM));
+        if(StaffLocationService.isLocationPermissionGranted()) {
+            double distM = distance(notificationLatitude, notificationLongtitude, StaffLocationService.getLatitude(), StaffLocationService.getLongitude());
+            distM = distM * 1000;
+            return Double.parseDouble(round.format(distM));
+        }
+
+        return null;
     }
 
     private double distance(double lat1, double lon1, double lat2, double lon2) {

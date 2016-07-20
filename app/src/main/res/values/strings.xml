@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Visualise Mandai</string>
+    <string name="app_name">Visualize Mandai</string>
     <!-- Action Bar Menu -->
     <string name="action_bar_sign_out">Sign Out</string>
 
@@ -50,5 +50,8 @@
 
     <!-- Notification List (Escape) -->
     <string name="notification_list_escape_resolve_button">Resolve</string>
+
+    <!-- Notification Fragment -->
+    <string name="notification_fragment_no_notification">There is no notification for you at the moment.</string>
 
 </resources>

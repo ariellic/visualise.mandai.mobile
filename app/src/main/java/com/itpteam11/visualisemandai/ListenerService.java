@@ -224,6 +224,7 @@ public class ListenerService extends WearableListenerService implements Connecti
                     Notification notification = new Notification();
                     notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", latitude, longitude, userID, receiver, "NA");
 
+                    FirebaseDatabase.getInstance().getReference().child("service").child("tram").child("station"+parts[1]).setValue("Crowded");
                 }
                 @Override
                 public void onCancelled(DatabaseError error) {
