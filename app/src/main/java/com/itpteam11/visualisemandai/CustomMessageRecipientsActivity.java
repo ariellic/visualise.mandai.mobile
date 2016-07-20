@@ -81,7 +81,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     User user = child.getValue(User.class);
-                    if (!user.getStatus().equals("off") && (!child.getKey().equals(userID))) {
+                    if (user.getStatus() != null && !user.getStatus().equals("off") && (!child.getKey().equals(userID))) {
                         Map<String, String> userIdAndInfo = new HashMap<String, String>();
                         listOfWorkingUsers.add(user);
                         userIdAndInfo.put(user.getName(), child.getKey());
@@ -112,7 +112,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             User user = child.getValue(User.class);
                             //Get selected users from checkbox in adapter
-                            if ((!user.getStatus().equals("off")) && adapter.checkedValue.contains(user.getName()) && (!child.getKey().equals(userID))) {
+                            if (user.getStatus() != null && (!user.getStatus().equals("off")) && adapter.checkedValue.contains(user.getName()) && (!child.getKey().equals(userID))) {
                                 receiver.put(child.getKey(), false);
                             }
                         }
@@ -174,13 +174,14 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
+                Log.d(TAG, "Upload unsuccessful");
                 // Handle unsuccessful uploads
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
-                Uri downloadUrl = taskSnapshot.getDownloadUrl();
+                Log.d(TAG, "Upload successful");
             }
         });
         return imgName;

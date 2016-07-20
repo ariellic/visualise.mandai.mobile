@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -16,8 +17,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -34,17 +37,20 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
  * This custom RecyclerView adapter will create and hold multiple notification
  */
-public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
+public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> implements DownloadTaskInterface {
     private static final String TAG = "NotificationAdapter";
     private List<NotificationItem> notificationList;
     private StorageReference storageRef;
+    StorageReference imgRef;
     private Context context;
+    private String mCurrentPhotoPath;
 
     public NotificationAdapter(List<NotificationItem> notificationList) {
         this.notificationList = notificationList;
@@ -57,6 +63,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://visualise-mandai.appspot.com");
+        imgRef = null;
 
         //Create respective notification item based on notification type
         switch (viewType) {
@@ -80,82 +87,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         switch (holder.getItemViewType()) {
             case 0:
                 Log.d(TAG, "In NormalNotificationViewHolder");
-                NormalNotificationViewHolder normalNotificationViewHolder = (NormalNotificationViewHolder) holder;
+                Log.d(TAG, "Message: " + notification.getContent());
+                final NormalNotificationViewHolder normalNotificationViewHolder = (NormalNotificationViewHolder) holder;
                 normalNotificationViewHolder.message.setText(notification.getContent());
                 normalNotificationViewHolder.sender.setText(notification.getSender());
                 normalNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
-
-
-                /*// Check if item's ImageView in holder already has an image
-                if (normalNotificationViewHolder.img.getDrawable() == null) {
-                    // If there is an image for the notification
-                    if (!notification.getImageName().equals("NA") && notification.getImageName() != null) {
-
-                        Log.d(TAG, "notification.getImageName() not NA not null");
-
-                        String imgName = notification.getImageName();
-                        StorageReference imgRef = storageRef.child("custom_alerts/" + notification.getImageName());
-
-                        // Create image path
-                        File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName);
-
-                        Log.d(TAG, "imgFile: " + imagePath.toString() + ", " + imagePath.getAbsolutePath());
-
-                        // If image path does not exist yet, create file and download image to file
-                        if (!imagePath.exists()) {
-                            Log.d(TAG, "Image does not exist");
-                            final File imgFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imgName);
-                            imgRef.getFile(imgFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                    // Local temp file has been created
-                                    Log.d(TAG, "taskSnapshot String: " + taskSnapshot.toString());
-                                    Long bytes = taskSnapshot.getBytesTransferred();
-                                    Log.d(TAG, "taskSnapshot getBytesTransferred: " + bytes);
-                                    Long totalByteCount = taskSnapshot.getTotalByteCount();
-                                    Log.d(TAG, "taskSnapshot gettotalByteCount: " + totalByteCount);
-                                    String path = imgFile.getAbsolutePath();
-                                    Log.d(TAG, "Image path: " + path);
-                                    normalNotificationViewHolder.img.setImageBitmap(getThumbnail(path));
-                                    normalNotificationViewHolder.img.setTag(position);
-                                    normalNotificationViewHolder.img.setVisibility(View.VISIBLE);
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception exception) {
-                                    // Handle any errors
-                                }
-                            });
-                        }
-                        // If image exists in directory, set thumbnail of image
-                        else {
-                            Log.d(TAG, "Image exist");
-                            normalNotificationViewHolder.img.setImageBitmap(getThumbnail(imagePath.getAbsolutePath()));
-                            normalNotificationViewHolder.img.setTag(position);
-                            normalNotificationViewHolder.img.setVisibility(View.VISIBLE);
-                        }
-                        //String result = imgRef.getFile(imgFile).getResult().toString();
-                        //Log.d(TAG, "Result of download: " + result);
-
-                    }
-                    // No image available for notification, disable imageview
-                    else {
-                        normalNotificationViewHolder.img.setVisibility(View.GONE);
-                    }
-                }
-                // Item holds an image
-                else {
-                    // Item's notification should not have an image
-                    if (notification.getImageName().equals("NA") || notification.getImageName() == null) {
-                        normalNotificationViewHolder.img.setImageDrawable(null);
-                        normalNotificationViewHolder.img.setVisibility(View.GONE);
-                    }
-                    // Item's notification image is incorrect
-                    else if (!normalNotificationViewHolder.img.getTag().equals(position)) {
-                        normalNotificationViewHolder.img.setImageDrawable(null);
-                        normalNotificationViewHolder.img.setVisibility(View.GONE);
-                    }
-                }*/
 
                 if (notification.getProxi() != null) {
                     double proximi = notification.getProxi();
@@ -188,6 +124,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 break;
             case 2:
                 Log.d(TAG, "In ImageNotificationViewHolder");
+                Log.d(TAG, "Message: " + notification.getContent());
                 final ImageNotificationViewHolder imageNotificationViewHolder = (ImageNotificationViewHolder) holder;
                 imageNotificationViewHolder.message.setText(notification.getContent());
                 imageNotificationViewHolder.sender.setText(notification.getSender());
@@ -204,56 +141,142 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     }
                 }
 
-                // If there is an image for the notification
-                if (notification.getImageName() != null) {
-
-                    Log.d(TAG, "notification.getImageName() not null");
-
-                    String imgName = notification.getImageName();
-                    StorageReference imgRef = storageRef.child("custom_alerts/" + notification.getImageName());
-
-                    // Create image path
-                    File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName);
-
-                    Log.d(TAG, "imgFile: " + imagePath.toString() + ", " + imagePath.getAbsolutePath());
-
-                    // If image path does not exist yet, create file and download image to file
-                    if (!imagePath.exists()) {
-                        Log.d(TAG, "Image does not exist");
-                        final File imgFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imgName);
-                        imgRef.getFile(imgFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                // Local temp file has been created
-                                Log.d(TAG, "taskSnapshot String: " + taskSnapshot.toString());
-                                Long bytes = taskSnapshot.getBytesTransferred();
-                                Log.d(TAG, "taskSnapshot getBytesTransferred: " + bytes);
-                                Long totalByteCount = taskSnapshot.getTotalByteCount();
-                                Log.d(TAG, "taskSnapshot gettotalByteCount: " + totalByteCount);
-                                String path = imgFile.getAbsolutePath();
-                                Log.d(TAG, "Image path: " + path);
-                                imageNotificationViewHolder.img.setImageBitmap(getThumbnail(path));
-                                imageNotificationViewHolder.img.setTag(position);
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception exception) {
-                                //No image fail to download for notification, disable imageview
-                                imageNotificationViewHolder.img.setVisibility(View.GONE);
-                            }
-                        });
-                    }
-                    // If image exists in directory, set thumbnail of image
-                    else {
-                        Log.d(TAG, "Image exist");
-                        imageNotificationViewHolder.img.setImageBitmap(getThumbnail(imagePath.getAbsolutePath()));
-                        imageNotificationViewHolder.img.setTag(position);
-                    }
+                ImageView imgView = imageNotificationViewHolder.img;
+                Log.d(TAG, "imgView.getDrawable(): " + imgView.getDrawable());
+                Log.d(TAG, "imgView.getTag(): " + imgView.getTag());
+                if (imgView.getDrawable() != null && imgView.getTag() == null) {
+                    imgView.setImageResource(0);
                 }
 
+                // Item does not hold an image
+                if (imgView.getDrawable() == null) {
+                    Log.d(TAG, "No drawable in imageview");
+                    // If there is an image for the notification
+                    if (!notification.getImageName().equals("NA") && notification.getImageName() != null) {
+
+                        Log.d(TAG, "notification.getImageName() not NA not null");
+
+                        String imgName = notification.getImageName();
+                        imgRef = storageRef.child("custom_alerts/" + notification.getImageName());
+
+                        // Create image path
+                        File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName);
+
+                        Log.d(TAG, "imgFile: " + imagePath.toString() + ", " + imagePath.getAbsolutePath());
+
+                        // If image path does not exist yet, create file and download image to file
+                        if (!imagePath.exists()) {
+                            DownloadImageAsyncTask dlImgTask = new DownloadImageAsyncTask(imgView, imgName, position, this);
+                            dlImgTask.execute();
+
+                            //downloadImage(imgRef, imageNotificationViewHolder, position, imgName);
+                        }
+                        // If image exists in directory, set thumbnail of image
+                        else {
+                            Log.d(TAG, "Image exist in directory, position: " + position);
+                            imgView.setImageBitmap(getThumbnail(imagePath.getAbsolutePath()));
+                            imgView.setTag(position);
+                            imgView.setVisibility(View.VISIBLE);
+                            //this.notifyItemChanged(position);
+                        }
+                        //String result = imgRef.getFile(imgFile).getResult().toString();
+                        //Log.d(TAG, "Result of download: " + result);
+
+                    }
+                    // No image available for notification, disable imageview
+                    else {
+                        if (notification.getImageName().equals("NA")) {
+                            Log.d(TAG, "notification.getImageName() is NA");
+                        } else if (notification.getImageName() == null) {
+                            Log.d(TAG, "notification.getImageName() is null");
+                        } else {
+                            Log.d(TAG, "notification.getImageName() is " + notification.getImageName());
+                        }
+                        //Log.d(TAG, "Image exist");
+                        imgView.setVisibility(View.GONE);
+                    }
+                }
+                // Item holds an image
+                else {
+                    Log.d(TAG, "There is a drawable in imageview");
+                    // Item's notification should not have an image
+                    if (notification.getImageName().equals("NA") || notification.getImageName() == null) {
+                        imgView.setImageDrawable(null);
+                        imgView.setVisibility(View.GONE);
+                    }
+                    // Item's notification image is incorrect
+                    else if (!imgView.getTag().equals(position)) {
+                        imgView.setImageDrawable(null);
+                        imgView.setVisibility(View.GONE);
+                    }
+                }
                 break;
         }
     }
+
+    @Override
+    public void asyncComplete(boolean success, int pos) {
+        this.notifyItemChanged(pos);
+    }
+
+    private class DownloadImageAsyncTask extends AsyncTask<Void, Void, String> {
+
+        String imgName;
+        ImageView imgV;
+        int position;
+        private DownloadTaskInterface delegate;
+
+        public DownloadImageAsyncTask (ImageView view, String name, int pos, DownloadTaskInterface delegate) {
+            this.imgV = view;
+            this.imgName = name;
+            this.position = pos;
+            this.delegate = delegate;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            Log.d(TAG, "Download task in background");
+            //position = Integer.valueOf(params[2]);
+            StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
+            //Log.d(TAG, "imgName: " + imgName + ", position: " + position);
+            File imgFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imgName);
+            mCurrentPhotoPath = imgFile.getAbsolutePath();
+            Log.d(TAG, "saved file imgFile: " + imgFile);
+            ref.getFile(imgFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                    // Local temp file has been created
+                    Log.d(TAG, "taskSnapshot String: " + taskSnapshot.toString());
+                    Long bytes = taskSnapshot.getBytesTransferred();
+                    Log.d(TAG, "taskSnapshot getBytesTransferred: " + bytes);
+                    Long totalByteCount = taskSnapshot.getTotalByteCount();
+                    Log.d(TAG, "taskSnapshot gettotalByteCount: " + totalByteCount);
+                    Log.d(TAG, "mCurrentPhotoPath: " + mCurrentPhotoPath);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    // Handle any errors
+                }
+            }).add;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            imgV.setImageBitmap(getThumbnail(mCurrentPhotoPath));
+            imgV.setTag(position);
+            imgV.setVisibility(View.VISIBLE);
+            delegate.asyncComplete(true, position);
+        }
+
+    }
+
 
     @Override
     public int getItemCount() {
