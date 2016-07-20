@@ -69,17 +69,10 @@ public class ShowDelayActivity extends Activity implements WearableListView.Clic
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
         String key = viewItemList.get(viewHolder.getLayoutPosition()).text;
-        sendMessage(header+";"+key);
-        if(send == 1) {
+        sendMessage(header + ";" + key);
 
-            Intent intent = new Intent(this, ConfirmationActivity.class);
-            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
-                    ConfirmationActivity.SUCCESS_ANIMATION);
-            intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Success!");
-            startActivity(intent);
 
-            mHandler.postDelayed(mUpdateTimeTask, 1000);
-        }
+
     }
 
     private Runnable mUpdateTimeTask = new Runnable() {
@@ -153,7 +146,14 @@ public class ShowDelayActivity extends Activity implements WearableListView.Clic
                                         + sendMessageResult.getStatus().getStatusCode());
                             }
                             else{
-                                send = 1;
+
+                                Intent intent = new Intent(getBaseContext(), ConfirmationActivity.class);
+                                intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
+                                        ConfirmationActivity.SUCCESS_ANIMATION);
+                                intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Success!");
+                                startActivity(intent);
+
+                                mHandler.postDelayed(mUpdateTimeTask, 1000);
                             }
                         }
                     }

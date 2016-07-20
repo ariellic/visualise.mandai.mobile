@@ -309,7 +309,7 @@ public class NotificationFragment extends Fragment {
     }
 
     public Double calculateProxi(double notificationLatitude, double notificationLongtitude){
-        DecimalFormat round = new DecimalFormat("#.##");
+        DecimalFormat round = new DecimalFormat("#.00");
         //double distM = userLoc.distanceTo(notiLoc);
         if(StaffLocationService.isLocationPermissionGranted()) {
             double distM = distance(notificationLatitude, notificationLongtitude, StaffLocationService.getLatitude(), StaffLocationService.getLongitude());

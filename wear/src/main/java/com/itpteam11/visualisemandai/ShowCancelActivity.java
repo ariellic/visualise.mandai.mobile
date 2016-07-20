@@ -73,16 +73,7 @@ public class ShowCancelActivity extends Activity implements WearableListView.Cli
     public void onClick(WearableListView.ViewHolder viewHolder) {
         String key = viewItemList.get(viewHolder.getLayoutPosition()).text;
         sendMessage(header+";"+key);
-        if(send == 1) {
 
-            Intent intent = new Intent(this, ConfirmationActivity.class);
-            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
-                    ConfirmationActivity.SUCCESS_ANIMATION);
-            intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Success!");
-            startActivity(intent);
-
-            mHandler.postDelayed(mUpdateTimeTask, 1000);
-        }
     }
 
     private Runnable mUpdateTimeTask = new Runnable() {
@@ -156,7 +147,13 @@ public class ShowCancelActivity extends Activity implements WearableListView.Cli
                                         + sendMessageResult.getStatus().getStatusCode());
                             }
                             else{
-                                send = 1;
+                                Intent intent = new Intent(getBaseContext(), ConfirmationActivity.class);
+                                intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
+                                        ConfirmationActivity.SUCCESS_ANIMATION);
+                                intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Success!");
+                                startActivity(intent);
+
+                                mHandler.postDelayed(mUpdateTimeTask, 1000);
                             }
                         }
                     }

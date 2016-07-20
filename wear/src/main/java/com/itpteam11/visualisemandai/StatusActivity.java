@@ -46,6 +46,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
     private List<ListViewItem> viewItemList = new ArrayList<>();
     TextView mHeader;
     String header;
+    String keys;
 
     Node mNode; // the connected device to send the message to
     GoogleApiClient mGoogleApiClient;
@@ -111,21 +112,12 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
         String key = viewItemList.get(viewHolder.getLayoutPosition()).text;
+        keys  = key;
         sendMessage("status;"+key);
-        
-        if(send == 1) {
-            //Store current status in shared preference
-            SharedPreferences.Editor editor = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
-            editor.putString("status", key);
-            editor.apply();
-            
-            Intent intent = new Intent(this, ConfirmationActivity.class);
-            intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE,
-                    ConfirmationActivity.SUCCESS_ANIMATION);
-            intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, "Success!");
-            startActivity(intent);
-            finish();
-        }
+
+
+
+
     }
 
     @Override
@@ -195,6 +187,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
     }
 
     private void sendMessage(String Key) {
+            String key = Key;
 
                 if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
             Log.d(TAG, "-- " + mGoogleApiClient.isConnected());
@@ -211,7 +204,14 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
                                         + sendMessageResult.getStatus().getStatusCode());
                             }
                             else{
-                                send = 1;
+                                SharedPreferences.Editor editor = getSharedPreferences(MY_PREFS_NAME, MODE_PRIVATE).edit();
+                                editor.putString("status", keys);
+                                editor.apply();
+                                Intent intent = new Intent(getBaseContext(), ConfirmationActivity.class);
+                                intent.putExtra(ConfirmationActivity.EXTRA_ANIMATION_TYPE, ConfirmationActivity.SUCCESS_ANIMATION);
+                                intent.putExtra(ConfirmationActivity.EXTRA_MESSAGE, " Status Send!");
+                                startActivity(intent);
+                                finish();
                             }
                         }
                     }
