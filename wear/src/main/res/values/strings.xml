@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">visualisemandai</string>
+    <string name="app_name">Visualize Mandai</string>
     <string name="hello_round">Hello Round World!</string>
     <string name="hello_square">Hello Square World!</string>
     <string name="title_activity_show">ShowActivity</string>

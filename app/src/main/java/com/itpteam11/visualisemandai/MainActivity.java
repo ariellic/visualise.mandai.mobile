@@ -83,7 +83,9 @@ public class MainActivity extends AppCompatActivity implements
     GoogleApiClient mGoogleApiClient;
 
     //To locate staff coordinates
-    private StaffLocationService staffLocationService = null;
+    private static StaffLocationService staffLocationService = null;
+    private static Intent listenerService = null;
+    private static Intent climateService = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,9 +109,30 @@ public class MainActivity extends AppCompatActivity implements
             Log.v(TAG, "Connecting to GoogleApiClient..");
         }
 
-        final Intent climateServiceIntent = new Intent(this, CheckClimateService.class);
-        climateServiceIntent.putExtra(CheckClimateService.USER_ID, userID);
-        startService(new Intent(this, ListenerService.class));
+        //Remove all value event listener
+        if(valueEventListenerList.size() != 0) {
+            for(Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerList.entrySet()) {
+                System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
+                System.out.println("MainActivity - entry.getValue(): " + entry.getValue());
+                entry.getKey().removeEventListener(entry.getValue());
+            }
+        }
+
+        //Remove all child event listener
+        if(childEventListenerList.size() != 0) {
+            for(Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerList.entrySet()) {
+                System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
+                System.out.println("MainActivity - entry.getValue(): " + entry.getValue());
+                entry.getKey().removeEventListener(entry.getValue());
+            }
+        }
+
+        if(listenerService != null) {
+            stopService(listenerService);
+        }
+        listenerService = new Intent(this, ListenerService.class);
+        listenerService.putExtra(ListenerService.USER_ID, userID);
+        startService(listenerService);
 
         //Retrieve user's detail from database with authenticated user ID
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
@@ -168,7 +191,12 @@ public class MainActivity extends AppCompatActivity implements
                                     handler.post(new Runnable() {
                                         public void run() {
                                             try {
-                                                startService(climateServiceIntent);
+                                                if(climateService != null) {
+                                                    stopService(climateService);
+                                                }
+                                                climateService = new Intent(MainActivity.this, CheckClimateService.class);
+                                                climateService.putExtra(CheckClimateService.USER_ID, userID);
+                                                startService(climateService);
                                                 Log.d("ClimateService", "Service started");
                                             } catch (Exception e) {
                                                 // TODO Auto-generated catch block
@@ -290,6 +318,10 @@ public class MainActivity extends AppCompatActivity implements
             case LOCATION_PERMISSIONS_REQUEST: {
                 //If user granted permission to access location
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if(staffLocationService != null) {
+                        staffLocationService.stopLocationUpdate();
+                    }
+
                     //Start staff location service to update user coordinates
                     staffLocationService = new StaffLocationService(this, userID);
                     System.out.println("MainActivity - Location permission granted");
@@ -373,6 +405,11 @@ public class MainActivity extends AppCompatActivity implements
             }
         };
         Log.d("NEA Data", "Dataset retrieved");
+
+        if(backtask != null) {
+            backtask.cancel();
+        }
+
         timer.schedule(backtask, 0, 60000); //execute in every 20000 ms*/
     }
 
@@ -471,11 +508,10 @@ public class MainActivity extends AppCompatActivity implements
         //Stop climate service
         if(backtask != null) {
             backtask.cancel();
-
         }
 
         //Stop listener service for wear
-        stopService(new Intent(getBaseContext(), ListenerService.class));
+        stopService(listenerService);
 
         //Remove all value event listener
         if(valueEventListenerList.size() != 0) {
@@ -495,8 +531,6 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-
-       
         FirebaseDatabase.getInstance().getReference().child("user").child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -507,11 +541,8 @@ public class MainActivity extends AppCompatActivity implements
                 }
             }
 
-
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
+            public void onCancelled(DatabaseError databaseError) { }
         });
     }
 

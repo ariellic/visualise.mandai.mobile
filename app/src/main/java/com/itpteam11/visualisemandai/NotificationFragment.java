@@ -125,7 +125,7 @@ public class NotificationFragment extends Fragment {
 
                                         // Create a NotificationItem to be added into the notification list
                                         // When notification's and user's location exist
-                                        if (notification.getLatitude() != null && notification.getLongitude() != null && notification.getLatitude()!= 0 && notification.getLongitude()!=0) {
+                                        if (notification.getLatitude() != null && notification.getLongitude() != null && notification.getLatitude() != -0 && notification.getLatitude() != 0 && notification.getLongitude() != -0 && notification.getLongitude() != 0 && StaffLocationService.isLocationPermissionGranted()) {
                                             NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
                                             groupedNotifications.add(notificationItem); // For stacking notifications
                                             notificationList.add(notificationItem);
@@ -181,26 +181,7 @@ public class NotificationFragment extends Fragment {
                                             notificationWord = " notifications";
                                         }
 
-                                        notify.setStyle(new NotificationCompat.BigTextStyle()
-                                                //.setSummaryText(Integer.toString(pendingNotifications) + notificationWord + " from Visualizing Mandai")
-                                                .bigText(desc));
-                                /*} else if (pendingNotifications > 1) {
-                                    NotificationCompat.InboxStyle inbox = new NotificationCompat.InboxStyle();
-                                    {
-                                        for (NotificationItem item : groupedNotifications) {
-                                            String stackNotificationLine = item.getSender();
-                                            if (stackNotificationLine != null) {
-                                                inbox.addLine(stackNotificationLine);
-                                            }
-                                        }
-
-                                        // the summary text will appear at the bottom of the expanded stack notification
-                                        // we just display the same thing from above (don't forget to use string
-                                        // resource formats!)
-                                        inbox.setSummaryText(String.format("%d new notifications from Visualizing Mandai", groupedNotifications.size()));
-                                    }
-                                    notify.setStyle(inbox);
-                                } */
+                                        notify.setStyle(new NotificationCompat.BigTextStyle().bigText(desc));
 
                                         notify.extend(wearableExtender);
                                         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
@@ -209,7 +190,7 @@ public class NotificationFragment extends Fragment {
                                         //Sort latest item to be at top of notification list
                                         Collections.sort(notificationList, new NotificationItem());
 
-                                        //Update notification list
+                                        //Recreate notification list
                                         notificationAdapter.notifyDataSetChanged();
 
                                         //Set notification has received(set true)
@@ -234,7 +215,7 @@ public class NotificationFragment extends Fragment {
                                             Log.d("NotificationFragment", "notification.getContent(): " + notification.getContent());
                                             // Create a NotificationItem to be added into the notification list
                                             // When notification's and user's location exist
-                                            if (notification.getLatitude() != null && notification.getLongitude() != null&& notification.getLatitude()!= 0 && notification.getLongitude()!=0) {
+                                            if (notification.getLatitude() != null && notification.getLongitude() != null && notification.getLatitude() != -0 && notification.getLatitude() != 0 && notification.getLongitude() != -0 && notification.getLongitude() != 0 && StaffLocationService.isLocationPermissionGranted()) {
                                                 NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
                                                 notificationList.add(notificationItem);
                                             }
@@ -284,17 +265,7 @@ public class NotificationFragment extends Fragment {
                 });
 
                 //Add created listener into list
-                MainActivity.childEventListenerList.put(FirebaseDatabase.getInstance().
-
-                        getReference()
-
-                        .
-
-                                child("notification-lookup")
-
-                        .
-
-                                child(userID).child("receive"), userNotificationListener);
+                MainActivity.childEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive"), userNotificationListener);
             }
 
             @Override

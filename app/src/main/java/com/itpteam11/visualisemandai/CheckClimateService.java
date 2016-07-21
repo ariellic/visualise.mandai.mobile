@@ -210,69 +210,67 @@ public class CheckClimateService extends IntentService {
                 }
                 // If climate type 'psi' is being processed from NEA
                 else if (climateType.equals("psi")) {
-                    int psi = Integer.parseInt(result);
-                    if (psi >= 0 || psi > 300) {
-                        content = "Haze alert: PSI " + psi; //getRangeDesriptor(psi);
-                        sender = "NEA - PSI";
-                        timestamp = new Date().getTime();
+                    if(!result.equals("")) {
+                        int psi = Integer.parseInt(result);
+                        if (psi >= 0 || psi > 300) {
+                            content = "Haze alert: PSI " + psi; //getRangeDesriptor(psi);
+                            sender = "NEA - PSI";
+                            timestamp = new Date().getTime();
 
-                        //notification.sendServiceNotification(Notification.PSI_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 221 to 231
+                            //notification.sendServiceNotification(Notification.PSI_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 221 to 231
 
-                        notification.setContent(content);
-                        notification.setSender(sender);
-                        notification.setTimestamp(timestamp);
-                        String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
-                        FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(notification);
+                            notification.setContent(content);
+                            notification.setSender(sender);
+                            notification.setTimestamp(timestamp);
+                            String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
+                            FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(notification);
 
-                        //Change notification ID to alert listening subscriber about changes
-                        climateRef.child("notification-id").setValue(notificationID);
+                            //Change notification ID to alert listening subscriber about changes
+                            climateRef.child("notification-id").setValue(notificationID);
 
-
-                        if (!result.equals("")) {
                             climateRef.child("value").setValue(result);
-                        } else {
-                            climateRef.child("value").setValue("0");
-                        }
 
-                        System.out.println("Climate Service - PSI value changes");
-                    } else {
-                        if (!result.equals("")) {
-                            climateRef.child("value").setValue(result);
-                        } else {
-                            climateRef.child("value").setValue("0");
+                            System.out.println("Climate Service - PSI value changes");
                         }
+                        else {
+                            climateRef.child("value").setValue(result);
+                        }
+                    }
+                    else {
+                        climateRef.child("value").setValue("0");
                     }
                 }
                 // If climate type 'temperature' is being processed from OpenWeather
-                else if (climateType.equals("temperature")){
-                    double temp = Double.parseDouble(result);
-                    if (temp > 0) {
-                        content = "Temperature alert: " + temp;
-                        sender = "OpenWeather";
-                        timestamp = new Date().getTime();
+                else if (climateType.equals("temperature")) {
+                    if (!result.equals("")) {
+                        double temp = Double.parseDouble(result);
+                        if (temp > 0) {
+                            content = "Temperature alert: " + temp;
+                            sender = "OpenWeather";
+                            timestamp = new Date().getTime();
 
-                        //notification.sendServiceNotification(Notification.TEMPERATURE_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 246 to 256
+                            //notification.sendServiceNotification(Notification.TEMPERATURE_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 246 to 256
 
-                        notification.setContent(content);
-                        notification.setSender(sender);
-                        notification.setTimestamp(timestamp);
-                        String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
-                        FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(notification);
+                            notification.setContent(content);
+                            notification.setSender(sender);
+                            notification.setTimestamp(timestamp);
+                            String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
+                            FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(notification);
 
-                        //Change notification ID to alert listening subscriber about changes
-                        climateRef.child("notification-id").setValue(notificationID);
+                            //Change notification ID to alert listening subscriber about changes
+                            climateRef.child("notification-id").setValue(notificationID);
 
-                        //Update new show time
-                        climateRef.child("value").setValue(result);
-
-                        System.out.println("Climate Service - Temperature value changes");
-                    } else {
-                        if (!result.equals("")) {
+                            //Update new show time
                             climateRef.child("value").setValue(result);
+
+                            System.out.println("Climate Service - Temperature value changes");
                         } else {
-                            climateRef.child("value").setValue("0");
+                            climateRef.child("value").setValue(result);
                         }
                     }
+                }
+                else {
+                    climateRef.child("value").setValue("0");
                 }
 
 

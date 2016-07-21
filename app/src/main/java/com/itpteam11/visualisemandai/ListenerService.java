@@ -1,5 +1,6 @@
 package com.itpteam11.visualisemandai;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -18,17 +19,31 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ListenerService extends WearableListenerService implements ConnectionCallbacks, OnConnectionFailedListener {
     private final String TAG = ListenerService.class.getSimpleName();
+    public final static String USER_ID = "userID";
 
     private GoogleApiClient mGoogleApiClient;
     private String userID;
     private String groupID;
 
     public ListenerService() {}
+
+    @Override
+    public int onStartCommand (Intent intent, int flags, int startId){
+        if(intent != null) {
+            userID = intent.getStringExtra(USER_ID);
+        }
+        else {
+            userID = "No User ID in ListenerService at this timestamp: " + new Date().getTime();
+        }
+        System.out.println("userIDuserIDuserIDuserID: " + userID);
+        return START_STICKY;
+    }
 
     @Override
     public void onCreate() {
@@ -48,8 +63,6 @@ public class ListenerService extends WearableListenerService implements Connecti
             mGoogleApiClient.connect();
             Log.v(TAG, "Connecting to GoogleApiClient..");
         }
-
-        userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
     @Override
     public void onDestroy() {

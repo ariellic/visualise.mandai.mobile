@@ -94,6 +94,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         normalNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     }
                 }
+                else {
+                    normalNotificationViewHolder.proxi.setText("");
+                    normalNotificationViewHolder.proxi.setBackgroundColor(Color.WHITE);
+                    normalNotificationViewHolder.proxi.setTextColor(Color.WHITE);
+                }
                 break;
             case 1:
                 Log.d(TAG, "In EscapeNotificationViewHolder");
@@ -113,6 +118,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         escapeNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     }
                 }
+                else {
+                    escapeNotificationViewHolder.proxi.setText("");
+                    escapeNotificationViewHolder.proxi.setBackgroundColor(Color.WHITE);
+                    escapeNotificationViewHolder.proxi.setTextColor(Color.WHITE);
+                }
+
                 escapeNotificationViewHolder.setResolveButtonListener(notification.getNotificationID(), notification.getContent());
                 break;
             case 2:
@@ -134,6 +145,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         imageNotificationViewHolder.proxi.setBackgroundColor(Color.GREEN);
                         imageNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                     }
+                }
+                else {
+                    imageNotificationViewHolder.proxi.setText("");
+                    imageNotificationViewHolder.proxi.setBackgroundColor(Color.WHITE);
+                    imageNotificationViewHolder.proxi.setTextColor(Color.WHITE);
                 }
 
                 final ImageView imgView = imageNotificationViewHolder.img;

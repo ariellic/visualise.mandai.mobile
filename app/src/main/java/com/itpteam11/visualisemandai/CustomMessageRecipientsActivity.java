@@ -144,6 +144,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                             Toast.makeText(CustomMessageRecipientsActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(CustomMessageRecipientsActivity.this, MainActivity.class);
                             intent.putExtra("userID", userID);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                         }
                         else {
