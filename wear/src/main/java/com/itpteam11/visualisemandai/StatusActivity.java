@@ -130,7 +130,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
     protected void onStart() {
         super.onStart();
         if (!mResolvingError) {
-            Toast.makeText(this, "connected", Toast.LENGTH_SHORT).show();
+
             mGoogleApiClient.connect();
         }
     }
@@ -139,7 +139,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
      * Resolve the node = the connected device to send the message to
      */
     private void resolveNode() {
-        Toast.makeText(this, "resolve", Toast.LENGTH_SHORT).show();
+
 
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
@@ -154,7 +154,7 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
 
     @Override
     public void onConnected(Bundle bundle) {
-        Toast.makeText(this, "call", Toast.LENGTH_LONG).show();
+
 
         resolveNode();
     }
