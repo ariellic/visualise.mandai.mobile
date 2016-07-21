@@ -1,11 +1,10 @@
 package com.itpteam11.visualisemandai;
 
+import com.squareup.picasso.Picasso;
+
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.os.AsyncTask;
+import android.net.Uri;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -17,10 +16,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,27 +27,21 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 /**
  * This custom RecyclerView adapter will create and hold multiple notification
  */
-public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> implements DownloadTaskInterface {
+public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder> {
     private static final String TAG = "NotificationAdapter";
     private List<NotificationItem> notificationList;
-    private StorageReference storageRef;
-    StorageReference imgRef;
     private Context context;
-    private String mCurrentPhotoPath;
+    HashMap<Integer, String> uris = new HashMap<>();
 
     public NotificationAdapter(List<NotificationItem> notificationList) {
         this.notificationList = notificationList;
@@ -62,8 +53,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         context = parent.getContext();
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReferenceFromUrl("gs://visualise-mandai.appspot.com");
-        imgRef = null;
 
         //Create respective notification item based on notification type
         switch (viewType) {
@@ -147,142 +136,77 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     }
                 }
 
-                ImageView imgView = imageNotificationViewHolder.img;
+                final ImageView imgView = imageNotificationViewHolder.img;
+                String imgName = notification.getImageName();
+                File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName); // Path to check if it exists in directory
+
                 Log.d(TAG, "imgView.getDrawable(): " + imgView.getDrawable());
                 Log.d(TAG, "imgView.getTag(): " + imgView.getTag());
-                if (imgView.getDrawable() != null && imgView.getTag() == null) {
-                    imgView.setImageResource(0);
-                }
+                Log.d(TAG, "imgName: " + imgName);
 
-                // Item does not hold an image
-                if (imgView.getDrawable() == null) {
-                    Log.d(TAG, "No drawable in imageview");
-                    // If there is an image for the notification
-                    if (!notification.getImageName().equals("NA") && notification.getImageName() != null) {
+                StorageReference imgRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
 
-                        Log.d(TAG, "notification.getImageName() not NA not null");
+                // If image doesn't exist in the directory yet
+                if (!imagePath.exists()) {
 
-                        String imgName = notification.getImageName();
-                        imgRef = storageRef.child("custom_alerts/" + notification.getImageName());
+                    // Create image file in directory
+                    File imgFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imgName);
+                    Log.d(TAG, "Saved file in dir imgFile: " + imgFile);
 
-                        // Create image path
-                        File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName);
+                    // Download image to file in directory
+                    downloadImage(imgRef, imgFile);
 
-                        Log.d(TAG, "imgFile: " + imagePath.toString() + ", " + imagePath.getAbsolutePath());
-
-                        // If image path does not exist yet, create file and download image to file
-                        if (!imagePath.exists()) {
-                            DownloadImageAsyncTask dlImgTask = new DownloadImageAsyncTask(imgView, imgName, position, this);
-                            dlImgTask.execute();
-
-                            //downloadImage(imgRef, imageNotificationViewHolder, position, imgName);
-                        }
-                        // If image exists in directory, set thumbnail of image
-                        else {
-                            Log.d(TAG, "Image exist in directory, position: " + position);
-                            imgView.setImageBitmap(getThumbnail(imagePath.getAbsolutePath()));
-                            imgView.setTag(position);
-                            imgView.setVisibility(View.VISIBLE);
-                            //this.notifyItemChanged(position);
-                        }
-                        //String result = imgRef.getFile(imgFile).getResult().toString();
-                        //Log.d(TAG, "Result of download: " + result);
-
+                    // If image has previously been downloaded and cached by Picasso
+                    if (uris.get(position) != null){
+                        displayImage(Uri.parse(uris.get(position)), imgView);
                     }
-                    // No image available for notification, disable imageview
+
+                    // If image URL has not been downloaded and displayed by Picasso
                     else {
-                        if (notification.getImageName().equals("NA")) {
-                            Log.d(TAG, "notification.getImageName() is NA");
-                        } else if (notification.getImageName() == null) {
-                            Log.d(TAG, "notification.getImageName() is null");
-                        } else {
-                            Log.d(TAG, "notification.getImageName() is " + notification.getImageName());
-                        }
-                        //Log.d(TAG, "Image exist");
-                        imgView.setVisibility(View.GONE);
+                        imgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                displayImage(uri, imgView);
+                                uris.put(position, uri.toString());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle any errors
+                            }
+                        });
                     }
                 }
-                // Item holds an image
+
+                // If image exists in directory, set thumbnail of image
                 else {
-                    Log.d(TAG, "There is a drawable in imageview");
-                    // Item's notification should not have an image
-                    if (notification.getImageName().equals("NA") || notification.getImageName() == null) {
-                        imgView.setImageDrawable(null);
-                        imgView.setVisibility(View.GONE);
+                    Log.d(TAG, "Image exist in directory, position: " + position);
+
+                    // If image has previously been downloaded and cached by Picasso
+                    if (uris.get(position) != null){
+                        displayImage(Uri.parse(uris.get(position)), imgView);
                     }
-                    // Item's notification image is incorrect
-                    else if (!imgView.getTag().equals(position)) {
-                        imgView.setImageDrawable(null);
-                        imgView.setVisibility(View.GONE);
+
+                    // If image URL has not been downloaded and displayed by Picasso
+                    else {
+                        imgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                displayImage(uri, imgView);
+                                uris.put(position, uri.toString());
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception exception) {
+                                // Handle any errors
+                            }
+                        });
                     }
                 }
+
                 break;
         }
     }
-
-    @Override
-    public void asyncComplete(boolean success, int pos) {
-        this.notifyItemChanged(pos);
-    }
-
-    private class DownloadImageAsyncTask extends AsyncTask<Void, Void, String> {
-
-        String imgName;
-        ImageView imgV;
-        int position;
-        private DownloadTaskInterface delegate;
-
-        public DownloadImageAsyncTask (ImageView view, String name, int pos, DownloadTaskInterface delegate) {
-            this.imgV = view;
-            this.imgName = name;
-            this.position = pos;
-            this.delegate = delegate;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            Log.d(TAG, "Download task in background");
-            //position = Integer.valueOf(params[2]);
-            StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
-            //Log.d(TAG, "imgName: " + imgName + ", position: " + position);
-            File imgFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imgName);
-            mCurrentPhotoPath = imgFile.getAbsolutePath();
-            Log.d(TAG, "saved file imgFile: " + imgFile);
-            ref.getFile(imgFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    // Local temp file has been created
-                    Log.d(TAG, "taskSnapshot String: " + taskSnapshot.toString());
-                    Long bytes = taskSnapshot.getBytesTransferred();
-                    Log.d(TAG, "taskSnapshot getBytesTransferred: " + bytes);
-                    Long totalByteCount = taskSnapshot.getTotalByteCount();
-                    Log.d(TAG, "taskSnapshot gettotalByteCount: " + totalByteCount);
-                    Log.d(TAG, "mCurrentPhotoPath: " + mCurrentPhotoPath);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
-                }
-            });
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            imgV.setImageBitmap(getThumbnail(mCurrentPhotoPath));
-            imgV.setTag(position);
-            imgV.setVisibility(View.VISIBLE);
-            delegate.asyncComplete(true, position);
-        }
-
-    }
-
 
     @Override
     public int getItemCount() {
@@ -405,21 +329,44 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
     }
 
-    public static Bitmap getThumbnail(String path) {
-        Bitmap imgThumbBitmap = null;
-        try {
-            final int THUMBNAIL_SIZE = 128;
 
-            FileInputStream in = new FileInputStream(path);
-            imgThumbBitmap = BitmapFactory.decodeStream(in);
+    /**
+     * Download image from Firebase Storage into file that has been created
+     * @param ref
+     * @param imgFile
+     */
+    public void downloadImage(StorageReference ref, final File imgFile) {
+        ref.getFile(imgFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                // Local temp file has been created
+                Log.d(TAG, "taskSnapshot String: " + taskSnapshot.toString());
+                Long bytes = taskSnapshot.getBytesTransferred();
+                Log.d(TAG, "taskSnapshot getBytesTransferred: " + bytes);
+                Long totalByteCount = taskSnapshot.getTotalByteCount();
+                Log.d(TAG, "taskSnapshot gettotalByteCount: " + totalByteCount);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                // Handle any errors
+            }
 
-            imgThumbBitmap = Bitmap.createScaledBitmap(imgThumbBitmap,
-                    THUMBNAIL_SIZE, THUMBNAIL_SIZE, false);
+        });
+    }
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-            imgThumbBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-        } catch (Exception ex) {
-        }
-        return imgThumbBitmap;
+    /**
+     * Display image by Picasso with uri and ImageView provided
+     * @param uri
+     * @param view
+     */
+    public void displayImage(Uri uri, ImageView view) {
+        Picasso.with(context)
+                .load(uri)
+                .placeholder(R.drawable.default_vm_icon)
+                .error(R.drawable.img_loading_err)
+                .resize(96, 96)
+                .centerCrop()
+                .into(view);
     }
 }

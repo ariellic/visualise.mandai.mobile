@@ -80,8 +80,14 @@ public class StaffInfoFragment extends Fragment {
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     if (postSnapshot.getKey().equals("psi")) {
                         psi = postSnapshot.child("value").getValue().toString();
+                        if (psi.equals("")) {
+                            psi = "NA";
+                        }
                     } else if (postSnapshot.getKey().equals("temperature")) {
                         temp = postSnapshot.child("value").getValue().toString();
+                        if (temp.equals("")) {
+                            temp = "NA";
+                        }
                     } else if (postSnapshot.getKey().equals("weather")) {
                         weather = postSnapshot.child("valueLong").getValue().toString();
                     }

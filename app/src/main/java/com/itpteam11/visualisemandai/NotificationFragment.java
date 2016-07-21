@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *  This fragment contain RecyclerView which contain user's notification list
+ * This fragment contain RecyclerView which contain user's notification list
  */
 
 public class NotificationFragment extends Fragment {
@@ -47,7 +47,7 @@ public class NotificationFragment extends Fragment {
     private NotificationAdapter notificationAdapter;
     private TextView noNotification;
 
-   // private String userlocation;
+    // private String userlocation;
 
     public NotificationFragment() {
         // Required empty public constructor
@@ -96,7 +96,7 @@ public class NotificationFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 //Retrieve a list of user ID to map with staff name
-                for(DataSnapshot staff : dataSnapshot.getChildren()) {
+                for (DataSnapshot staff : dataSnapshot.getChildren()) {
                     staffIDDirectory.put(staff.getKey(), staff.child("name").getValue(String.class));
                 }
 
@@ -229,61 +229,83 @@ public class NotificationFragment extends Fragment {
                                         //Store notification details into Notification object
                                         Notification notification = dataSnapshot.getValue(Notification.class);
 
-                                        // Create a NotificationItem to be added into the notification list
-                                        // When notification's and user's location exist
-                                        if (notification.getLatitude() != null && notification.getLongitude() != null) {
-                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
-                                            notificationList.add(notificationItem);
+                                        if (notification != null) {
+
+                                            Log.d("NotificationFragment", "notification.getContent(): " + notification.getContent());
+                                            // Create a NotificationItem to be added into the notification list
+                                            // When notification's and user's location exist
+                                            if (notification.getLatitude() != null && notification.getLongitude() != null) {
+                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
+                                                notificationList.add(notificationItem);
+                                            }
+                                            // Image node not available in Firebase
+                                            else {
+                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
+                                                notificationList.add(notificationItem);
+                                            }
+
+                                            //Sort latest item to be at top of notification list
+                                            Collections.sort(notificationList, new NotificationItem());
+
+                                            //Update notification list
+                                            notificationAdapter.notifyDataSetChanged();
+
+                                            //Set notification has received(set true)
+                                            FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
+                                            FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                         }
-                                        // Image node not available in Firebase
-                                        else {
-                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
-                                            notificationList.add(notificationItem);
-                                        }
-
-                                        //Sort latest item to be at top of notification list
-                                        Collections.sort(notificationList, new NotificationItem());
-
-                                        //Update notification list
-                                        notificationAdapter.notifyDataSetChanged();
-
-                                        //Set notification has received(set true)
-                                        FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
-                                        FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                     }
 
                                     @Override
-                                    public void onCancelled(DatabaseError error) { }
+                                    public void onCancelled(DatabaseError error) {
+                                    }
                                 });
                             }
                         }
                     }
 
                     @Override
-                    public void onCancelled (DatabaseError databaseError){
+                    public void onCancelled(DatabaseError databaseError) {
                         //Failed listen for notification
                         System.out.println("NotificationFragment - Failed listen for notification: " + databaseError.toException());
                     }
 
                     @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) { }
+                    public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
+                    }
+
                     @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) { }
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+                    }
+
                     @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) { }
+                    public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
+                    }
                 });
 
                 //Add created listener into list
-                MainActivity.childEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive"), userNotificationListener);
+                MainActivity.childEventListenerList.put(FirebaseDatabase.getInstance().
+
+                        getReference()
+
+                        .
+
+                                child("notification-lookup")
+
+                        .
+
+                                child(userID).child("receive"), userNotificationListener);
             }
 
             @Override
-            public void onCancelled(DatabaseError error) {}
+            public void onCancelled(DatabaseError error) {
+            }
         });
     }
 
     /**
      * This method sets background and icon for different types of notifications to appear on the wearable
+     *
      * @param icon
      * @param bg
      * @return
@@ -301,17 +323,17 @@ public class NotificationFragment extends Fragment {
      * This method will resolve sender into actual user name if exist
      */
     private String resolveSenderName(String sender) {
-        if(staffIDDirectory.containsKey(sender)) {
+        if (staffIDDirectory.containsKey(sender)) {
             return staffIDDirectory.get(sender);
         }
 
         return sender;
     }
 
-    public Double calculateProxi(double notificationLatitude, double notificationLongtitude){
+    public Double calculateProxi(double notificationLatitude, double notificationLongtitude) {
         DecimalFormat round = new DecimalFormat("#.00");
         //double distM = userLoc.distanceTo(notiLoc);
-        if(StaffLocationService.isLocationPermissionGranted()) {
+        if (StaffLocationService.isLocationPermissionGranted()) {
             double distM = distance(notificationLatitude, notificationLongtitude, StaffLocationService.getLatitude(), StaffLocationService.getLongitude());
             distM = distM * 1000;
             return Double.parseDouble(round.format(distM));
@@ -325,13 +347,14 @@ public class NotificationFragment extends Fragment {
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
         dist = Math.acos(dist);
         dist = rad2deg(dist);
-        dist = dist * 60 * 1.1515* 1.609344;
+        dist = dist * 60 * 1.1515 * 1.609344;
         return (dist);
     }
 
     private double deg2rad(double deg) {
         return (deg * Math.PI / 180.0);
     }
+
     private double rad2deg(double rad) {
         return (rad * 180.0 / Math.PI);
     }

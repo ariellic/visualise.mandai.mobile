@@ -106,7 +106,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dbRef.child("user").addValueEventListener(new ValueEventListener() {
+                dbRef.child("user").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for (DataSnapshot child : dataSnapshot.getChildren()) {

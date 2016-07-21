@@ -227,10 +227,20 @@ public class CheckClimateService extends IntentService {
                         //Change notification ID to alert listening subscriber about changes
                         climateRef.child("notification-id").setValue(notificationID);
 
-                        //Update new show time
-                        climateRef.child("value").setValue(result);
+
+                        if (!result.equals("")) {
+                            climateRef.child("value").setValue(result);
+                        } else {
+                            climateRef.child("value").setValue("0");
+                        }
 
                         System.out.println("Climate Service - PSI value changes");
+                    } else {
+                        if (!result.equals("")) {
+                            climateRef.child("value").setValue(result);
+                        } else {
+                            climateRef.child("value").setValue("0");
+                        }
                     }
                 }
                 // If climate type 'temperature' is being processed from OpenWeather
@@ -256,6 +266,12 @@ public class CheckClimateService extends IntentService {
                         climateRef.child("value").setValue(result);
 
                         System.out.println("Climate Service - Temperature value changes");
+                    } else {
+                        if (!result.equals("")) {
+                            climateRef.child("value").setValue(result);
+                        } else {
+                            climateRef.child("value").setValue("0");
+                        }
                     }
                 }
 
