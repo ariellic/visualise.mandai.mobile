@@ -54,10 +54,9 @@
             android:name=".CheckClimateService"
             android:exported="false" />
 
-        <activity android:name=".CustomMessageActivity" />
-        <activity android:name=".CustomMessageRecipientsActivity" />
+        <activity android:name=".CustomAlertActivity" />
+        <activity android:name=".CustomAlertRecipientsActivity" />
         <activity android:name=".RecipientsAdapter" />
-        <activity android:name=".CustomAlertCameraActivity" />
         <activity android:name=".SpecialPowerActivity"></activity>
     </application>
 

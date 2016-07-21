@@ -167,8 +167,8 @@ public class CheckClimateService extends IntentService {
                             // Set up content for notification
                             Notification weatherNotification = new Notification();
                             String content = "Weather alert: " + valueLong;
-                            String sender = "Current Weather";
-                            //long timestamp = new Date().getTime();
+                            String sender = "Climatic live alerts - Weather ";
+                            long timestamp = new Date().getTime();
 
                             // Abbreviations of weather considered as rainy
                             String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS", "PC"};
@@ -214,8 +214,8 @@ public class CheckClimateService extends IntentService {
                         int psi = Integer.parseInt(result);
                         if (psi >= 0 || psi > 300) {
                             content = "Haze alert: PSI " + psi; //getRangeDesriptor(psi);
-                            sender = "PSI Haze Index";
-                            //timestamp = new Date().getTime();
+                            sender = "Climatic live alerts - PSI";
+                            timestamp = new Date().getTime();
 
                             notification.sendServiceNotification(Notification.PSI_SERVICE, content, sender, result);
 
@@ -246,8 +246,8 @@ public class CheckClimateService extends IntentService {
                         double temp = Double.parseDouble(result);
                         if (temp > 0) {
                             content = "Temperature alert: " + temp;
-                            sender = "Current Temperature";
-                            //timestamp = new Date().getTime();
+                            sender = "Climatic live alerts - Temperature";
+                            timestamp = new Date().getTime();
 
                             notification.sendServiceNotification(Notification.TEMPERATURE_SERVICE, content, sender, result);
 

@@ -43,8 +43,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private static final String TAG = "NotificationAdapter";
     private List<NotificationItem> notificationList;
     private Context context;
-    HashMap<Integer, String> uris = new HashMap<>();
-    HashMap<Integer, String> paths = new HashMap<>();
+    HashMap<Integer, String> uris = new HashMap<>(); // Store the URIs to get the thumbnails
+    HashMap<Integer, String> paths = new HashMap<>();// Store the paths of images that have been downloaded
     private int listSize;
 
     public NotificationAdapter(List<NotificationItem> notificationList) {
@@ -78,6 +78,10 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         NotificationItem notification = notificationList.get(position);
         int newListSize = getItemCount();
         int diffInSize = newListSize - listSize;
+
+        // When new item is added, get the new list size, clear the uris hashmap so that it will
+        // reset the values for each position so that the thumbnail that is loaded will be accurate
+        // (which was changed when a new item is added) and replace path hashmap with a new one
         if (newListSize != listSize) {
             listSize = newListSize;
             uris.clear();
@@ -174,19 +178,21 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 final ImageView imgView = imageNotificationViewHolder.img;
                 final String imgName = notification.getImageName();
                 final String notiContent = notification.getContent();
-                File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName); // Path to check if it exists in directory
+
+                // Future (if not downloaded)/current path of image
+                File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName);
+                // To be used for tracking the respective image views
                 imgView.setTag(position);
 
                 Log.d(notiContent, "imgView.getDrawable(): " + imgView.getDrawable());
                 Log.d(notiContent, "imgView.getTag(): " + imgView.getTag());
                 Log.d(notiContent, "imgName: " + imgName);
+                Log.d(notiContent, "Current position: " + position);
 
                 StorageReference storRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/");
 
-                Log.d(notiContent, "Current position: " + position);
-
+                // Check how many images are being downloaded
                 List tasks = storRef.getActiveDownloadTasks();
-
                 Log.d(notiContent, "Active tasks: " + tasks.toString());
 
                 // If image doesn't exist in the directory yet
@@ -196,7 +202,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     File imgFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imgName);
                     Log.d(notiContent, "Saved file in dir imgFile: " + imgFile);
 
-                    // If image has previously been downloaded and cached by Picasso
+                    // If image has previously been downloaded and cached by Picasso but image is not in directory
                     if (uris.get(position) != null) {
                         displayImage(Uri.parse(uris.get(position)), imgView);
                     }
@@ -205,6 +211,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     else {
                         StorageReference imgRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
                         // Download image to file in directory
+                        paths.put(position, imagePath.getAbsolutePath());
                         downloadImage(imgRef, imgFile, position);
                         imgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
@@ -227,16 +234,20 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 else {
                     Log.d(notiContent, "Image exists in directory, ImageView in focus is in position: " + position);
 
-                    // If image has previously been downloaded and cached by Picasso
+                    // If image's thumbnail has previously been downloaded and cached by Picasso
                     if (uris.get(position) != null) {
-                        Log.d(notiContent, "Image URL has been downloaded - thumnnail exist to display");
+                        // If the path to the image was not recorded in the hashmap when downloading, record again
+                        if (paths.get(position) == null){
+                            paths.put(position, imagePath.getAbsolutePath());
+                        }
+                        Log.d(notiContent, "Image URL has been downloaded - thumbnail exist to display");
                         displayImage(Uri.parse(uris.get(position)), imgView);
                     }
 
-                    // If image URL has not been downloaded and displayed by Picasso
+                    // If image URL has not been downloaded and thumbnail is displayed by Picasso
                     else {
                         StorageReference imgRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
-                        Log.d(notiContent, "Image URL has not been downloaded - no thumnnail to display");
+                        Log.d(notiContent, "Image URL has not been downloaded - no thumbnail to display");
                         imgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
@@ -368,11 +379,13 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         public ImageNotificationViewHolder(View view) {
             super(view);
 
+            // To open image thumbnail to full size
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent();
                     intent.setAction(Intent.ACTION_VIEW);
+                    // Getting image path from hashmap based on ImageView position
                     String pathToOpen = paths.get(img.getTag());
                     Log.d(TAG, "ONCLICK, Path to open: " + pathToOpen + ", position: " + img.getTag());
                     if (pathToOpen != null){
@@ -399,7 +412,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
      * @param imgFile
      */
     public void downloadImage(StorageReference ref, final File imgFile, final int pos) {
-        paths.put(pos, imgFile.getAbsolutePath());
+        //paths.put(pos, imgFile.getAbsolutePath());
         ref.getFile(imgFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {

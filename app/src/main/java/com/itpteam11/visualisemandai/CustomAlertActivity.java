@@ -27,9 +27,9 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class CustomMessageActivity extends AppCompatActivity {
+public class CustomAlertActivity extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final String TAG = "CustomMessageActivity";
+    private static final String TAG = "CustomAlertActivity";
     private String mCurrentPhotoPath;
     private Bitmap mImageBitmap;
 
@@ -57,9 +57,9 @@ public class CustomMessageActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                Intent intent = new Intent(v.getContext(), CustomMessageRecipientsActivity.class);
+                Intent intent = new Intent(v.getContext(), CustomAlertRecipientsActivity.class);
                 String message = editTextMessage.getText().toString();
-                intent.putExtra("CustomMessage", message);
+                intent.putExtra("CustomAlert", message);
                 intent.putExtra("ImagePath", mCurrentPhotoPath);
                 startActivity(intent);
             }

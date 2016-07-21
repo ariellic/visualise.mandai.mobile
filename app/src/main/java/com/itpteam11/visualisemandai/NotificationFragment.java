@@ -1,8 +1,12 @@
 package com.itpteam11.visualisemandai;
 
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -16,12 +20,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -152,22 +165,30 @@ public class NotificationFragment extends Fragment {
                                         // Customizing big text, icons and bg to appear for notifications on mobile/wearable
                                         CharSequence desc = "";
                                         switch (dataSnapshot.child("sender").getValue().toString()) {
-                                            case "NEA - Weather (Rain)":
+                                            case "Climatic live alerts - Weather (Rain)":
                                                 wearableExtender = getWearableDesign(R.drawable.rain, R.drawable.rainy);
                                                 desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!");
                                                 break;
-                                            case "NEA - Weather (Sun)":
+                                            case "Climatic live alerts - Weather (Sun)":
                                                 wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
                                                 desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
                                                 break;
-                                            case "NEA - PSI":
+                                            case "Climatic live alerts - PSI":
                                                 wearableExtender = getWearableDesign(R.drawable.haze, R.drawable.hazy);
                                                 desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
                                                 break;
-                                            case "OpenWeather":
+                                            case "Climatic live alerts - Temperature":
                                                 wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
                                                 desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
                                                 break;
+                                            case "SUk69wtTSbSTLUSQj5CavCJUyop1":
+                                                Log.d("NotificationFragment", "Sent by manager");
+                                                if (notification.getType() != null && notification.getType().equals("image")) {
+                                                    Log.d("NotificationFragment", "Image type notification");
+                                                    wearableExtender = getWearableDesign(R.drawable.manager, R.drawable.alert);
+                                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> [Image attached]");
+                                                    break;
+                                                }
                                             default:
                                                 desc = Html.fromHtml("<b>Notice from " + resolveSenderName(notification.getSender()) + "</b><br />" + notification.getContent());
                                                 break;

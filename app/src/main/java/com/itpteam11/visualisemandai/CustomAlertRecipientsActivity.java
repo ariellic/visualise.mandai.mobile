@@ -29,14 +29,12 @@ import com.google.firebase.storage.UploadTask;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-public class CustomMessageRecipientsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class CustomAlertRecipientsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
-    private static final String TAG = "CustomMessageRecipients";
+    private static final String TAG = "CustomAlertRecipients";
 
     private String userID;
     private DatabaseReference dbRef;
@@ -66,7 +64,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
 
         //Get message from textbox in prev activity
         Intent intent = getIntent();
-        final String message = intent.getStringExtra("CustomMessage");
+        final String message = intent.getStringExtra("CustomAlert");
         final String imgPath = intent.getStringExtra("ImagePath");
 
         sendButton = (Button) findViewById(R.id.buttonSend);
@@ -90,7 +88,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                     }
                 }
 
-                adapter = new RecipientsAdapter(CustomMessageRecipientsActivity.this, listOfWorkingUsers);
+                adapter = new RecipientsAdapter(CustomAlertRecipientsActivity.this, listOfWorkingUsers);
                 recipientsListView.setAdapter(adapter);
 
             }
@@ -141,14 +139,14 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
                             }
 
                             //Send notifications to users that are selected
-                            Toast.makeText(CustomMessageRecipientsActivity.this, "Message sent", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(CustomMessageRecipientsActivity.this, MainActivity.class);
+                            Toast.makeText(CustomAlertRecipientsActivity.this, "Alert sent", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(CustomAlertRecipientsActivity.this, MainActivity.class);
                             intent.putExtra("userID", userID);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
                         }
                         else {
-                            Toast.makeText(CustomMessageRecipientsActivity.this, "Please select at least 1 recipient", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(CustomAlertRecipientsActivity.this, "Please select at least 1 recipient", Toast.LENGTH_SHORT).show();
 
                         }
 
