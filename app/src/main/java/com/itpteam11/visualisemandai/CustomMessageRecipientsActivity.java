@@ -134,8 +134,8 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
 
                             //Store image if available
                             if (!imgPath.equals("")) {
-                                String imgName = uploadImage(imgPath);
-                                notification.sendNotification(Notification.IMAGE_NOTIFICATION, message, latitude, longitude, userID, receiver, imgName);
+                                String imgName = uploadImage(imgPath, notification, message, latitude, longitude);
+                                //notification.sendNotification(Notification.IMAGE_NOTIFICATION, message, latitude, longitude, userID, receiver, imgName);
                             } else {
                                 notification.sendNotification(Notification.NORMAL_NOTIFICATION, message, latitude, longitude, userID, receiver, null);
                             }
@@ -164,11 +164,11 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
 
     }
 
-    public String uploadImage(String path) {
+    public String uploadImage(String path, final Notification noti, final String msg, final Double lati, final Double longi) {
         Uri file = Uri.fromFile(new File(path));
         StorageReference imgRef = storageRef.child("custom_alerts/" + file.getLastPathSegment());
         UploadTask uploadTask = imgRef.putFile(file);
-        String imgName = file.getLastPathSegment();
+        final String imgName = file.getLastPathSegment();
         Log.d(TAG, "Image file name: " + imgName);
 
         // Register observers to listen for when the download is done or if it fails
@@ -183,6 +183,7 @@ public class CustomMessageRecipientsActivity extends AppCompatActivity implement
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                 Log.d(TAG, "Upload successful");
+                noti.sendNotification(Notification.IMAGE_NOTIFICATION, msg, lati, longi, userID, receiver, imgName);
             }
         });
         return imgName;

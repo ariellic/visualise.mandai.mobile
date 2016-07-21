@@ -42,9 +42,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private List<NotificationItem> notificationList;
     private Context context;
     HashMap<Integer, String> uris = new HashMap<>();
+    private int listSize;
 
     public NotificationAdapter(List<NotificationItem> notificationList) {
         this.notificationList = notificationList;
+        this.listSize = notificationList.size();
     }
 
     @Override
@@ -71,6 +73,11 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     @Override
     public void onBindViewHolder(NotificationViewHolder holder, final int position) {
         NotificationItem notification = notificationList.get(position);
+        int newListSize = getItemCount();
+        if (newListSize != listSize) {
+            listSize = newListSize;
+            uris.clear();
+        }
 
         //Set respective notification item's widgets with content
         switch (holder.getItemViewType()) {
@@ -153,35 +160,44 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 }
 
                 final ImageView imgView = imageNotificationViewHolder.img;
-                String imgName = notification.getImageName();
+                final String imgName = notification.getImageName();
+                final String notiContent = notification.getContent();
                 File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName); // Path to check if it exists in directory
 
-                Log.d(TAG, "imgView.getDrawable(): " + imgView.getDrawable());
-                Log.d(TAG, "imgView.getTag(): " + imgView.getTag());
-                Log.d(TAG, "imgName: " + imgName);
+                Log.d(notiContent, "imgView.getDrawable(): " + imgView.getDrawable());
+                Log.d(notiContent, "imgView.getTag(): " + imgView.getTag());
+                Log.d(notiContent, "imgName: " + imgName);
 
-                StorageReference imgRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
+                StorageReference storRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/");
+
+                Log.d(notiContent, "Current position: " + position);
+
+                List tasks = storRef.getActiveDownloadTasks();
+
+                Log.d(notiContent, "Active tasks: " + tasks.toString());
 
                 // If image doesn't exist in the directory yet
                 if (!imagePath.exists()) {
 
                     // Create image file in directory
                     File imgFile = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES), imgName);
-                    Log.d(TAG, "Saved file in dir imgFile: " + imgFile);
-
-                    // Download image to file in directory
-                    downloadImage(imgRef, imgFile);
+                    Log.d(notiContent, "Saved file in dir imgFile: " + imgFile);
 
                     // If image has previously been downloaded and cached by Picasso
-                    if (uris.get(position) != null){
+                    if (uris.get(position) != null) {
                         displayImage(Uri.parse(uris.get(position)), imgView);
                     }
 
                     // If image URL has not been downloaded and displayed by Picasso
                     else {
+                        StorageReference imgRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
+                        // Download image to file in directory
+                        downloadImage(imgRef, imgFile);
                         imgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
+                                Log.d(notiContent, "Got the URL for image, ImageView in focus is in position: " + position);
+                                Log.d(notiContent, "URI for the image that has just been downloaded is: " + uri);
                                 displayImage(uri, imgView);
                                 uris.put(position, uri.toString());
                             }
@@ -196,15 +212,18 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
                 // If image exists in directory, set thumbnail of image
                 else {
-                    Log.d(TAG, "Image exist in directory, position: " + position);
+                    Log.d(notiContent, "Image exists in directory, ImageView in focus is in position: " + position);
 
                     // If image has previously been downloaded and cached by Picasso
-                    if (uris.get(position) != null){
+                    if (uris.get(position) != null) {
+                        Log.d(notiContent, "Image URL has been downloaded - thumnnail exist to display");
                         displayImage(Uri.parse(uris.get(position)), imgView);
                     }
 
                     // If image URL has not been downloaded and displayed by Picasso
                     else {
+                        StorageReference imgRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
+                        Log.d(notiContent, "Image URL has not been downloaded - no thumnnail to display");
                         imgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
@@ -337,6 +356,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
         public ImageNotificationViewHolder(View view) {
             super(view);
+
             message = (TextView) view.findViewById(R.id.notification_list_image_message);
             sender = (TextView) view.findViewById(R.id.notification_list_image_sender);
             timestamp = (TextView) view.findViewById(R.id.notification_list_image_timestamp);
@@ -348,6 +368,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     /**
      * Download image from Firebase Storage into file that has been created
+     *
      * @param ref
      * @param imgFile
      */
@@ -373,6 +394,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     /**
      * Display image by Picasso with uri and ImageView provided
+     *
      * @param uri
      * @param view
      */
