@@ -167,8 +167,8 @@ public class CheckClimateService extends IntentService {
                             // Set up content for notification
                             Notification weatherNotification = new Notification();
                             String content = "Weather alert: " + valueLong;
-                            String sender = "NEA - Weather ";
-                            long timestamp = new Date().getTime();
+                            String sender = "Current Weather";
+                            //long timestamp = new Date().getTime();
 
                             // Abbreviations of weather considered as rainy
                             String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS", "PC"};
@@ -183,9 +183,9 @@ public class CheckClimateService extends IntentService {
                                     //sender = sender + "(Sun)"; TODO: New code. Replacing above code
                                 }
 
-                                //weatherNotification.sendServiceNotification(Notification.WEATHER_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 188 to 197
+                                weatherNotification.sendServiceNotification(Notification.WEATHER_SERVICE, content, sender, result);
 
-                                weatherNotification.setContent(content);
+                                /*weatherNotification.setContent(content);
                                 weatherNotification.setTimestamp(timestamp);
                                 String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
                                 FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(weatherNotification);
@@ -194,7 +194,7 @@ public class CheckClimateService extends IntentService {
                                 FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("notification-id").setValue(notificationID);
 
                                 //Update new value for climate type
-                                FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("value").setValue(result);
+                                FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("value").setValue(result);*/
 
                                 System.out.println("Climate Service - Weather value changes");
                             }
@@ -214,12 +214,12 @@ public class CheckClimateService extends IntentService {
                         int psi = Integer.parseInt(result);
                         if (psi >= 0 || psi > 300) {
                             content = "Haze alert: PSI " + psi; //getRangeDesriptor(psi);
-                            sender = "NEA - PSI";
-                            timestamp = new Date().getTime();
+                            sender = "PSI Haze Index";
+                            //timestamp = new Date().getTime();
 
-                            //notification.sendServiceNotification(Notification.PSI_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 221 to 231
+                            notification.sendServiceNotification(Notification.PSI_SERVICE, content, sender, result);
 
-                            notification.setContent(content);
+                            /*notification.setContent(content);
                             notification.setSender(sender);
                             notification.setTimestamp(timestamp);
                             String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
@@ -228,7 +228,7 @@ public class CheckClimateService extends IntentService {
                             //Change notification ID to alert listening subscriber about changes
                             climateRef.child("notification-id").setValue(notificationID);
 
-                            climateRef.child("value").setValue(result);
+                            climateRef.child("value").setValue(result);*/
 
                             System.out.println("Climate Service - PSI value changes");
                         }
@@ -246,12 +246,12 @@ public class CheckClimateService extends IntentService {
                         double temp = Double.parseDouble(result);
                         if (temp > 0) {
                             content = "Temperature alert: " + temp;
-                            sender = "OpenWeather";
-                            timestamp = new Date().getTime();
+                            sender = "Current Temperature";
+                            //timestamp = new Date().getTime();
 
-                            //notification.sendServiceNotification(Notification.TEMPERATURE_SERVICE, content, sender, result); TODO: New method to send service notification. Replacing line 246 to 256
+                            notification.sendServiceNotification(Notification.TEMPERATURE_SERVICE, content, sender, result);
 
-                            notification.setContent(content);
+                            /*notification.setContent(content);
                             notification.setSender(sender);
                             notification.setTimestamp(timestamp);
                             String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
@@ -261,7 +261,7 @@ public class CheckClimateService extends IntentService {
                             climateRef.child("notification-id").setValue(notificationID);
 
                             //Update new show time
-                            climateRef.child("value").setValue(result);
+                            climateRef.child("value").setValue(result);*/
 
                             System.out.println("Climate Service - Temperature value changes");
                         } else {

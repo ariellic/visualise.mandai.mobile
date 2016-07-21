@@ -41,7 +41,7 @@ public class ListenerService extends WearableListenerService implements Connecti
         else {
             userID = "No User ID in ListenerService at this timestamp: " + new Date().getTime();
         }
-        System.out.println("userIDuserIDuserIDuserID: " + userID);
+        System.out.println("ListenerService - userID: " + userID);
         return START_STICKY;
     }
 
@@ -134,7 +134,7 @@ public class ListenerService extends WearableListenerService implements Connecti
 
                     //Create a notification with necessary information to notify staff who is not on off
                     Notification notification = new Notification();
-                    notification.sendNotification(Notification.ESCAPE_NOTIFICATION, parts[1] + " has ESCAPE! Do take a look out for it. Ensure your and visitor's safety.", latitude, longitude, userID, receiver, "NA");
+                    notification.sendNotification(Notification.ESCAPE_NOTIFICATION, parts[1] + " has ESCAPE! Do take a look out for it. Ensure your and visitor's safety.", latitude, longitude, userID, receiver, null);
                 }
 
                 @Override
@@ -193,15 +193,15 @@ public class ListenerService extends WearableListenerService implements Connecti
                     if(parts[2].equals("Full")) {
                         //Create a notification with necessary information to notify staff who is not on off
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is currently full.", latitude, longitude, userID, receiver, "NA");
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is currently full.", latitude, longitude, userID, receiver, null);
                     }
                     else if(parts[2].equals("Delay")){
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is delayed for"+parts[3]+ ".", latitude, longitude, userID, receiver, "NA");
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is delayed for "+parts[3]+ ".", latitude, longitude, userID, receiver, null);
                     }
                     else{ //Cancel
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is canceled due to"+parts[3]+".", latitude, longitude, userID, receiver, "NA");
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, parts[1] + " is canceled due to "+parts[3]+".", latitude, longitude, userID, receiver, null);
                     }
                 }
 
@@ -236,13 +236,13 @@ public class ListenerService extends WearableListenerService implements Connecti
 
                     if(parts[2].equals("Crowded")) {
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", latitude, longitude, userID, receiver, "NA");
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", latitude, longitude, userID, receiver, null);
 
                         FirebaseDatabase.getInstance().getReference().child("service").child("tram").child("station" + parts[1]).setValue("Crowded");
                     }
                     else if(parts[2].equals("Normal")) {
                         Notification notification = new Notification();
-                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently normal now.", latitude, longitude, userID, receiver, "NA");
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently normal now.", latitude, longitude, userID, receiver, null);
 
                         FirebaseDatabase.getInstance().getReference().child("service").child("tram").child("station" + parts[1]).setValue("Normal");
                     } 

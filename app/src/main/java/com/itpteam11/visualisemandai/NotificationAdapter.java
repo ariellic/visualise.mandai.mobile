@@ -292,7 +292,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     //Normal notification item
     private class NormalNotificationViewHolder extends NotificationViewHolder {
         public TextView message, sender, timestamp, proxi;
-        //public ImageView img;
 
         public NormalNotificationViewHolder(View view) {
             super(view);
@@ -300,7 +299,6 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             sender = (TextView) view.findViewById(R.id.notification_list_sender);
             timestamp = (TextView) view.findViewById(R.id.notification_list_timestamp);
             proxi = (TextView) view.findViewById(R.id.notification_list_proxi);
-            //img = (ImageView) view.findViewById(R.id.notification_list_image);
         }
     }
 

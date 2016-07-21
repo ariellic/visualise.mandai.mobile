@@ -84,7 +84,11 @@ public class MainActivity extends AppCompatActivity implements
 
     //To locate staff coordinates
     private static StaffLocationService staffLocationService = null;
+
+    //To communicate with smartwatch
     private static Intent listenerService = null;
+
+    ////To provide information on  weather, temperature and PSI
     private static Intent climateService = null;
 
     @Override
@@ -109,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements
             Log.v(TAG, "Connecting to GoogleApiClient..");
         }
 
-        //Remove all value event listener
+        //Remove any previous created value event listener
         if(valueEventListenerList.size() != 0) {
             for(Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerList.entrySet()) {
                 System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
@@ -118,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-        //Remove all child event listener
+        //Remove any previous created child event listener
         if(childEventListenerList.size() != 0) {
             for(Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerList.entrySet()) {
                 System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
@@ -127,12 +131,11 @@ public class MainActivity extends AppCompatActivity implements
             }
         }
 
-        if(listenerService != null) {
-            stopService(listenerService);
+        if(listenerService == null) {
+            listenerService = new Intent(this, ListenerService.class);
+            listenerService.putExtra(ListenerService.USER_ID, userID);
+            startService(listenerService);
         }
-        listenerService = new Intent(this, ListenerService.class);
-        listenerService.putExtra(ListenerService.USER_ID, userID);
-        startService(listenerService);
 
         //Retrieve user's detail from database with authenticated user ID
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
@@ -191,12 +194,11 @@ public class MainActivity extends AppCompatActivity implements
                                     handler.post(new Runnable() {
                                         public void run() {
                                             try {
-                                                if(climateService != null) {
-                                                    stopService(climateService);
+                                                if(climateService == null) {
+                                                    climateService = new Intent(MainActivity.this, CheckClimateService.class);
+                                                    climateService.putExtra(CheckClimateService.USER_ID, userID);
+                                                    startService(climateService);
                                                 }
-                                                climateService = new Intent(MainActivity.this, CheckClimateService.class);
-                                                climateService.putExtra(CheckClimateService.USER_ID, userID);
-                                                startService(climateService);
                                                 Log.d("ClimateService", "Service started");
                                             } catch (Exception e) {
                                                 // TODO Auto-generated catch block
@@ -318,18 +320,17 @@ public class MainActivity extends AppCompatActivity implements
             case LOCATION_PERMISSIONS_REQUEST: {
                 //If user granted permission to access location
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if(staffLocationService != null) {
-                        staffLocationService.stopLocationUpdate();
+                    if(staffLocationService == null) {
+                        //Start staff location service to update user coordinates
+                        staffLocationService = new StaffLocationService(this, userID);
                     }
 
-                    //Start staff location service to update user coordinates
-                    staffLocationService = new StaffLocationService(this, userID);
                     System.out.println("MainActivity - Location permission granted");
                 }
                 else {
                     //Display toast if user denied permission
                     Toast.makeText(this, "Please enable Location permission at:\n" +
-                            "Settings>Apps>Visualise Mandai>Permissions>Location", Toast.LENGTH_LONG).show();
+                            "Settings>Apps>Visualize Mandai>Permissions>Location", Toast.LENGTH_LONG).show();
                 }
             }
         }
@@ -502,16 +503,26 @@ public class MainActivity extends AppCompatActivity implements
         }
 
         //Stop user location update
-        if(staffLocationService != null)
+        if(staffLocationService != null) {
             staffLocationService.stopLocationUpdate();
+            staffLocationService = null;
+        }
 
         //Stop climate service
         if(backtask != null) {
             backtask.cancel();
         }
 
+        if(climateService != null) {
+            stopService(climateService);
+            climateService = null;
+        }
+
         //Stop listener service for wear
-        stopService(listenerService);
+        if(listenerService != null) {
+            stopService(listenerService);
+            listenerService = null;
+        }
 
         //Remove all value event listener
         if(valueEventListenerList.size() != 0) {
