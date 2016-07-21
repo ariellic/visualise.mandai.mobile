@@ -125,7 +125,7 @@ public class NotificationFragment extends Fragment {
 
                                         // Create a NotificationItem to be added into the notification list
                                         // When notification's and user's location exist
-                                        if (notification.getLatitude() != null && notification.getLongitude() != null) {
+                                        if (notification.getLatitude() != null && notification.getLongitude() != null && notification.getLatitude()!= 0 && notification.getLongitude()!=0) {
                                             NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
                                             groupedNotifications.add(notificationItem); // For stacking notifications
                                             notificationList.add(notificationItem);
@@ -234,7 +234,7 @@ public class NotificationFragment extends Fragment {
                                             Log.d("NotificationFragment", "notification.getContent(): " + notification.getContent());
                                             // Create a NotificationItem to be added into the notification list
                                             // When notification's and user's location exist
-                                            if (notification.getLatitude() != null && notification.getLongitude() != null) {
+                                            if (notification.getLatitude() != null && notification.getLongitude() != null&& notification.getLatitude()!= 0 && notification.getLongitude()!=0) {
                                                 NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
                                                 notificationList.add(notificationItem);
                                             }
