@@ -41,6 +41,9 @@
         <activity
             android:name=".TramActivity"
             android:label="@string/title_activity_tram"></activity>
+             <activity
+            android:name=".TramStatusActivity"
+            android:label="@string/title_activity_tram_status"></activity>
     </application>
 
 </manifest>

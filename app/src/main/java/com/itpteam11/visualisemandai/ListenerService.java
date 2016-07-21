@@ -212,7 +212,7 @@ public class ListenerService extends WearableListenerService implements Connecti
                 }
             });
         }
-        else if (parts[0].equals("tram")) {
+        else if (parts[0].equals("Tram")) {
             //Get the list of current staff who is not on off
             FirebaseDatabase.getInstance().getReference().child("user").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -234,11 +234,19 @@ public class ListenerService extends WearableListenerService implements Connecti
                         longitude = StaffLocationService.getLongitude();
                     }
 
-                    Notification notification = new Notification();
-                    notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", latitude, longitude, userID, receiver, "NA");
+                    if(parts[2].equals("Crowded")) {
+                        Notification notification = new Notification();
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently very crowded now. More trams are needed.", latitude, longitude, userID, receiver, "NA");
 
-                    FirebaseDatabase.getInstance().getReference().child("service").child("tram").child("station"+parts[1]).setValue("Crowded");
-                }
+                        FirebaseDatabase.getInstance().getReference().child("service").child("tram").child("station" + parts[1]).setValue("Crowded");
+                    }
+                    else if(parts[2].equals("Normal")) {
+                        Notification notification = new Notification();
+                        notification.sendNotification(Notification.NORMAL_NOTIFICATION, "Tram station " + parts[1] + " is currently normal now.", latitude, longitude, userID, receiver, "NA");
+
+                        FirebaseDatabase.getInstance().getReference().child("service").child("tram").child("station" + parts[1]).setValue("Normal");
+                    } 
+                 }
                 @Override
                 public void onCancelled(DatabaseError error) {
                     // Failed to get working staff list

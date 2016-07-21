@@ -8,4 +8,5 @@
     <!--Escape Activity-->
     <string name="escape_activity_textview_title">Animal Escape</string>
     <string name="title_activity_tram">TramActivity</string>
+     <string name="title_activity_tram_status">TramStatusActivity</string>
 </resources>
