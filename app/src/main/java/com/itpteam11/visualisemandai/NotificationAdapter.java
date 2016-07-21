@@ -3,6 +3,7 @@ package com.itpteam11.visualisemandai;
 import com.squareup.picasso.Picasso;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
@@ -15,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -42,6 +44,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     private List<NotificationItem> notificationList;
     private Context context;
     HashMap<Integer, String> uris = new HashMap<>();
+    HashMap<Integer, String> paths = new HashMap<>();
     private int listSize;
 
     public NotificationAdapter(List<NotificationItem> notificationList) {
@@ -74,9 +77,18 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public void onBindViewHolder(NotificationViewHolder holder, final int position) {
         NotificationItem notification = notificationList.get(position);
         int newListSize = getItemCount();
+        int diffInSize = newListSize - listSize;
         if (newListSize != listSize) {
             listSize = newListSize;
             uris.clear();
+            HashMap<Integer, String> tempPaths = new HashMap<>();
+            for(Map.Entry<Integer, String> pair : paths.entrySet()) {
+                Integer pos = pair.getKey();
+                String filePath = pair.getValue();
+                pos += diffInSize;
+                tempPaths.put(pos, filePath);
+            }
+            paths = tempPaths;
         }
 
         //Set respective notification item's widgets with content
@@ -163,6 +175,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 final String imgName = notification.getImageName();
                 final String notiContent = notification.getContent();
                 File imagePath = new File(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES) + "/" + imgName); // Path to check if it exists in directory
+                imgView.setTag(position);
 
                 Log.d(notiContent, "imgView.getDrawable(): " + imgView.getDrawable());
                 Log.d(notiContent, "imgView.getTag(): " + imgView.getTag());
@@ -192,7 +205,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                     else {
                         StorageReference imgRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://visualise-mandai.appspot.com/custom_alerts/" + imgName);
                         // Download image to file in directory
-                        downloadImage(imgRef, imgFile);
+                        downloadImage(imgRef, imgFile, position);
                         imgRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
@@ -357,6 +370,22 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         public ImageNotificationViewHolder(View view) {
             super(view);
 
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent();
+                    intent.setAction(Intent.ACTION_VIEW);
+                    String pathToOpen = paths.get(img.getTag());
+                    Log.d(TAG, "ONCLICK, Path to open: " + pathToOpen + ", position: " + img.getTag());
+                    if (pathToOpen != null){
+                        Uri imgUri = Uri.parse("file:" + pathToOpen);
+                        intent.setDataAndType(imgUri, "image/*");
+                        context.startActivity(intent);
+                    } else {
+                        Toast.makeText(context, "Please wait a moment while the image is getting downloaded...", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
             message = (TextView) view.findViewById(R.id.notification_list_image_message);
             sender = (TextView) view.findViewById(R.id.notification_list_image_sender);
             timestamp = (TextView) view.findViewById(R.id.notification_list_image_timestamp);
@@ -365,14 +394,14 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         }
     }
 
-
     /**
      * Download image from Firebase Storage into file that has been created
      *
      * @param ref
      * @param imgFile
      */
-    public void downloadImage(StorageReference ref, final File imgFile) {
+    public void downloadImage(StorageReference ref, final File imgFile, final int pos) {
+        paths.put(pos, imgFile.getAbsolutePath());
         ref.getFile(imgFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
