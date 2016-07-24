@@ -301,6 +301,8 @@ public class MainActivity extends AppCompatActivity implements
             //Display toast if user denied permission
             if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
                 Toast.makeText(this, "Please enable Location permission at:\nSettings>Apps>Visualise Mandai>Permissions>Location", Toast.LENGTH_LONG).show();
+                FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("latitude").setValue(0);
+                FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("longitude").setValue(0);
             }
             else {
                 //Request user to grant permission for location service and callback to onRequestPermissionsResult()

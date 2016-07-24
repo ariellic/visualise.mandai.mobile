@@ -136,87 +136,90 @@ public class NotificationFragment extends Fragment {
                                         //Store notification details into Notification object
                                         Notification notification = dataSnapshot.getValue(Notification.class);
 
-                                        // Create a NotificationItem to be added into the notification list
-                                        // When notification's and user's location exist
-                                        if (notification.getLatitude() != null && notification.getLongitude() != null && notification.getLatitude() != -0 && notification.getLatitude() != 0 && notification.getLongitude() != -0 && notification.getLongitude() != 0 && StaffLocationService.isLocationPermissionGranted()) {
-                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
-                                            groupedNotifications.add(notificationItem); // For stacking notifications
-                                            notificationList.add(notificationItem);
-                                        }
-                                        // Image node not available in Firebase
-                                        else {
-                                            NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
-                                            groupedNotifications.add(notificationItem); // For stacking notifications
-                                            notificationList.add(notificationItem);
-                                        }
+                                        //Ensuring notification exist
+                                        if (notification != null) {
+                                            // Create a NotificationItem to be added into the notification list
+                                            // When notification's and user's location exist
+                                            if (notification.getLatitude() != null && notification.getLongitude() != null && notification.getLatitude() != -0 && notification.getLatitude() != 0 && notification.getLongitude() != -0 && notification.getLongitude() != 0 && StaffLocationService.isLocationPermissionGranted()) {
+                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
+                                                groupedNotifications.add(notificationItem); // For stacking notifications
+                                                notificationList.add(notificationItem);
+                                            }
+                                            // Image node not available in Firebase
+                                            else {
+                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
+                                                groupedNotifications.add(notificationItem); // For stacking notifications
+                                                notificationList.add(notificationItem);
+                                            }
 
-                                        final String GROUP_NOTIFICATIONS = "group_notifications";
+                                            final String GROUP_NOTIFICATIONS = "group_notifications";
 
-                                        //Build system notification to notify the user
-                                        NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
-                                                .setContentTitle(resolveSenderName(notification.getSender()))
-                                                .setContentText(notification.getContent())
-                                                .setSmallIcon(R.drawable.notification)
-                                                .setGroup(GROUP_NOTIFICATIONS)
-                                                .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
+                                            //Build system notification to notify the user
+                                            NotificationCompat.Builder notify = new NotificationCompat.Builder(getContext())
+                                                    .setContentTitle(resolveSenderName(notification.getSender()))
+                                                    .setContentText(notification.getContent())
+                                                    .setSmallIcon(R.drawable.notification)
+                                                    .setGroup(GROUP_NOTIFICATIONS)
+                                                    .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000});
 
-                                        NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
+                                            NotificationCompat.WearableExtender wearableExtender = new NotificationCompat.WearableExtender();
 
-                                        // Customizing big text, icons and bg to appear for notifications on mobile/wearable
-                                        CharSequence desc = "";
-                                        switch (dataSnapshot.child("sender").getValue().toString()) {
-                                            case "Climatic live alerts - Weather (Rain)":
-                                                wearableExtender = getWearableDesign(R.drawable.rain, R.drawable.rainy);
-                                                desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!");
-                                                break;
-                                            case "Climatic live alerts - Weather (Sun)":
-                                                wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
-                                                desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
-                                                break;
-                                            case "Climatic live alerts - PSI":
-                                                wearableExtender = getWearableDesign(R.drawable.haze, R.drawable.hazy);
-                                                desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
-                                                break;
-                                            case "Climatic live alerts - Temperature":
-                                                wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
-                                                desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
-                                                break;
-                                            case "SUk69wtTSbSTLUSQj5CavCJUyop1":
-                                                Log.d("NotificationFragment", "Sent by manager");
-                                                if (notification.getType() != null && notification.getType().equals("image")) {
-                                                    Log.d("NotificationFragment", "Image type notification");
-                                                    wearableExtender = getWearableDesign(R.drawable.manager, R.drawable.alert);
-                                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> [Image attached]");
+                                            // Customizing big text, icons and bg to appear for notifications on mobile/wearable
+                                            CharSequence desc = "";
+                                            switch (dataSnapshot.child("sender").getValue().toString()) {
+                                                case "Climatic live alerts - Weather (Rain)":
+                                                    wearableExtender = getWearableDesign(R.drawable.rain, R.drawable.rainy);
+                                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> It's going to rain soon, do advise the visitors to stay sheltered and do the same for yourself too!");
                                                     break;
-                                                }
-                                            default:
-                                                desc = Html.fromHtml("<b>Notice from " + resolveSenderName(notification.getSender()) + "</b><br />" + notification.getContent());
-                                                break;
+                                                case "Climatic live alerts - Weather (Sun)":
+                                                    wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
+                                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
+                                                    break;
+                                                case "Climatic live alerts - PSI":
+                                                    wearableExtender = getWearableDesign(R.drawable.haze, R.drawable.hazy);
+                                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do wear a mask wherever you are outdoors and do alert the visitors to wear one too.");
+                                                    break;
+                                                case "Climatic live alerts - Temperature":
+                                                    wearableExtender = getWearableDesign(R.drawable.bottle, R.drawable.sunny);
+                                                    desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> Do drink more water as the weather is getting warmer.");
+                                                    break;
+                                                case "SUk69wtTSbSTLUSQj5CavCJUyop1":
+                                                    Log.d("NotificationFragment", "Sent by manager");
+                                                    if (notification.getType() != null && notification.getType().equals("image")) {
+                                                        Log.d("NotificationFragment", "Image type notification");
+                                                        wearableExtender = getWearableDesign(R.drawable.manager, R.drawable.alert);
+                                                        desc = Html.fromHtml("<b>" + notification.getContent() + "</b><br /> [Image attached]");
+                                                        break;
+                                                    }
+                                                default:
+                                                    desc = Html.fromHtml("<b>Notice from " + resolveSenderName(notification.getSender()) + "</b><br />" + notification.getContent());
+                                                    break;
+                                            }
+
+
+                                            String notificationWord = "";
+                                            if (pendingNotifications == 1) {
+                                                notificationWord = " notification";
+                                            } else {
+                                                notificationWord = " notifications";
+                                            }
+
+                                            notify.setStyle(new NotificationCompat.BigTextStyle().bigText(desc));
+
+                                            notify.extend(wearableExtender);
+                                            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
+                                            notificationManager.notify(id++, notify.build()); // Display multiple notifications, prevent replacing of notification
+
+                                            //Sort latest item to be at top of notification list
+                                            Collections.sort(notificationList, new NotificationItem());
+
+                                            //Recreate notification list
+                                            notificationAdapter.notifyDataSetChanged();
+
+                                            //Set notification has received(set true)
+                                            FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
+                                            FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                         }
-
-
-                                        String notificationWord = "";
-                                        if (pendingNotifications == 1) {
-                                            notificationWord = " notification";
-                                        } else {
-                                            notificationWord = " notifications";
-                                        }
-
-                                        notify.setStyle(new NotificationCompat.BigTextStyle().bigText(desc));
-
-                                        notify.extend(wearableExtender);
-                                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getContext());
-                                        notificationManager.notify(id++, notify.build()); // Display multiple notifications, prevent replacing of notification
-
-                                        //Sort latest item to be at top of notification list
-                                        Collections.sort(notificationList, new NotificationItem());
-
-                                        //Recreate notification list
-                                        notificationAdapter.notifyDataSetChanged();
-
-                                        //Set notification has received(set true)
-                                        FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
-                                        FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                     }
 
                                     @Override

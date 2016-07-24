@@ -35,17 +35,25 @@
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/notification_list_image_message"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/textsize_medium"
-        android:textStyle="bold" />
+        android:orientation="horizontal">
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/notification_list_image_imageview"
-        android:layout_marginTop="@dimen/margin_xsmall" />
+        <ImageView
+            android:id="@+id/notification_list_image_imageview"
+            android:layout_width="@dimen/notification_thumbnail"
+            android:layout_height="@dimen/notification_thumbnail" />
+
+        <TextView
+            android:id="@+id/notification_list_image_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="@dimen/textsize_medium"
+            android:layout_marginLeft="@dimen/margin_xsmall"
+            android:gravity="center_vertical"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
 </LinearLayout>

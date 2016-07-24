@@ -21,6 +21,8 @@
 
     <dimen name="card_elevation">2dp</dimen>
 
+    <dimen name="notification_thumbnail">72dp</dimen>
+
     <!-- Tab Dimension -->
     <dimen name="tab_max_width">264dp</dimen>
     <dimen name="tab_padding_bottom">16dp</dimen>
