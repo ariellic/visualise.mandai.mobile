@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -79,12 +80,17 @@ public class SendNotificationFragment extends Fragment {
 
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                if(!editTextMessage.getText().toString().equals("")){
                 // Perform action on click
                 Intent intent = new Intent(v.getContext(), CustomAlertRecipientsActivity.class);
                 String message = editTextMessage.getText().toString();
                 intent.putExtra("CustomAlert", message);
                 intent.putExtra("ImagePath", mCurrentPhotoPath);
                 startActivity(intent);
+                }
+                else{
+                    Toast.makeText(getContext(), "Please enter a message.", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
