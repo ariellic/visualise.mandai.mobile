@@ -30,8 +30,7 @@ import java.util.List;
 
 /**
  *  This activity shows all the tram stations' number. When user tapped on a tram station number,
- *  a notification will be sent to non off duty relevant staff notifying them to send more trams
- *  to the station.
+ *  it will direct them to the TramStatusActivity
  */
 
 public class TramActivity extends Activity implements WearableListView.ClickListener {

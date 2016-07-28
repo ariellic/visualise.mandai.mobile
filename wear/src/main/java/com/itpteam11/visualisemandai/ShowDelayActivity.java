@@ -22,6 +22,10 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ *  This activity shows the list of reasons that the show delayed for. When user tapped on a reason,
+ *  it will send a notification to other working staffs and show status will be update manager
+ */
 
 public class ShowDelayActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 

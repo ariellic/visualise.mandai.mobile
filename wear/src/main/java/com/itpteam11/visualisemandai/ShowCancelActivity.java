@@ -1,7 +1,8 @@
 package com.itpteam11.visualisemandai;
 
 /**
- * Created by Anita Koo on 7/5/2016.
+ *  This activity shows the list of reasons that the show cancel for. When user tapped on a reason,
+ *  it will send a notification to other working staffs and show status will be update manager
  */
 import android.app.Activity;
 import android.content.Intent;

@@ -12,6 +12,11 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *  This activity shows the shows in Singapore zoo. When user tapped on a show,
+ *  it will direct them to the ShowStatusActivity
+ */
+
 public class ShowActivity extends Activity implements WearableListView.ClickListener {
 
     private List<ListViewItem> viewItemList = new ArrayList<>();

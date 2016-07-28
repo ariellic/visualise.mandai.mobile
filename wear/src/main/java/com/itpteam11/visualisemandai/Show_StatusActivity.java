@@ -21,6 +21,11 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 
 import java.util.ArrayList;
 import java.util.List;
+/**
+ *  This activity shows a list of show status. When user tapped on a status,
+ *  it will direct them to show cancel activity or show delay activity.
+ *  If the user tapped on the 'full' status, a notification will be send to staff who are working.
+ */
 
 public class Show_StatusActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 

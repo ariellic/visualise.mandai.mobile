@@ -329,6 +329,12 @@ public class NotificationFragment extends Fragment {
         return sender;
     }
 
+    /**This method is to get the user current location and if is not 0 then called the distance method.
+     *
+     * @param notificationLatitude
+     * @param notificationLongtitude
+     * @return double
+     */
     public Double calculateProxi(double notificationLatitude, double notificationLongtitude) {
         //format the result to 2 decimal places
         DecimalFormat round = new DecimalFormat("#.00");
@@ -345,10 +351,14 @@ public class NotificationFragment extends Fragment {
         return null;
     }
 
-    /*
-    *This is a formula to find the distance between two locations.
-    */
-
+    /**
+     *This method is to find the distance between two locations.
+     * @param lat1
+     * @param lon1
+     * @param lat2
+     * @param lon2
+     * @return double
+     */
     private double distance(double lat1, double lon1, double lat2, double lon2) {
 
         final int R = 6371; // Radius of the earth

@@ -30,7 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *  This activity shows the current status of the tram.
+ *  This activity shows the current status of the tram. If the user tapped on the status,
+ *  it will send a notification to other working staffs.
  */
 
 public class TramStatusActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {

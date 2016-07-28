@@ -38,8 +38,10 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 import java.util.ArrayList;
 import java.util.List;
 
-//import static com.itpteam11.visualisemandai.R.drawable.ic_local_dining_black_24dp;
-
+/**
+ *  This activity shows list of status. When user tapped on a status, it will change the status
+ *  of the user.
+ */
 public class StatusActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static final String MY_PREFS_NAME = "MyPrefsFile";
@@ -115,9 +117,6 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         keys  = key;
         sendMessage("status;"+key);
 
-
-
-
     }
 
     @Override
@@ -154,8 +153,6 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
 
     @Override
     public void onConnected(Bundle bundle) {
-
-
         resolveNode();
     }
 
