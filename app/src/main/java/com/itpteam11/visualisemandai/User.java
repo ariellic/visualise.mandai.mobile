@@ -15,7 +15,6 @@ public class User implements Parcelable {
     private String type;
     private Double latitude;
     private Double longitude;
-    //private String accountstatus;
     private String account_status;
     private Map<String, String> group = null;
     private Map<String, Boolean> service = null;

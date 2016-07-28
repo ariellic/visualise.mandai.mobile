@@ -53,34 +53,29 @@ public class SignInActivity extends AppCompatActivity implements OnClickListener
         //Run respective switch statement accordingly to the pressed button
         switch(button.getId()) {
             case R.id.signin_activity_button_signin:
-                if((!etEmail.getText().toString().equals("")) && (!etPassword.getText().toString().equals(""))) {
-                    if (etEmail.getText() != null && etPassword.getText() != null) {
-                        // Signing in using Firebase Authentication with given email address and password
-                        authentication.getInstance().signInWithEmailAndPassword(etEmail.getText().toString(), etPassword.getText().toString())
-                                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<AuthResult> task) {
-                                        if (!task.isSuccessful()) {
-                                            System.out.println("Authentication Unsuccessful " + task.getException());
+                if (!(etEmail.getText().toString().equals("")) && !(etPassword.getText().toString().equals(""))) {
+                    // Signing in using Firebase Authentication with given email address and password
+                    authentication.getInstance().signInWithEmailAndPassword(etEmail.getText().toString(), etPassword.getText().toString())
+                            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (!task.isSuccessful()) {
+                                        System.out.println("Authentication Unsuccessful " + task.getException());
 
-                                            //Display toast when sign in unsuccessful
-                                            Toast.makeText(getApplicationContext(), "Oops, sign in failed!\nPlease enter valid email or password", Toast.LENGTH_LONG).show();
-                                        } else {
-                                            System.out.println("Authentication Successful");
+                                        //Display toast when sign in unsuccessful
+                                        Toast.makeText(getApplicationContext(), "Oops, sign in failed!\nPlease enter valid email or password", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        System.out.println("Authentication Successful");
 
-                                            //Intent to MainActivity when sign in successful
-                                            Intent mainActivity = new Intent(SignInActivity.this, MainActivity.class);
-                                            mainActivity.putExtra("userID", FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
-                                            startActivity(mainActivity);
-                                        }
+                                        //Intent to MainActivity when sign in successful
+                                        Intent mainActivity = new Intent(SignInActivity.this, MainActivity.class);
+                                        mainActivity.putExtra("userID", FirebaseAuth.getInstance().getCurrentUser().getUid().toString());
+                                        startActivity(mainActivity);
                                     }
-                                });
-                    } else {
-                        Toast.makeText(getApplicationContext(), "Oops, sign in failed!\nPlease enter valid email or password", Toast.LENGTH_LONG).show();
-                    }
-                }
-                else{
-                    Toast.makeText(getApplicationContext(), "Oops, email or password is empty.\nPlease enter kemail or password", Toast.LENGTH_LONG).show();
+                                }
+                            });
+                } else {
+                    Toast.makeText(getApplicationContext(), "Oops, sign in failed!\nPlease enter valid email or password", Toast.LENGTH_LONG).show();
                 }
                 break;
         }

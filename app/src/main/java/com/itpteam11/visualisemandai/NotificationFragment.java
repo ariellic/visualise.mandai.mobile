@@ -36,8 +36,10 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -237,27 +239,29 @@ public class NotificationFragment extends Fragment {
                                         if (notification != null) {
 
                                             Log.d("NotificationFragment", "notification.getContent(): " + notification.getContent());
-                                            // Create a NotificationItem to be added into the notification list
-                                            // When notification's and user's location exist
-                                            if (notification.getLatitude() != null && notification.getLongitude() != null && notification.getLatitude() != -0 && notification.getLatitude() != 0 && notification.getLongitude() != -0 && notification.getLongitude() != 0 && StaffLocationService.isLocationPermissionGranted()) {
-                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
-                                                notificationList.add(notificationItem);
+                                            if(new SimpleDateFormat("dd MMM yyyy").format(new Date(notification.getTimestamp())).equals(new SimpleDateFormat("dd MMM yyyy").format(new Date().getTime()))) {
+                                                // Create a NotificationItem to be added into the notification list
+                                                // When notification's and user's location exist
+                                                if (notification.getLatitude() != null && notification.getLongitude() != null && notification.getLatitude() != -0 && notification.getLatitude() != 0 && notification.getLongitude() != -0 && notification.getLongitude() != 0 && StaffLocationService.isLocationPermissionGranted()) {
+                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), calculateProxi(notification.getLatitude(), notification.getLongitude()), notification.getImageName());
+                                                    notificationList.add(notificationItem);
+                                                }
+                                                // Image node not available in Firebase
+                                                else {
+                                                    NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
+                                                    notificationList.add(notificationItem);
+                                                }
+
+                                                //Sort latest item to be at top of notification list
+                                                Collections.sort(notificationList, new NotificationItem());
+
+                                                //Update notification list
+                                                notificationAdapter.notifyDataSetChanged();
+
+                                                //Set notification has received(set true)
+                                                FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
+                                                FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                             }
-                                            // Image node not available in Firebase
-                                            else {
-                                                NotificationItem notificationItem = new NotificationItem(dataSnapshot.getKey(), notification.getType(), notification.getContent(), resolveSenderName(notification.getSender()), notification.getTimestamp(), null, notification.getImageName());
-                                                notificationList.add(notificationItem);
-                                            }
-
-                                            //Sort latest item to be at top of notification list
-                                            Collections.sort(notificationList, new NotificationItem());
-
-                                            //Update notification list
-                                            notificationAdapter.notifyDataSetChanged();
-
-                                            //Set notification has received(set true)
-                                            FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
-                                            FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                         }
                                     }
 

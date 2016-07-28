@@ -29,6 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/textsize_small"
+            android:padding="@dimen/proximity_margin"
             android:layout_alignParentRight="true"
             android:layout_below="@+id/notification_list_timestamp"
             />

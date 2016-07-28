@@ -17,6 +17,8 @@
     <dimen name="margin_small">12dp</dimen>
     <dimen name="margin_xsmall">8dp</dimen>
 
+    <dimen name="proximity_margin">2dp</dimen>
+
     <dimen name="logo_height">200dp</dimen>
 
     <dimen name="card_elevation">2dp</dimen>
