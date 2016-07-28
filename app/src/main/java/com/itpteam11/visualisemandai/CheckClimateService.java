@@ -149,7 +149,6 @@ public class CheckClimateService extends IntentService {
                 Notification notification = new Notification();
                 String content = "";
                 String sender = "";
-                long timestamp = 0;
 
                 climateRef.child("value").setValue(result);
 
@@ -168,34 +167,18 @@ public class CheckClimateService extends IntentService {
                             Notification weatherNotification = new Notification();
                             String content = "Weather alert: " + valueLong;
                             String sender = "Climatic live alerts - Weather ";
-                            long timestamp = new Date().getTime();
 
                             // Abbreviations of weather considered as rainy
-                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS", "PC"};
+                            String[] rainyWeather = new String[]{"DR", "HG", "HR", "HS", "HT", "LR", "LS", "PS", "RA", "SH", "SK", "SR", "TL", "WR", "WS"};
                             List rainyAbbrList = Arrays.asList(rainyWeather);
 
                             if (rainyAbbrList.contains(result) || result.equals("SU")) {
                                 if (rainyAbbrList.contains(result)) {
                                     weatherNotification.setSender(sender + "(Rain)");
-                                    //sender = sender + "(Rain)"; TODO: New code. Replacing above code
                                 } else if (result.equals("SU")) {
                                     weatherNotification.setSender(sender + "(Sun)");
-                                    //sender = sender + "(Sun)"; TODO: New code. Replacing above code
                                 }
-
                                 weatherNotification.sendServiceNotification(Notification.WEATHER_SERVICE, content, sender, result);
-
-                                /*weatherNotification.setContent(content);
-                                weatherNotification.setTimestamp(timestamp);
-                                String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
-                                FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(weatherNotification);
-
-                                //Change notification ID to alert listening subscriber about changes
-                                FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("notification-id").setValue(notificationID);
-
-                                //Update new value for climate type
-                                FirebaseDatabase.getInstance().getReference().child("service").child(climateType).child("value").setValue(result);*/
-
                                 System.out.println("Climate Service - Weather value changes");
                             }
 
@@ -212,23 +195,11 @@ public class CheckClimateService extends IntentService {
                 else if (climateType.equals("psi")) {
                     if(!result.equals("")) {
                         int psi = Integer.parseInt(result);
-                        if (psi >= 0 || psi > 300) {
+                        if (psi >= 101 || psi > 300) {
                             content = "Haze alert: PSI " + psi; //getRangeDesriptor(psi);
                             sender = "Climatic live alerts - PSI";
-                            timestamp = new Date().getTime();
 
                             notification.sendServiceNotification(Notification.PSI_SERVICE, content, sender, result);
-
-                            /*notification.setContent(content);
-                            notification.setSender(sender);
-                            notification.setTimestamp(timestamp);
-                            String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
-                            FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(notification);
-
-                            //Change notification ID to alert listening subscriber about changes
-                            climateRef.child("notification-id").setValue(notificationID);
-
-                            climateRef.child("value").setValue(result);*/
 
                             System.out.println("Climate Service - PSI value changes");
                         }
@@ -240,28 +211,16 @@ public class CheckClimateService extends IntentService {
                         climateRef.child("value").setValue("0");
                     }
                 }
+
                 // If climate type 'temperature' is being processed from OpenWeather
                 else if (climateType.equals("temperature")) {
                     if (!result.equals("")) {
                         double temp = Double.parseDouble(result);
-                        if (temp > 0) {
+                        if (temp > 30) {
                             content = "Temperature alert: " + temp;
                             sender = "Climatic live alerts - Temperature";
-                            timestamp = new Date().getTime();
 
                             notification.sendServiceNotification(Notification.TEMPERATURE_SERVICE, content, sender, result);
-
-                            /*notification.setContent(content);
-                            notification.setSender(sender);
-                            notification.setTimestamp(timestamp);
-                            String notificationID = FirebaseDatabase.getInstance().getReference().child("notification").push().getKey();
-                            FirebaseDatabase.getInstance().getReference().child("notification").child(notificationID).setValue(notification);
-
-                            //Change notification ID to alert listening subscriber about changes
-                            climateRef.child("notification-id").setValue(notificationID);
-
-                            //Update new show time
-                            climateRef.child("value").setValue(result);*/
 
                             System.out.println("Climate Service - Temperature value changes");
                         } else {
@@ -289,7 +248,6 @@ public class CheckClimateService extends IntentService {
         private String downloadUrlHTTP(String myurl) throws IOException {
             BufferedReader reader = null;
 
-            // do the download here
             try {
                 URL url = new URL(myurl);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -326,7 +284,6 @@ public class CheckClimateService extends IntentService {
 
             // Get the first parser event and start iterating over the XML document
             int eventType = parser.getEventType();
-            //final Firebase neaRef = new Firebase("https://visualise-mandai.firebaseio.com/service/");
             DatabaseReference envRef = FirebaseDatabase.getInstance().getReference().child("service");
             String value = "";
 
@@ -340,11 +297,7 @@ public class CheckClimateService extends IntentService {
                         // If weather API
                         if (tagName.equals("area")) {
                             if (parser.getAttributeValue(null, "name").equals("Mandai")) {
-                                //String weatherLong = envRef.child("weather").child("abbreviations").child(parser.getAttributeValue(null, "forecast")).toString();
-                                //Log.d("weatherLong", weatherLong);
-                                //envRef.child("weather").child("value").setValue(parser.getAttributeValue(null, "forecast"));
                                 value = parser.getAttributeValue(null, "forecast");
-                                //return value;
                                 break loop;
                             }
                         }
@@ -357,8 +310,6 @@ public class CheckClimateService extends IntentService {
                                             if (parser.getName().equals("reading")) {
                                                 if (parser.getAttributeValue(null, "type").equals("NPSI_PM25_3HR")) {
                                                     value = parser.getAttributeValue(null, "value");
-                                                    //return value;
-                                                    //envRef.child("psi").child("value").setValue(parser.getAttributeValue(null, "value"));
                                                     break loop;
                                                 }
                                             }
@@ -372,8 +323,6 @@ public class CheckClimateService extends IntentService {
                             double tempKelvin = Double.parseDouble(parser.getAttributeValue(null, "value"));
                             double tempCelsius = Math.round((tempKelvin / 10.554) * 100.0) / 100.0;
                             value = Double.toString(tempCelsius);
-                            //return value;
-                            //envRef.child("temperature").child("value").setValue(tempCelsius);
                             break loop;
                         }
                         break;

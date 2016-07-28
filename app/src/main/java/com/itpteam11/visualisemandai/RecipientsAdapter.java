@@ -16,6 +16,9 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This adapter is responsible for holding the recipients in the recipients list
+ */
 public class RecipientsAdapter extends BaseAdapter {
 
     List<User> recipientsList;
@@ -67,37 +70,33 @@ public class RecipientsAdapter extends BaseAdapter {
             holder = (RecipientsViewHolder) convertView.getTag();
         }
 
+        // Set default to all named not checked
         holder.getTextView().setText(recipientsList.get(position).getName());
         holder.getCheckBox().setChecked(false);
 
+        // Check the checkbox if it has been checked
         if (itemChecked[position]){
             holder.getCheckBox().setChecked(true);
         } else {
             holder.getCheckBox().setChecked(false);
         }
 
+        // If checkbox is clicked, add or remove the name from the checked users list
         holder.getCheckBox().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String textViewValue = holder.getTextView().getText().toString();
+                // If checkbox has been checked & it has not been added into the list of checked
+                // users yet
                 if (holder.getCheckBox().isChecked() && !checkedValue.contains(textViewValue)){
                     itemChecked[position] = true;
                     checkedValue.add(textViewValue);
                 }
+                // If the checbox has been unchecked and it has been added into the list of checked users
                 else if (!holder.getCheckBox().isChecked() && checkedValue.contains(textViewValue)) {
                     itemChecked[position] = false;
                     checkedValue.remove(textViewValue);
                 }
-
-                /*
-                String stringChain = "Values:";
-                for(String value : checkedValue) {
-                    stringChain = stringChain + ", " + value;
-                }
-
-                Toast.makeText(v.getContext(), stringChain, Toast.LENGTH_SHORT).show();
-                */
             }
         });
 

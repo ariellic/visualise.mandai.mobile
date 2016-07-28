@@ -31,7 +31,7 @@ import java.util.Date;
 
 
 /**
- *
+ *  This fragment allows the manager to key in a custom alert message and an optional choice or taking a photo
  */
 public class SendNotificationFragment extends Fragment {
     //Button msgButton;
@@ -61,15 +61,6 @@ public class SendNotificationFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_send_notification, container, false);
-        /*
-        msgButton = (Button) view.findViewById(R.id.message);
-        msgButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CustomAlertActivity.class);
-                startActivity(intent);
-            }
-        });
-        */
 
         editTextMessage = (EditText) view.findViewById(R.id.edit_text_message);
         nextButton = (Button) view.findViewById(R.id.button_next);
@@ -78,9 +69,10 @@ public class SendNotificationFragment extends Fragment {
         textViewImages = (TextView) view.findViewById(R.id.textview_images);
         mCurrentPhotoPath = "";
 
+        // To proceed over to the next activity to select recipients
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if(!editTextMessage.getText().toString().equals("")){
+                if(!editTextMessage.getText().toString().equals("") && editTextMessage.getText().toString().trim().length() != 0){
                 // Perform action on click
                 Intent intent = new Intent(v.getContext(), CustomAlertRecipientsActivity.class);
                 String message = editTextMessage.getText().toString();
@@ -94,13 +86,14 @@ public class SendNotificationFragment extends Fragment {
             }
         });
 
+        // To open the camera intent to take a photo and save it to the a file to save in the internal storage
         camButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                     Log.d(TAG, "resolveActivity(getPackageManager()) not null");
-                    // Create the File where the photo should go
+                    // Create the file where the photo should go
                     File photoFile = null;
                     try {
                         photoFile = createImageFile();
@@ -108,7 +101,7 @@ public class SendNotificationFragment extends Fragment {
                         // Error occurred while creating the File
                         Log.i(TAG, "IOException - unable to create image file");
                     }
-                    // Continue only if the File was successfully created
+                    // Continue only if the file was successfully created
                     if (photoFile != null) {
                         Log.d(TAG, "Image file not null");
                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile)); // Photo captured will be saved
@@ -141,6 +134,12 @@ public class SendNotificationFragment extends Fragment {
         return view;
     }
 
+    /**
+     * After the photo is captured successfully, show the thumbnail of the image in an ImageView
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
             // To display a thumbnail of image captured in the activity

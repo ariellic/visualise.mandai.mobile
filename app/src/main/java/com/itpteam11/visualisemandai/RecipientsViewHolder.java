@@ -4,6 +4,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.CheckBox;
 
+/**
+ * This object contains the textView that will contain the name of a staff and a checkbox to be used for
+ * sending custom alerts to recipients
+ */
 public class RecipientsViewHolder {
 
     private TextView textView;

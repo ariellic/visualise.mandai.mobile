@@ -1,5 +1,6 @@
 package com.itpteam11.visualisemandai;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -27,6 +28,11 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ *  This activity allows the manager to key in a custom alert message and an optional choice or taking a photo
+ *  (A standby activity to replace the current SendNotificationFragment if the manager has more than a choice
+ *  to send custom alerts)
+ */
 public class CustomAlertActivity extends AppCompatActivity {
     static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final String TAG = "CustomAlertActivity";
@@ -54,36 +60,45 @@ public class CustomAlertActivity extends AppCompatActivity {
         textViewImages = (TextView) findViewById(R.id.textview_images);
         mCurrentPhotoPath = "";
 
+        // To proceed over to the next activity to select recipients
         nextButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
                 Intent intent = new Intent(v.getContext(), CustomAlertRecipientsActivity.class);
                 String message = editTextMessage.getText().toString();
-                intent.putExtra("CustomAlert", message);
-                intent.putExtra("ImagePath", mCurrentPhotoPath);
-                startActivity(intent);
+                if (message.equals("") || message == null || message.trim().length() ==0) {
+                    new AlertDialog.Builder(v.getContext())
+                            .setTitle("Empty alert")
+                            .setMessage("Please type something!")
+                            .setPositiveButton("OK", null).show();
+                } else {
+                    intent.putExtra("CustomAlert", message);
+                    intent.putExtra("ImagePath", mCurrentPhotoPath);
+                    startActivity(intent);
+                }
             }
         });
 
+        // To open the camera intent to take a photo and save it to the a file to save in the internal storage
         camButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
                 Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
                 if (cameraIntent.resolveActivity(getPackageManager()) != null) {
                     Log.d(TAG, "resolveActivity(getPackageManager()) not null");
-                    // Create the File where the photo should go
+                    // Create the file where the photo should go
                     File photoFile = null;
                     try {
                         photoFile = createImageFile();
                     } catch (IOException ex) {
                         // Error occurred while creating the File
-                        Log.i(TAG, "IOException - unable to create image file");
+                        Log.d(TAG, "IOException - unable to create image file");
                     }
-                    // Continue only if the File was successfully created
+                    // Continue only if the file was successfully created
                     if (photoFile != null) {
                         Log.d(TAG, "Image file not null");
                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile)); // Photo captured will be saved
-                        startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE);
+                        startActivityForResult(cameraIntent, REQUEST_IMAGE_CAPTURE); // Proceed to select what to do with the captured image
                     } else {
                         Log.d(TAG, "Image file null");
                     }
@@ -93,9 +108,8 @@ public class CustomAlertActivity extends AppCompatActivity {
         });;
 
 
-        /**
-         * Allow the image to be opened in image viewer to preview before sending
-         */
+
+        // Allow the image to be opened in image viewer to preview before sending
         imageView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -110,6 +124,12 @@ public class CustomAlertActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * After the photo is captured successfully, show the thumbnail of the image in an ImageView
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             // To display a thumbnail of image captured in the activity

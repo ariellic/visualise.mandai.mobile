@@ -32,6 +32,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This activity allows the manager to select recipients (staff who are working) to send to for
+ * the message that has been crafted in the previous activity
+ */
 public class CustomAlertRecipientsActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private static final String TAG = "CustomAlertRecipients";
@@ -62,7 +66,7 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
         //Get user ID
         userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        //Get message from textbox in prev activity
+        //Get message from textbox and the image path in prev activity
         Intent intent = getIntent();
         final String message = intent.getStringExtra("CustomAlert");
         final String imgPath = intent.getStringExtra("ImagePath");
@@ -79,6 +83,7 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot child : dataSnapshot.getChildren()) {
                     User user = child.getValue(User.class);
+                    // Get users who are working
                     if (user.getStatus() != null && !user.getStatus().equals("off") && (!child.getKey().equals(userID))) {
                         Map<String, String> userIdAndInfo = new HashMap<String, String>();
                         listOfWorkingUsers.add(user);
@@ -88,6 +93,7 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
                     }
                 }
 
+                // Set the adapter of the listview to be populated with the list of working users
                 adapter = new RecipientsAdapter(CustomAlertRecipientsActivity.this, listOfWorkingUsers);
                 recipientsListView.setAdapter(adapter);
 
@@ -109,7 +115,8 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         for (DataSnapshot child : dataSnapshot.getChildren()) {
                             User user = child.getValue(User.class);
-                            //Get selected users from checkbox in adapter
+                            // Get selected users from checkbox in adapter and make sure their
+                            // status is still 'working'
                             if (user.getStatus() != null && (!user.getStatus().equals("off")) && adapter.checkedValue.contains(user.getName()) && (!child.getKey().equals(userID))) {
                                 receiver.put(child.getKey(), false);
                             }
@@ -162,6 +169,16 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
 
     }
 
+    /**
+     * Upload photo file to Firebase Storage and send notifications to reespective staff when
+     * uploading succeeds
+     * @param path
+     * @param noti
+     * @param msg
+     * @param lati
+     * @param longi
+     * @return
+     */
     public String uploadImage(String path, final Notification noti, final String msg, final Double lati, final Double longi) {
         Uri file = Uri.fromFile(new File(path));
         StorageReference imgRef = storageRef.child("custom_alerts/" + file.getLastPathSegment());
