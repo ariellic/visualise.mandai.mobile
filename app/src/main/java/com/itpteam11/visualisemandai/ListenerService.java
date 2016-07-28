@@ -22,7 +22,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * This ListernService is to retrieve data pass from the paired watch
+ * and pass the data to Firebase.
+ */
 public class ListenerService extends WearableListenerService implements ConnectionCallbacks, OnConnectionFailedListener {
     private final String TAG = ListenerService.class.getSimpleName();
     public final static String USER_ID = "userID";
@@ -148,27 +151,23 @@ public class ListenerService extends WearableListenerService implements Connecti
         else if(parts[0].equals("status")){
 
             if(parts[1].contains("Break")){
-                DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
-                db.child(userID).child("status").setValue("break");
-                DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("group");
-                db1.child(groupID).child("staff").child(userID).setValue("break");
+                FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").setValue("break");
+                FirebaseDatabase.getInstance().getReference().child("group").child(groupID).child("staff").child(userID).setValue("break");
+
             }
             else if(parts[1].equals("Back to Work")){
-                DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
-                db.child(userID).child("status").setValue("working");
-                DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("group");
-                db1.child(groupID).child("staff").child(userID).setValue("working");
+                FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").setValue("working");
+                FirebaseDatabase.getInstance().getReference().child("group").child(groupID).child("staff").child(userID).setValue("working");
             }
             else{ //off work
-                DatabaseReference db = FirebaseDatabase.getInstance().getReference().child("user");
-                db.child(userID).child("status").setValue("off");
-                DatabaseReference db1 = FirebaseDatabase.getInstance().getReference().child("group");
-                db1.child(groupID).child("staff").child(userID).setValue("off");
+                FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").setValue("off");
+                FirebaseDatabase.getInstance().getReference().child("group").child(groupID).child("staff").child(userID).setValue("off");
+
             }
         }
-        //Do action according to message type
+        //Do action according to message type (Shows;show name;show status;reason)
         else if(parts[0].equals("Shows")){
-            //Shows;showname;showstatus;reason
+
             //Get the list of current staff who is not on off
             FirebaseDatabase.getInstance().getReference().child("user").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override

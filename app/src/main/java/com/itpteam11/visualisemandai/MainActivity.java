@@ -383,38 +383,6 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-    // Execute the asynchronous task to retrieve the weather and PSI data from NEA website
-    private void getNeaDataset() {
-        final String weatherURL = "http://www.nea.gov.sg/api/WebAPI/?dataset=2hr_nowcast&keyref=781CF461BB6606ADEA01E0CAF8B35274D184749DB043FB09";
-        final String psiURL = "http://www.nea.gov.sg/api/WebAPI/?dataset=psi_update&keyref=781CF461BB6606ADEA01E0CAF8B35274D184749DB043FB09";
-        final String tempURL = "http://api.openweathermap.org/data/2.5/weather?lat=1.404043&lon=103.793045&appid=179acd6a18cfec63680175ff28ffdb06&mode=xml";
-        final Handler handler = new Handler();
-        Timer timer = new Timer();
-        TimerTask backtask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(new Runnable() {
-                    public void run() {
-                        try {
-                            new NeaDatasetAsyncTask().execute(weatherURL);
-                            new NeaDatasetAsyncTask().execute(psiURL);
-                            new NeaDatasetAsyncTask().execute(tempURL);
-                            Log.d("NEA Data", "Getting dataset");
-                        } catch (Exception e) {
-                            // TODO Auto-generated catch block
-                        }
-                    }
-                });
-            }
-        };
-        Log.d("NEA Data", "Dataset retrieved");
-
-        if(backtask != null) {
-            backtask.cancel();
-        }
-
-        timer.schedule(backtask, 0, 60000); //execute in every 20000 ms*/
-    }
 
     //This method setup the necessary tabs depending on user type
     private void setupViewPager(ViewPager viewPager, String userType)

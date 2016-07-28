@@ -333,13 +333,21 @@ public class NotificationFragment extends Fragment {
         //format the result to 2 decimal places
         DecimalFormat round = new DecimalFormat("#.00");
         if (StaffLocationService.isLocationPermissionGranted()) {
-            double distM = distance(notificationLatitude, notificationLongtitude, StaffLocationService.getLatitude(), StaffLocationService.getLongitude());
-
-            return Double.parseDouble(round.format(distM));
+            if(StaffLocationService.getLatitude()!= 0 && StaffLocationService.getLongitude()!=0) {
+                double distM = distance(notificationLatitude, notificationLongtitude, StaffLocationService.getLatitude(), StaffLocationService.getLongitude());
+                return Double.parseDouble(round.format(distM));
+            }
+            else{
+                return null;
+            }
         }
 
         return null;
     }
+
+    /*
+    *This is a formula to find the distance between two locations.
+    */
 
     private double distance(double lat1, double lon1, double lat2, double lon2) {
 
