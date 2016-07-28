@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -148,6 +149,7 @@ public class ManagerInfoFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
+                SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
                 Date current = new Date();
                 String currentDate =   (new SimpleDateFormat("dd MMM yyyy").format(current));
                 String currentDateTime = (new SimpleDateFormat("dd MMM yyyy HH:mm:ss").format(current));
@@ -159,55 +161,114 @@ public class ManagerInfoFragment extends Fragment {
                     if (notiDate.equals(currentDate)) {
                             //11 am show
                         if (postSnapshot.child("content").getValue(String.class).contains("Friends")) {
-                            if(currentDateTime.compareTo(currentDate + " 11:30") < 0) {
-                               if(notiDateTime.compareTo(currentDate+" 11:20") < 0) {
-                                   fNotiStatus = postSnapshot.child("content").getValue(String.class);
-                               }
 
-                            }
-                            else{ //4pm show
-                                if(notiDateTime.compareTo(currentDate+" 16:30") < 0) {
-                                    fNotiStatus = postSnapshot.child("content").getValue(String.class);
+                            try {
+                                Date current1 = sdf.parse(currentDateTime);
+                                Date notiTime = sdf.parse(notiDateTime);
+                                Date cThreshold = sdf.parse(currentDate + " 11:30:00");
+                                Date nThreshold = sdf.parse(currentDate + " 11:20:00");
+                                Date nThreshold1 = sdf.parse(currentDate + " 16:30:00");
+                                if(current1.compareTo(cThreshold)<0 ) {
+                                    if(notiTime.compareTo(nThreshold)<0) {
+                                        fNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                    }
+
                                 }
+                                else{ //4pm show
+                                    if(notiTime.compareTo(nThreshold1)<0 && notiTime.compareTo(nThreshold)>0 ) {
+                                        fNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                    }
+                                    else{
+                                        fNotiStatus = "OK";
+                                    }
+                                }
+                            } catch(ParseException e){
+                                e.printStackTrace();
                             }
 
-                        } else if (postSnapshot.child("content").getValue(String.class).contains("Elephants")) {
-                            //11:30am
-                            if(currentDateTime.compareTo(currentDate + " 12:00") < 0) {
-                                if(notiDateTime.compareTo(currentDate+" 11:50") < 0) {
-                                    eNotiStatus = postSnapshot.child("content").getValue(String.class);
+
+                        } else if (postSnapshot.child("content").getValue(String.class).contains("Elephant")) {
+                            try {
+                                Date current1 = sdf.parse(currentDateTime);
+                                Date notiTime = sdf.parse(notiDateTime);
+                                Date cThreshold = sdf.parse(currentDate + " 12:00:00");
+                                Date nThreshold = sdf.parse(currentDate + " 11:50:00");
+                                Date nThreshold1 = sdf.parse(currentDate + " 15:50:00");
+
+                                System.out.print("cthreshold : " + current1.compareTo(cThreshold));
+                                System.out.print("nthreshold : " + notiTime.compareTo(nThreshold1));
+                                //11:30am
+                                if(current1.compareTo(cThreshold)<0) {
+                                    if(notiTime.compareTo(nThreshold)<0) {
+                                        eNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                    }
+                                }
+                                else{ //3.30pm
+                                    if(notiTime.compareTo(nThreshold1)<0 && notiTime.compareTo(nThreshold)>0) {
+                                        eNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                    }
+                                    else{
+                                        eNotiStatus = "OK";
+                                    }
+                                }
+                            } catch(ParseException e){
+                                e.printStackTrace();
+                            }
+
+                        } else if (postSnapshot.child("content").getValue(String.class).contains("Rainforest Fights")) {
+
+                            try {
+                                Date current1 = sdf.parse(currentDateTime);
+                                Date notiTime = sdf.parse(notiDateTime);
+                                Date cThreshold = sdf.parse(currentDate + " 13:00:00");
+                                Date nThreshold = sdf.parse(currentDate + " 12:50:00");
+                                Date nThreshold1 = sdf.parse(currentDate + " 14:50:00");
+                                //12:30pm
+                                if(current1.compareTo(cThreshold)< 0) {
+                                    if(notiTime.before(nThreshold)) {
+                                        rNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                    }
+                                }
+                                else{ //2.30pm
+                                    if(notiTime.compareTo(nThreshold1)<0 && notiTime.compareTo(nThreshold)>0) {
+                                        rNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                    }
+                                    else{
+                                        rNotiStatus = "OK";
+                                    }
                                 }
                             }
-                            else{ //3.30pm
-                                if(notiDateTime.compareTo(currentDate+" 15:50") < 0) {
-                                    eNotiStatus = postSnapshot.child("content").getValue(String.class);
-                                }
+                            catch(ParseException e){
+                                e.printStackTrace();
                             }
-                        } else if (postSnapshot.child("content").getValue(String.class).contains("RainForest")) {
-                            //12:30pm
-                            if(currentDateTime.compareTo(currentDate + " 13:00") < 0) {
-                                if(notiDateTime.compareTo(currentDate+" 12:50") < 0) {
-                                    rNotiStatus = postSnapshot.child("content").getValue(String.class);
-                                }
-                            }
-                            else{ //2.30pm
-                                if(notiDateTime.compareTo(currentDate+" 14:50") < 0) {
-                                    rNotiStatus = postSnapshot.child("content").getValue(String.class);
-                                }
-                            }
+
 
                         } else if (postSnapshot.child("content").getValue(String.class).contains("Splash")) {
-                            //10:30pm
-                            if(currentDateTime.compareTo(currentDate + " 11:00") < 0) {
-                                if(notiDateTime.compareTo(currentDate+" 10:50") < 0) {
-                                    sNotiStatus = postSnapshot.child("content").getValue(String.class);
+                            try {
+                                Date current1 = sdf.parse(currentDateTime);
+                                Date notiTime = sdf.parse(notiDateTime);
+                                Date cThreshold = sdf.parse(currentDate + " 11:00:00");
+                                Date nThreshold = sdf.parse(currentDate + " 10:50:00");
+                                Date nThreshold1 = sdf.parse(currentDate + " 17:20:00");
+                                //10:30pm
+                                if(current.compareTo(cThreshold)<0) {
+                                    if(notiTime.compareTo(nThreshold)<0) {
+                                        sNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                    }
+                                }
+                                else{ //5pm
+                                    if(notiTime.compareTo(nThreshold1)<0 && notiTime.compareTo(nThreshold)>0) {
+                                        sNotiStatus = postSnapshot.child("content").getValue(String.class);
+                                    }
+                                    else{
+                                        sNotiStatus = "OK";
+                                    }
                                 }
                             }
-                            else{ //5pm
-                                if(notiDateTime.compareTo(currentDate+" 17:20") < 0) {
-                                    sNotiStatus = postSnapshot.child("content").getValue(String.class);
-                                }
+                            catch(ParseException e){
+                                e.printStackTrace();
                             }
+
                         }
 
                     }
@@ -222,7 +283,10 @@ public class ManagerInfoFragment extends Fragment {
                             parts[1] = "CL";
                         } else if (fNotiStatus.contains("delay")) {
                             parts[1] = "DY";
-                        } else {
+                        }else if(fNotiStatus.equals("OK")){
+                            parts[1]= "OK";
+                        }
+                        else {
                             parts[1] = "FL";
                         }
                     }
@@ -231,7 +295,9 @@ public class ManagerInfoFragment extends Fragment {
                             parts[0] = "CL";
                         } else if (sNotiStatus.contains("delay")) {
                             parts[0] = "DY";
-                        } else {
+                        }else if(sNotiStatus.equals("OK")){
+                            parts[0]= "OK";
+                        }else {
                             parts[0] = "FL";
                         }
                     }
@@ -240,6 +306,8 @@ public class ManagerInfoFragment extends Fragment {
                             parts[2] = "CL";
                         } else if (eNotiStatus.contains("delay")) {
                             parts[2] = "DY";
+                        }else if(eNotiStatus.equals("OK")){
+                            parts[2]= "OK";
                         } else {
                             parts[2] = "FL";
                         }
@@ -249,6 +317,8 @@ public class ManagerInfoFragment extends Fragment {
                             parts[3] = "CL";
                         } else if (rNotiStatus.contains("delay")) {
                             parts[3] = "DY";
+                        }else if(rNotiStatus.equals("OK")){
+                            parts[3]= "OK";
                         } else {
                             parts[3] = "FL";
                         }
