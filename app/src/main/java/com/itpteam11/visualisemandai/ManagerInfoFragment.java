@@ -141,7 +141,7 @@ public class ManagerInfoFragment extends Fragment {
             }
         });
 
-        //Add created listener into list
+        //Add created listener for show status into the list. This is to get the updated show status.
         MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff"), staffStatusListener);
 
         ValueEventListener showtimeStatusListener = FirebaseDatabase.getInstance().getReference().child("notification").addValueEventListener(new ValueEventListener() {
@@ -152,30 +152,31 @@ public class ManagerInfoFragment extends Fragment {
                 SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy HH:mm:ss");
                 Date current = new Date();
                 String currentDate =   (new SimpleDateFormat("dd MMM yyyy").format(current));
-                String currentDateTime = (new SimpleDateFormat("dd MMM yyyy HH:mm:ss").format(current));
+                String currentDateTime = sdf.format(current);
 
                 for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     String notiDate = new SimpleDateFormat("dd MMM yyyy").format(new Date(postSnapshot.child("timestamp").getValue(Long.class)));
-                    String notiDateTime = new SimpleDateFormat("dd MMM yyyy HH:mm:ss").format(new Date(postSnapshot.child("timestamp").getValue(Long.class)));
+                    String notiDateTime = sdf.format(new Date(postSnapshot.child("timestamp").getValue(Long.class)));
 
                     if (notiDate.equals(currentDate)) {
-                            //11 am show
+
                         if (postSnapshot.child("content").getValue(String.class).contains("Friends")) {
 
                             try {
-                                Date current1 = sdf.parse(currentDateTime);
+                                Date currentTime = sdf.parse(currentDateTime);
                                 Date notiTime = sdf.parse(notiDateTime);
                                 Date cThreshold = sdf.parse(currentDate + " 11:30:00");
-                                Date nThreshold = sdf.parse(currentDate + " 11:20:00");
-                                Date nThreshold1 = sdf.parse(currentDate + " 16:30:00");
-                                if(current1.compareTo(cThreshold)<0 ) {
-                                    if(notiTime.compareTo(nThreshold)<0) {
+                                Date nThreshold = sdf.parse(currentDate + " 11:20:00"); //For first show
+                                Date nThreshold1 = sdf.parse(currentDate + " 16:30:00"); // For second show
+                                //11 am show
+                                if(currentTime.before(cThreshold)) {
+                                    if(notiTime.before(nThreshold)) {
                                         fNotiStatus = postSnapshot.child("content").getValue(String.class);
                                     }
 
                                 }
                                 else{ //4pm show
-                                    if(notiTime.compareTo(nThreshold1)<0 && notiTime.compareTo(nThreshold)>0 ) {
+                                    if(notiTime.before(nThreshold1) && notiTime.after(nThreshold)&& currentTime.before(nThreshold1)) {
                                         fNotiStatus = postSnapshot.child("content").getValue(String.class);
                                     }
                                     else{
@@ -189,22 +190,20 @@ public class ManagerInfoFragment extends Fragment {
 
                         } else if (postSnapshot.child("content").getValue(String.class).contains("Elephant")) {
                             try {
-                                Date current1 = sdf.parse(currentDateTime);
+                                Date currentTime = sdf.parse(currentDateTime);
                                 Date notiTime = sdf.parse(notiDateTime);
                                 Date cThreshold = sdf.parse(currentDate + " 12:00:00");
-                                Date nThreshold = sdf.parse(currentDate + " 11:50:00");
-                                Date nThreshold1 = sdf.parse(currentDate + " 15:50:00");
+                                Date nThreshold = sdf.parse(currentDate + " 11:50:00"); // first show
+                                Date nThreshold1 = sdf.parse(currentDate + " 15:50:00"); // second show
 
-                                System.out.print("cthreshold : " + current1.compareTo(cThreshold));
-                                System.out.print("nthreshold : " + notiTime.compareTo(nThreshold1));
                                 //11:30am
-                                if(current1.compareTo(cThreshold)<0) {
-                                    if(notiTime.compareTo(nThreshold)<0) {
+                                if(currentTime.before(cThreshold)) {
+                                    if(notiTime.before(nThreshold)) {
                                         eNotiStatus = postSnapshot.child("content").getValue(String.class);
                                     }
                                 }
                                 else{ //3.30pm
-                                    if(notiTime.compareTo(nThreshold1)<0 && notiTime.compareTo(nThreshold)>0) {
+                                    if(notiTime.before(nThreshold1) && notiTime.after(nThreshold)&& currentTime.before(nThreshold1)) {
                                         eNotiStatus = postSnapshot.child("content").getValue(String.class);
                                     }
                                     else{
@@ -218,19 +217,19 @@ public class ManagerInfoFragment extends Fragment {
                         } else if (postSnapshot.child("content").getValue(String.class).contains("Rainforest Fights")) {
 
                             try {
-                                Date current1 = sdf.parse(currentDateTime);
+                                Date currentTime = sdf.parse(currentDateTime);
                                 Date notiTime = sdf.parse(notiDateTime);
                                 Date cThreshold = sdf.parse(currentDate + " 13:00:00");
-                                Date nThreshold = sdf.parse(currentDate + " 12:50:00");
-                                Date nThreshold1 = sdf.parse(currentDate + " 14:50:00");
+                                Date nThreshold = sdf.parse(currentDate + " 12:50:00");// first show
+                                Date nThreshold1 = sdf.parse(currentDate + " 14:50:00"); // second show
                                 //12:30pm
-                                if(current1.compareTo(cThreshold)< 0) {
+                                if(currentTime.before(cThreshold)) {
                                     if(notiTime.before(nThreshold)) {
                                         rNotiStatus = postSnapshot.child("content").getValue(String.class);
                                     }
                                 }
                                 else{ //2.30pm
-                                    if(notiTime.compareTo(nThreshold1)<0 && notiTime.compareTo(nThreshold)>0) {
+                                    if(notiTime.before(nThreshold1) && notiTime.after(nThreshold)&& currentTime.before(nThreshold1)) {
                                         rNotiStatus = postSnapshot.child("content").getValue(String.class);
                                     }
                                     else{
@@ -245,19 +244,19 @@ public class ManagerInfoFragment extends Fragment {
 
                         } else if (postSnapshot.child("content").getValue(String.class).contains("Splash")) {
                             try {
-                                Date current1 = sdf.parse(currentDateTime);
+                                Date currentTime = sdf.parse(currentDateTime);
                                 Date notiTime = sdf.parse(notiDateTime);
                                 Date cThreshold = sdf.parse(currentDate + " 11:00:00");
-                                Date nThreshold = sdf.parse(currentDate + " 10:50:00");
-                                Date nThreshold1 = sdf.parse(currentDate + " 17:20:00");
+                                Date nThreshold = sdf.parse(currentDate + " 10:50:00"); //first show
+                                Date nThreshold1 = sdf.parse(currentDate + " 17:20:00"); // second show
                                 //10:30pm
-                                if(current.compareTo(cThreshold)<0) {
-                                    if(notiTime.compareTo(nThreshold)<0) {
+                                if(currentTime.before(cThreshold)) {
+                                    if(notiTime.before(nThreshold)) {
                                         sNotiStatus = postSnapshot.child("content").getValue(String.class);
                                     }
                                 }
                                 else{ //5pm
-                                    if(notiTime.compareTo(nThreshold1)<0 && notiTime.compareTo(nThreshold)>0) {
+                                    if(notiTime.before(nThreshold1) && notiTime.after(nThreshold) && currentTime.before(nThreshold1)) {
                                         sNotiStatus = postSnapshot.child("content").getValue(String.class);
                                     }
                                     else{
