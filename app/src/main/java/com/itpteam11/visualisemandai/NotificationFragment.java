@@ -329,17 +329,13 @@ public class NotificationFragment extends Fragment {
     public Double calculateProxi(double notificationLatitude, double notificationLongtitude) {
         //format the result to 2 decimal places
         DecimalFormat round = new DecimalFormat("#.00");
-        if (StaffLocationService.isLocationPermissionGranted()) {
-            if(StaffLocationService.getLatitude()!= 0 && StaffLocationService.getLongitude()!=0) {
+        if(StaffLocationService.getLatitude()!= 0 && StaffLocationService.getLongitude()!=0) {
                 double distM = distance(notificationLatitude, notificationLongtitude, StaffLocationService.getLatitude(), StaffLocationService.getLongitude());
                 return Double.parseDouble(round.format(distM));
-            }
-            else{
-                return null;
-            }
         }
-
-        return null;
+        else{
+                return null;
+        }
     }
 
     /**

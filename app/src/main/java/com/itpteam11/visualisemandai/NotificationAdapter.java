@@ -106,8 +106,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 normalNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
 
                 if (notification.getProxi() != null) {
-                    double proximi = notification.getProxi();
-                    if (proximi > 200.0) {
+                    int proximi =(int)Math.ceil(notification.getProxi());
+                    if (proximi > 200) {
                         normalNotificationViewHolder.proxi.setText(proximi + "m away");
                         normalNotificationViewHolder.proxi.setBackgroundColor(Color.RED);
                         normalNotificationViewHolder.proxi.setTextColor(Color.WHITE);
@@ -115,7 +115,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         normalNotificationViewHolder.proxi.setText(proximi + "m away");
                         normalNotificationViewHolder.proxi.setBackgroundColor(Color.GREEN);
                         normalNotificationViewHolder.proxi.setTextColor(Color.WHITE);
-                    }
+                     }
                 }
                 else {
                     normalNotificationViewHolder.proxi.setText("");
@@ -130,8 +130,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 escapeNotificationViewHolder.sender.setText(notification.getSender());
                 escapeNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
                 if (notification.getProxi() != null) {
-                    double proximi = notification.getProxi();
-                    if (proximi > 200.0) {
+                    int proximi =(int)Math.ceil(notification.getProxi());
+                    if (proximi > 200) {
                         escapeNotificationViewHolder.proxi.setText(proximi + "m away");
                         escapeNotificationViewHolder.proxi.setBackgroundColor(Color.RED);
                         escapeNotificationViewHolder.proxi.setTextColor(Color.WHITE);
@@ -158,8 +158,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                 imageNotificationViewHolder.timestamp.setText(new SimpleDateFormat("dd MMM yyyy h:mm a").format(new Date(notification.getTimestamp())));
 
                 if (notification.getProxi() != null) {
-                    double proximi = notification.getProxi();
-                    if (proximi > 200.0) {
+                    int proximi =(int)Math.ceil(notification.getProxi());
+                    if (proximi > 200) {
                         imageNotificationViewHolder.proxi.setText(proximi + "m away");
                         imageNotificationViewHolder.proxi.setBackgroundColor(Color.RED);
                         imageNotificationViewHolder.proxi.setTextColor(Color.WHITE);

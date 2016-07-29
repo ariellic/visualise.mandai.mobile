@@ -68,7 +68,7 @@ public class ManagerInfoFragment extends Fragment {
 
         //Create and add neccessary cards
         cardDataSet = new HashMap<>();
-
+        cardDataSet.put(CardType.SHOWTIME,"OK-OK-OK-OK");
         //Get the climate information
         ValueEventListener weatherServiceListener = FirebaseDatabase.getInstance().getReference().child("service").addValueEventListener(new ValueEventListener() {
             @Override
@@ -136,7 +136,7 @@ public class ManagerInfoFragment extends Fragment {
             }
         });
 
-        //Add created listener for show status into the list. This is to get the updated show status.
+        //Add created listener  into the list.
         MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff"), staffStatusListener);
 
         //Create listener to get update on shows time
