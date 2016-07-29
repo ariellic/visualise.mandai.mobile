@@ -1,6 +1,5 @@
 package com.itpteam11.visualisemandai;
 
-
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -44,7 +43,6 @@ public class TramStatusActivity extends Activity implements WearableListView.Cli
 
     public static String TAG = "TramActivity";
 
-
     private List<ListViewItem> viewItemList = new ArrayList<>();
 
     TextView mHeader;
@@ -55,7 +53,6 @@ public class TramStatusActivity extends Activity implements WearableListView.Cli
     GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError=false;
     int send = 0;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,11 +90,9 @@ public class TramStatusActivity extends Activity implements WearableListView.Cli
             viewItemList.add(new ListViewItem(R.drawable.ic_running, "Crowded"));
         }
 
-
         wearableListView.setAdapter(new ListViewAdapter(this, viewItemList));
         wearableListView.setClickListener(this);
     }
-
 
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
@@ -112,7 +107,6 @@ public class TramStatusActivity extends Activity implements WearableListView.Cli
      * Resolve the node = the connected device to send the message to
      */
     private void resolveNode() {
-
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                     @Override
@@ -154,7 +148,6 @@ public class TramStatusActivity extends Activity implements WearableListView.Cli
     }
 
     private void sendMessage(String Key) {
-
         if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
             Log.d(TAG, "-- " + mGoogleApiClient.isConnected());
             Log.d(TAG, "Watch connected");
@@ -184,9 +177,9 @@ public class TramStatusActivity extends Activity implements WearableListView.Cli
                         }
                     }
             );
-        } else{
+        }
+        else {
             Toast.makeText(this, "Watch not connected", Toast.LENGTH_SHORT).show();
-
         }
 
     }
@@ -221,9 +214,7 @@ public class TramStatusActivity extends Activity implements WearableListView.Cli
     }
 
     @Override
-    public void onTopEmptyRegionClick() {
-
-    }
+    public void onTopEmptyRegionClick() { }
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -249,5 +240,4 @@ public class TramStatusActivity extends Activity implements WearableListView.Cli
             ((TramStatusActivity) getActivity()).onDialogDismissed();
         }
     }
-
 }

@@ -1,6 +1,5 @@
 package com.itpteam11.visualisemandai;
 
-import android.*;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,10 +20,11 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
@@ -43,21 +43,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.jar.*;
 
 /**
  * This main activity which consist of necessary fragments for
  * the user to get their information and interact with the application
  */
 
-public class MainActivity extends AppCompatActivity implements
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener {
+    private static final String TAG = "MainActivity";
+
     //Constants for granting permission on location service
     private final static int LOCATION_PERMISSIONS_REQUEST = 1;
     private final static String MANAGER_ID = "SUk69wtTSbSTLUSQj5CavCJUyop1";
-
-    private static final String TAG = "MainActivity";
 
     //Value and child event listener list stores all created listeners as a record to be removed when app is destroy
     public static HashMap<DatabaseReference, ValueEventListener> valueEventListenerList = new HashMap<DatabaseReference, ValueEventListener>();
@@ -113,24 +110,26 @@ public class MainActivity extends AppCompatActivity implements
             Log.v(TAG, "Connecting to GoogleApiClient..");
         }
 
+        //Check app permission to access location service
+        checkLocationPermission();
+
         //Remove any previous created value event listener
         if(valueEventListenerList.size() != 0) {
             for(Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerList.entrySet()) {
-                System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
-                System.out.println("MainActivity - entry.getValue(): " + entry.getValue());
                 entry.getKey().removeEventListener(entry.getValue());
+                Log.v(TAG, "Remove value event listener: " + entry.getKey());
             }
         }
 
         //Remove any previous created child event listener
         if(childEventListenerList.size() != 0) {
             for(Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerList.entrySet()) {
-                System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
-                System.out.println("MainActivity - entry.getValue(): " + entry.getValue());
                 entry.getKey().removeEventListener(entry.getValue());
+                Log.v(TAG, "Remove child event listener: " + entry.getKey());
             }
         }
 
+        //Start service to listen for smartwatch
         if(listenerService == null) {
             listenerService = new Intent(this, ListenerService.class);
             listenerService.putExtra(ListenerService.USER_ID, userID);
@@ -201,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements
                                                 }
                                                 Log.d("ClimateService", "Service started");
                                             } catch (Exception e) {
-                                                // TODO Auto-generated catch block
+                                                e.printStackTrace();
                                             }
                                         }
                                     });
@@ -213,9 +212,6 @@ public class MainActivity extends AppCompatActivity implements
 
                         //Start listening to user's subscribed service for notification of changes
                         new ServiceSubscribeListener(userID, user.getService()).startListening();
-
-                        //Check app permission to access location service
-                        checkLocationPermission();
                     } else {
                         //Show dialog for disable user
                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
@@ -244,7 +240,7 @@ public class MainActivity extends AppCompatActivity implements
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to get user's detail
-                System.out.println("Failed to get user's detail: " + error.toException());
+                Log.v(TAG, "Failed to get user's detail: " + error.toException());
             }
         });
     }
@@ -300,7 +296,15 @@ public class MainActivity extends AppCompatActivity implements
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //Display toast if user denied permission
             if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
-                Toast.makeText(this, "Please enable Location permission at:\nSettings>Apps>Visualise Mandai>Permissions>Location", Toast.LENGTH_LONG).show();
+                //Show dialog if user denied permission
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                alertDialog.setTitle("Location Permission");
+                alertDialog.setMessage("Please turn on phone and grant app Location permission.");
+                alertDialog.setIcon(android.R.drawable.ic_dialog_map);
+                alertDialog.setPositiveButton("OK", null);
+                alertDialog.show();
+
+                //Indicate at Firebase that user disabled Location
                 FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("latitude").setValue(0);
                 FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("longitude").setValue(0);
             }
@@ -327,12 +331,20 @@ public class MainActivity extends AppCompatActivity implements
                         staffLocationService = new StaffLocationService(this, userID);
                     }
 
-                    System.out.println("MainActivity - Location permission granted");
+                    Log.v(TAG, "Location permission granted");
                 }
                 else {
-                    //Display toast if user denied permission
-                    Toast.makeText(this, "Please enable Location permission at:\n" +
-                            "Settings>Apps>Visualize Mandai>Permissions>Location", Toast.LENGTH_LONG).show();
+                    //Show dialog if user denied permission
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                    alertDialog.setTitle("Location Permission");
+                    alertDialog.setMessage("Please turn on phone and grant app Location permission.");
+                    alertDialog.setIcon(android.R.drawable.ic_dialog_map);
+                    alertDialog.setPositiveButton("OK", null);
+                    alertDialog.show();
+
+                    //Indicate at Firebase that user disabled Location
+                    FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("latitude").setValue(0);
+                    FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("longitude").setValue(0);
                 }
             }
         }
@@ -342,16 +354,13 @@ public class MainActivity extends AppCompatActivity implements
     public void onConnectionSuspended(int cause) {
         Log.v(TAG, "onConnectionSuspended called");
     }
-
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.v(TAG, "onConnectionFailed called");
-    }
-
+    public void onConnectionFailed(ConnectionResult connectionResult) { Log.v(TAG, "onConnectionFailed called"); }
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.v(TAG, "onConnected called");
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -382,7 +391,6 @@ public class MainActivity extends AppCompatActivity implements
 
         }
     }
-
 
     //This method setup the necessary tabs depending on user type
     private void setupViewPager(ViewPager viewPager, String userType)
@@ -497,18 +505,16 @@ public class MainActivity extends AppCompatActivity implements
         //Remove all value event listener
         if(valueEventListenerList.size() != 0) {
             for(Map.Entry<DatabaseReference, ValueEventListener> entry : valueEventListenerList.entrySet()) {
-                System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
-                System.out.println("MainActivity - entry.getValue(): " + entry.getValue());
                 entry.getKey().removeEventListener(entry.getValue());
+                Log.v(TAG, "Remove value event listener: " + entry.getKey());
             }
         }
 
         //Remove all child event listener
         if(childEventListenerList.size() != 0) {
             for(Map.Entry<DatabaseReference, ChildEventListener> entry : childEventListenerList.entrySet()) {
-                System.out.println("MainActivity - entry.getKey(): " + entry.getKey());
-                System.out.println("MainActivity - entry.getValue(): " + entry.getValue());
                 entry.getKey().removeEventListener(entry.getValue());
+                Log.v(TAG, "Remove child event listener: " + entry.getKey());
             }
         }
 
@@ -544,11 +550,7 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         //"NO" Button
-        alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                // No action
-            }
-        });
+        alertDialog.setNegativeButton("NO", null);
 
         alertDialog.show();
     }

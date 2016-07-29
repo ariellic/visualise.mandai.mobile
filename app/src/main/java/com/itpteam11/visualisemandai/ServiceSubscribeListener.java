@@ -1,5 +1,7 @@
 package com.itpteam11.visualisemandai;
 
+import android.util.Log;
+
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
@@ -12,6 +14,8 @@ import java.util.Map;
  *  notify for any updates
  */
 public class ServiceSubscribeListener {
+    private static final String TAG = "ServiceListener";
+
     private String userID;
     private Map<String, Boolean> subscribedServiceList;
 
@@ -30,7 +34,7 @@ public class ServiceSubscribeListener {
 
             //For each service, create an event listener
             for(int i=0; i<serviceName.length; i++) {
-                System.out.println("ServiceSubscribeListener - Start listening for: " + serviceName[i]);
+                Log.d(TAG, "Start listening for: " + serviceName[i]);
 
                 //create event listener
                 ValueEventListener serviceListener = FirebaseDatabase.getInstance().getReference().child("service").child(serviceName[i]).child("notification-id").addValueEventListener(new ValueEventListener() {
@@ -57,7 +61,7 @@ public class ServiceSubscribeListener {
                     @Override
                     public void onCancelled(DatabaseError error) {
                         //Failed on listening for changes
-                        System.out.println("ServiceSubscribeListener - Failed on listening for changes: " + error.toException());
+                        Log.d(TAG, "Failed on listening for changes: " + error.toException());
                     }
                 });
 

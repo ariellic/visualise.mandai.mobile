@@ -22,7 +22,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <!-- Main activity theme TODO: Merge with Base theme when needed using parent -->
+    <!-- Main activity theme -->
     <style name="Main" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>

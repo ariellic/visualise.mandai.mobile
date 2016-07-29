@@ -5,8 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.WearableListView;
-import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itpteam11.visualisemandai.listview.ListViewAdapter;
@@ -19,7 +17,6 @@ public class MainActivity extends Activity implements WearableListView.ClickList
 
     private List<ListViewItem> mainItemList = new ArrayList<>();
     public static String TAG = "MainActivity";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +31,6 @@ public class MainActivity extends Activity implements WearableListView.ClickList
 
         wearableListView.setAdapter(new ListViewAdapter(this, mainItemList));
         wearableListView.setClickListener(this);
-
      }
 
     @Override
@@ -75,12 +71,8 @@ public class MainActivity extends Activity implements WearableListView.ClickList
         }
     }
 
-
     @Override
     public void onTopEmptyRegionClick() {
         Toast.makeText(this, "You tapped on Top empty area", Toast.LENGTH_SHORT).show();
     }
-
-
-
 }

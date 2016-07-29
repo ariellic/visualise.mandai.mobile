@@ -1,6 +1,5 @@
 package com.itpteam11.visualisemandai;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,8 +9,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,15 +26,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 /**
  *  This fragment allows the manager to key in a custom alert message and an optional choice or taking a photo
  */
 public class SendNotificationFragment extends Fragment {
-    //Button msgButton;
-
+    private static final String TAG = "SendNoticeFragment";
     static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final String TAG = "SendNotificationFragment";//"CustomAlertActivity";
+
     private String mCurrentPhotoPath;
     private Bitmap mImageBitmap;
 
@@ -191,9 +186,6 @@ public class SendNotificationFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-
-
 }

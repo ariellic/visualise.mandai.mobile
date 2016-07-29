@@ -10,7 +10,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.widget.Toast;
+import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -25,6 +25,8 @@ import com.google.firebase.database.FirebaseDatabase;
  *  This service updates user's current coordinates in Firebase to locate staff
  */
 public class StaffLocationService extends Service implements ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
+    private static final String TAG = "StaffLocationService";
+
     //Set minimum time to update user location at 30 seconds
     private static final long MIN_TIME_TO_UPDATE = 1000*30;
     //Set minimum distance changed to update user location at 5 metres
@@ -94,8 +96,7 @@ public class StaffLocationService extends Service implements ConnectionCallbacks
         FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("latitude").setValue(latitude);
         FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("longitude").setValue(longitude);
 
-        System.out.println("StaffLocationService - User location: " + latitude + "-" + longitude);
-        Toast.makeText(context, latitude + "-" + longitude, Toast.LENGTH_LONG).show();
+        Log.d(TAG, "User location: " + latitude + "-" + longitude);
     }
 
     //Stop receive location updates by disconnect Google API Client

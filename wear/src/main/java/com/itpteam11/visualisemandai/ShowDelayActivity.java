@@ -22,6 +22,7 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  *  This activity shows the list of reasons that the show delayed for. When user tapped on a reason,
  *  it will send a notification to other working staffs and show status will be update manager
@@ -74,9 +75,6 @@ public class ShowDelayActivity extends Activity implements WearableListView.Clic
     public void onClick(WearableListView.ViewHolder viewHolder) {
         String key = viewItemList.get(viewHolder.getLayoutPosition()).text;
         sendMessage(header + ";" + key);
-
-
-
     }
 
     private Runnable mUpdateTimeTask = new Runnable() {
@@ -89,10 +87,7 @@ public class ShowDelayActivity extends Activity implements WearableListView.Clic
     };
 
     @Override
-    public void onTopEmptyRegionClick() {
-
-    }
-
+    public void onTopEmptyRegionClick() { }
 
     @Override
     protected void onStart() {
@@ -106,7 +101,6 @@ public class ShowDelayActivity extends Activity implements WearableListView.Clic
      * Resolve the node = the connected device to send the message to
      */
     private void resolveNode() {
-
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                     @Override
@@ -122,19 +116,12 @@ public class ShowDelayActivity extends Activity implements WearableListView.Clic
     public void onConnected(Bundle bundle) {
         resolveNode();
     }
-
     @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
+    public void onConnectionSuspended(int i) { }
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-
-    }
+    public void onConnectionFailed(ConnectionResult connectionResult) { }
 
     private void sendMessage(String Key) {
-
         if (mNode != null && mGoogleApiClient!= null && mGoogleApiClient.isConnected()) {
             Log.d(TAG, "-- " + mGoogleApiClient.isConnected());
             Log.d(TAG, "connected");
@@ -162,11 +149,10 @@ public class ShowDelayActivity extends Activity implements WearableListView.Clic
                         }
                     }
             );
-        }else{
+        }
+        else {
             Toast.makeText(this, "Not connected", Toast.LENGTH_SHORT).show();
 
         }
-
     }
-
 }

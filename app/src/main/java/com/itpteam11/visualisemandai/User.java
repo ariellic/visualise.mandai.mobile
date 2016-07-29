@@ -3,6 +3,7 @@ package com.itpteam11.visualisemandai;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -16,8 +17,8 @@ public class User implements Parcelable {
     private Double latitude;
     private Double longitude;
     private String account_status;
-    private Map<String, String> group = null;
-    private Map<String, Boolean> service = null;
+    private Map<String, String> group = new HashMap<String, String>();
+    private Map<String, Boolean> service = new HashMap<String, Boolean>();
 
     public User() {}
 
@@ -29,7 +30,7 @@ public class User implements Parcelable {
         type = parcel.readString();
         latitude = parcel.readDouble();
         longitude = parcel.readDouble();
-        //account_status = parcel.readString();
+        account_status = parcel.readString();
 
         final int groupSize = parcel.readInt();
         for(int i=0; i<groupSize; i++) {
@@ -70,7 +71,7 @@ public class User implements Parcelable {
         dest.writeString(type);
         dest.writeDouble(latitude);
         dest.writeDouble(longitude);
-        //dest.writeString(account_status);
+        dest.writeString(account_status);
 
         if(group != null) {
             dest.writeInt(group.size());

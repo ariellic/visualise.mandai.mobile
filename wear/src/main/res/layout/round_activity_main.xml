@@ -18,10 +18,8 @@
             android:id="@+id/listView1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:padding="5dp"
-            android:overScrollMode="never"
-            />
+            android:overScrollMode="never" />
 
         <TextView
             android:id="@+id/text"
@@ -34,19 +32,3 @@
     </FrameLayout>
 
 </android.support.wearable.view.BoxInsetLayout>
-
-    <!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-    <!--tools:context="com.itpteam11.visualisemandai.MainActivity"-->
-    <!--tools:deviceIds="wear_round">-->
-
-    <!--<TextView-->
-        <!--android:id="@+id/text"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_centerHorizontal="true"-->
-        <!--android:layout_centerVertical="true"-->
-        <!--android:text="@string/hello_round" />-->
-<!--</RelativeLayout>-->

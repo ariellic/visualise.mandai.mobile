@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShowCancelActivity extends Activity implements WearableListView.ClickListener,GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
-
     private List<ListViewItem> viewItemList = new ArrayList<>();
     TextView mHeader;
     String header;
@@ -159,12 +158,10 @@ public class ShowCancelActivity extends Activity implements WearableListView.Cli
                         }
                     }
             );
-        }else{
-            Toast.makeText(this, "Not connected", Toast.LENGTH_SHORT).show();
-
         }
-
+        else {
+            Toast.makeText(this, "Not connected", Toast.LENGTH_SHORT).show();
+        }
     }
-
 }
 

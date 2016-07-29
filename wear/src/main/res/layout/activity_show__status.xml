@@ -7,19 +7,18 @@
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/title_height"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Header"
         android:id="@+id/textView"
-        android:textSize="12dp"
+        android:textSize="@dimen/title_textsize"
         android:layout_gravity="center_horizontal"
-        android:gravity="center"/>
+        android:gravity="center" />
 
     <android.support.wearable.view.WearableListView
         android:id="@+id/wearable_list_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/white"
-        />
+        android:background="@color/white" />
 
 </LinearLayout>

@@ -1,7 +1,6 @@
 package com.itpteam11.visualisemandai;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,12 +36,7 @@ public class SpecialPowerActivity extends AppCompatActivity {
                     }
                 });
 
-
-                alertDialog.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // No action
-                    }
-                });
+                alertDialog.setNegativeButton("NO", null);
 
                 alertDialog.show();
             }

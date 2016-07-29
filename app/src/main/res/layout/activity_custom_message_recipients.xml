@@ -24,8 +24,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
+        android:background="@color/button_backgroundcolor"
+        android:textColor="@color/button_textcolor"
         android:focusable="false"
         android:text="Send"/>
-
 
 </RelativeLayout>

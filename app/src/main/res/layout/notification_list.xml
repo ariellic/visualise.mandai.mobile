@@ -31,8 +31,7 @@
             android:textSize="@dimen/textsize_small"
             android:padding="@dimen/proximity_margin"
             android:layout_alignParentRight="true"
-            android:layout_below="@+id/notification_list_timestamp"
-            />
+            android:layout_below="@+id/notification_list_timestamp" />
 
     </RelativeLayout>
 

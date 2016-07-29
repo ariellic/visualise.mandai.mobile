@@ -4,23 +4,15 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 
-import android.content.Context;
 import android.content.DialogInterface;
-
-
 
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.LightingColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.wearable.activity.ConfirmationActivity;
 import android.support.wearable.view.WearableListView;
 import android.util.Log;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -120,16 +112,12 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
     }
 
     @Override
-    public void onTopEmptyRegionClick() {
-
-    }
-
+    public void onTopEmptyRegionClick() { }
 
     @Override
     protected void onStart() {
         super.onStart();
         if (!mResolvingError) {
-
             mGoogleApiClient.connect();
         }
     }
@@ -138,8 +126,6 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
      * Resolve the node = the connected device to send the message to
      */
     private void resolveNode() {
-
-
         Wearable.NodeApi.getConnectedNodes(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
                     @Override
@@ -213,13 +199,11 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
                         }
                     }
             );
-        }else{
-            Toast.makeText(this, "Not connected", Toast.LENGTH_SHORT).show();
-
         }
-
+        else {
+            Toast.makeText(this, "Not connected", Toast.LENGTH_SHORT).show();
+        }
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -267,9 +251,5 @@ public class StatusActivity extends Activity implements WearableListView.ClickLi
         public void onDismiss(DialogInterface dialog) {
             ((StatusActivity) getActivity()).onDialogDismissed();
         }
-
-
-
     }
-
 }

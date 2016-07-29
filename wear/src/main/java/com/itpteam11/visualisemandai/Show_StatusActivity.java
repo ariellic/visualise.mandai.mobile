@@ -21,6 +21,7 @@ import com.itpteam11.visualisemandai.listview.ListViewItem;
 
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  *  This activity shows a list of show status. When user tapped on a status,
  *  it will direct them to show cancel activity or show delay activity.

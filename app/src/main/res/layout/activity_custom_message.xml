@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.itpteam11.visualisemandai.CustomMessageActivity">
+    tools:context="com.itpteam11.visualisemandai.CustomAlertActivity">
 
     <ScrollView
         android:id="@+id/scrollview_message"
@@ -80,6 +80,5 @@
         android:layout_alignParentStart="true"
         android:layout_marginBottom="3dp"
         android:longClickable="true" />
-
 
 </RelativeLayout>

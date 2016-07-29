@@ -1,10 +1,10 @@
 package com.itpteam11.visualisemandai;
 
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +16,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
-
 /**
  *
  */
 public class StaffInfoFragment extends Fragment {
+    private static final String TAG = "StaffInfoFragment";
+
     private RecyclerView recyclerView;
     private CustomCardAdapter customCardAdapter;
     private RecyclerView.LayoutManager recyclerLayoutManager;
@@ -50,9 +51,6 @@ public class StaffInfoFragment extends Fragment {
         //Create and add neccessary cards
         cardDataSet = new HashMap<>();
 
-        //Todo: Get value from Firebase
-        cardDataSet.put(CardType.WEATHER, "#-#-#");
-
         //Get users' status
         ValueEventListener statusListener = FirebaseDatabase.getInstance().getReference().child("user").child(userID).child("status").addValueEventListener(new ValueEventListener() {
             @Override
@@ -66,7 +64,7 @@ public class StaffInfoFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError error) {
                 //Failed on staff count value
-                System.out.println("StaffInfoFragment - Failed on staff status value: " + error.toException());
+                Log.d(TAG, "StaffInfoFragment - Failed on staff status value: " + error.toException());
             }
         });
 
@@ -100,7 +98,7 @@ public class StaffInfoFragment extends Fragment {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                System.out.println("StaffInfoFragment - Failed on climate retrieval value: " + error.toException());
+                Log.d(TAG, "StaffInfoFragment - Failed on climate retrieval value: " + error.toException());
             }
         });
 

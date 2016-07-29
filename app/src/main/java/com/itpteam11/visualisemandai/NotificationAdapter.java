@@ -363,7 +363,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                         @Override
                         public void onCancelled(DatabaseError error) {
                             // Failed to get working staff list
-                            System.out.println("Failed to get working staff list: " + error.toException());
+                            Log.v(TAG, "Failed to get working staff list: " + error.toException());
                         }
                     });
                 }

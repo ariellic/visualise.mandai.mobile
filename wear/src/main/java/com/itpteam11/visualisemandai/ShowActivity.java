@@ -45,7 +45,6 @@ public class ShowActivity extends Activity implements WearableListView.ClickList
         wearableListView.setClickListener(this);
     }
 
-
     @Override
     public void onClick(WearableListView.ViewHolder viewHolder) {
       //  Toast.makeText(this, "Click on " + viewItemList.get(viewHolder.getLayoutPosition()).text, Toast.LENGTH_SHORT).show();

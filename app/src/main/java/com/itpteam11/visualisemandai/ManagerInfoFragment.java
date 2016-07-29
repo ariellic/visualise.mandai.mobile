@@ -69,11 +69,6 @@ public class ManagerInfoFragment extends Fragment {
         //Create and add neccessary cards
         cardDataSet = new HashMap<>();
 
-        //Todo: Get value from Firebase
-        cardDataSet.put(CardType.TRAM_STATION, "NA-NA-NA-NA");
-        cardDataSet.put(CardType.SHOWTIME, "OK-OK-OK-OK");
-        cardDataSet.put(CardType.WEATHER, "#-#-#");
-
         //Get the climate information
         ValueEventListener weatherServiceListener = FirebaseDatabase.getInstance().getReference().child("service").addValueEventListener(new ValueEventListener() {
             @Override
@@ -106,7 +101,7 @@ public class ManagerInfoFragment extends Fragment {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                System.out.println("ManagerInfoFragment - Failed on climate retrieval value: " + error.toException());
+                Log.v(TAG, "Failed on climate retrieval value: " + error.toException());
             }
         });
 
@@ -137,13 +132,14 @@ public class ManagerInfoFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError error) {
                 //Failed on staff count value
-                System.out.println("ManagerInfoFragment - Failed on staff count value: " + error.toException());
+                Log.v(TAG, "Failed on staff count value: " + error.toException());
             }
         });
 
         //Add created listener for show status into the list. This is to get the updated show status.
         MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("group").child(userGroup).child("staff"), staffStatusListener);
 
+        //Create listener to get update on shows time
         ValueEventListener showtimeStatusListener = FirebaseDatabase.getInstance().getReference().child("notification").addValueEventListener(new ValueEventListener() {
 
             @Override
@@ -337,13 +333,14 @@ public class ManagerInfoFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError error) {
                 //Failed on staff count value
-                System.out.println("ManagerInfoFragment - Failed to get show notification: " + error.toException());
+                Log.v(TAG, "Failed to get show notification: " + error.toException());
             }
         });
 
         //Add created listener into list
         MainActivity.valueEventListenerList.put(FirebaseDatabase.getInstance().getReference().child("notification"), showtimeStatusListener);
 
+        //Create listener to get update on tram station crowd
         ValueEventListener tramStationStatusListener = FirebaseDatabase.getInstance().getReference().child("service").child("tram").addValueEventListener(new ValueEventListener() {
 
             @Override
@@ -360,7 +357,7 @@ public class ManagerInfoFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError error) {
                 //Failed to get tram station status
-                System.out.println("ManagerInfoFragment - Failed to get tram station status: " + error.toException());
+                Log.v(TAG, "Failed to get tram station status: " + error.toException());
             }
         });
 

@@ -1,12 +1,7 @@
 package com.itpteam11.visualisemandai;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -20,21 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,6 +35,8 @@ import java.util.Map;
  */
 
 public class NotificationFragment extends Fragment {
+    private static final String TAG = "NotificationFragment";
+
     private String userID;
     private Map<String, String> staffIDDirectory = new HashMap<String, String>();
 
@@ -118,6 +106,7 @@ public class NotificationFragment extends Fragment {
                 //Create a receive node if not exist to prevent null exception when added event listener
                 FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child("notificationid").setValue(true);
 
+                //Listen for incoming notification
                 ChildEventListener userNotificationListener = FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
@@ -126,8 +115,6 @@ public class NotificationFragment extends Fragment {
 
                         //Ignore notificationid record
                         if (!notificationID.equals("notificationid")) {
-                            noNotification.setVisibility(View.GONE);
-
                             //Show notification alert when record is a new notification. Else past notifications will not be alert
                             if (!notified) {
                                 //Retrieve the actual notification by ID
@@ -222,6 +209,11 @@ public class NotificationFragment extends Fragment {
                                             FirebaseDatabase.getInstance().getReference().child("notification-lookup").child(userID).child("receive").child(dataSnapshot.getKey()).setValue(true);
                                             FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                         }
+
+                                        //Remove no notification message when notification exist
+                                        if(notificationList.size() > 0) {
+                                            noNotification.setVisibility(View.GONE);
+                                        }
                                     }
 
                                     @Override
@@ -263,11 +255,15 @@ public class NotificationFragment extends Fragment {
                                                 FirebaseDatabase.getInstance().getReference().child("notification").child(dataSnapshot.getKey()).child("receiver").child(userID).setValue(true);
                                             }
                                         }
+
+                                        //Remove no notification message when notification exist
+                                        if(notificationList.size() > 0) {
+                                            noNotification.setVisibility(View.GONE);
+                                        }
                                     }
 
                                     @Override
-                                    public void onCancelled(DatabaseError error) {
-                                    }
+                                    public void onCancelled(DatabaseError error) { }
                                 });
                             }
                         }
@@ -276,20 +272,15 @@ public class NotificationFragment extends Fragment {
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                         //Failed listen for notification
-                        System.out.println("NotificationFragment - Failed listen for notification: " + databaseError.toException());
+                        Log.v(TAG, "Failed listen for notification: " + databaseError.toException());
                     }
 
                     @Override
-                    public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) {
-                    }
-
+                    public void onChildChanged(DataSnapshot dataSnapshot, String previousChildName) { }
                     @Override
-                    public void onChildRemoved(DataSnapshot dataSnapshot) {
-                    }
-
+                    public void onChildRemoved(DataSnapshot dataSnapshot) { }
                     @Override
-                    public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) {
-                    }
+                    public void onChildMoved(DataSnapshot dataSnapshot, String previousChildName) { }
                 });
 
                 //Add created listener into list
@@ -374,5 +365,4 @@ public class NotificationFragment extends Fragment {
 
         return distance;
     }
-
 }

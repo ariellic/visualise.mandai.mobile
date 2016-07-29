@@ -12,10 +12,8 @@ import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -44,7 +42,8 @@ public class ListenerService extends WearableListenerService implements Connecti
         else {
             userID = "No User ID in ListenerService at this timestamp: " + new Date().getTime();
         }
-        System.out.println("ListenerService - userID: " + userID);
+
+        Log.v(TAG, "userID: " + userID);
         return START_STICKY;
     }
 
@@ -88,7 +87,7 @@ public class ListenerService extends WearableListenerService implements Connecti
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.v(TAG,"onConnectionFailed called");
+        Log.v(TAG, "onConnectionFailed called");
     }
 
     @Override
@@ -143,7 +142,7 @@ public class ListenerService extends WearableListenerService implements Connecti
                 @Override
                 public void onCancelled(DatabaseError error) {
                     // Failed to get working staff list
-                    System.out.println("Failed to get working staff list: " + error.toException());
+                    Log.v(TAG, "Failed to get working staff list: " + error.toException());
                 }
             });
         }
@@ -207,7 +206,7 @@ public class ListenerService extends WearableListenerService implements Connecti
                 @Override
                 public void onCancelled(DatabaseError error) {
                     // Failed to get working staff list
-                    System.out.println("Failed to get working staff list: " + error.toException());
+                    Log.v(TAG, "Failed to get working staff list: " + error.toException());
                 }
             });
         }
@@ -249,7 +248,7 @@ public class ListenerService extends WearableListenerService implements Connecti
                 @Override
                 public void onCancelled(DatabaseError error) {
                     // Failed to get working staff list
-                    System.out.println("Failed to get working staff list: " + error.toException());
+                    Log.v(TAG, "Failed to get working staff list: " + error.toException());
                 }
             });
         }

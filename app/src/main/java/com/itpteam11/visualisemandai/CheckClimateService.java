@@ -22,7 +22,6 @@ import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +32,8 @@ import java.util.List;
  *  Notifications will then be sent (refer to NotificationFragment)
  */
 public class CheckClimateService extends IntentService {
+    private static final String TAG = "CheckClimateService";
+
     public final static String USER_ID = "userID";
     public final static String[] CLIMATE_TYPES = {"psi", "temperature", "weather"};
 
@@ -71,7 +72,7 @@ public class CheckClimateService extends IntentService {
                 @Override
                 public void onCancelled(DatabaseError error) {
                     // Failed to get climate value
-                    System.out.println("Failed to get climate: " + error.toException());
+                    Log.v(TAG, "Failed to get climate: " + error.toException());
                 }
             });
         }
@@ -117,12 +118,13 @@ public class CheckClimateService extends IntentService {
                 url = tempURL;
             }
 
-            System.out.println("Climate Service - Climate type: " + climateType);
+            Log.v(TAG, "Climate type: " + climateType);
+
             try {
                 String data = downloadUrlHTTP(url);
-                System.out.println("Done downloading URL");
+                Log.v(TAG, "Done downloading URL");
                 result = parseXML(data);
-                System.out.println("Done parsing XML");
+                Log.v(TAG, "Done parsing XML");
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (XmlPullParserException e) {
@@ -138,9 +140,9 @@ public class CheckClimateService extends IntentService {
          */
         @Override
         protected void onPostExecute(final String result) {
-            System.out.println("In onPostExecute");
-            System.out.println("Climate Service - Climate value in database: " + climate.getValue());
-            System.out.println("Climate Service - Climate value from API: " + result);
+            Log.v(TAG, "In onPostExecute");
+            Log.v(TAG, "Climate value in database: " + climate.getValue());
+            Log.v(TAG, "Climate value from API: " + result);
 
             if (!climate.getValue().equals(result)) {
                 //Create notification
@@ -179,14 +181,14 @@ public class CheckClimateService extends IntentService {
                                     weatherNotification.setSender(sender + "(Sun)");
                                 }
                                 weatherNotification.sendServiceNotification(Notification.WEATHER_SERVICE, content, sender, result);
-                                System.out.println("Climate Service - Weather value changes");
+                                Log.v(TAG, "Climate Service - Weather value changes");
                             }
 
                         }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
-                            System.out.println("Failed to get description for weather abbreviation: " + databaseError.toException());
+                            Log.v(TAG, "Failed to get description for weather abbreviation: " + databaseError.toException());
                         }
                     });
 
@@ -201,7 +203,7 @@ public class CheckClimateService extends IntentService {
 
                             notification.sendServiceNotification(Notification.PSI_SERVICE, content, sender, result);
 
-                            System.out.println("Climate Service - PSI value changes");
+                            Log.v(TAG, "PSI value changes");
                         }
                         else {
                             climateRef.child("value").setValue(result);
@@ -222,7 +224,7 @@ public class CheckClimateService extends IntentService {
 
                             notification.sendServiceNotification(Notification.TEMPERATURE_SERVICE, content, sender, result);
 
-                            System.out.println("Climate Service - Temperature value changes");
+                            Log.v(TAG, "Temperature value changes");
                         } else {
                             climateRef.child("value").setValue(result);
                         }
@@ -235,7 +237,7 @@ public class CheckClimateService extends IntentService {
 
             } else {
                 //Create no time change notification to the requested user
-                System.out.println("Climate Service - User ID: " + userID);
+                Log.v(TAG, "User ID: " + userID);
             }
         }
 
