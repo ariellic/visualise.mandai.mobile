@@ -225,6 +225,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                             @Override
                             public void onFailure(@NonNull Exception exception) {
                                 // Handle any errors
+                                Toast.makeText(context, "Unable to retrieve image thumbnail", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -258,6 +259,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
                             @Override
                             public void onFailure(@NonNull Exception exception) {
                                 // Handle any errors
+                                Toast.makeText(context, "Unable to retrieve image thumbnail", Toast.LENGTH_SHORT).show();
                             }
                         });
                     }
@@ -427,6 +429,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             @Override
             public void onFailure(@NonNull Exception exception) {
                 // Handle any errors
+                Toast.makeText(context, "Unable to download image", Toast.LENGTH_SHORT).show();
             }
 
         });

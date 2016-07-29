@@ -50,6 +50,7 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
 
     ListView recipientsListView;
     Button sendButton;
+    TextView noRecipTextView;
     CheckBox box;
 
     @Override
@@ -73,6 +74,7 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
 
         sendButton = (Button) findViewById(R.id.buttonSend);
         recipientsListView = (ListView) findViewById(R.id.listViewRecipients);
+        noRecipTextView = (TextView) findViewById(R.id.textViewNoRecipients);
 
         dbRef = FirebaseDatabase.getInstance().getReference();
 
@@ -93,9 +95,19 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
                     }
                 }
 
-                // Set the adapter of the listview to be populated with the list of working users
-                adapter = new RecipientsAdapter(CustomAlertRecipientsActivity.this, listOfWorkingUsers);
-                recipientsListView.setAdapter(adapter);
+                if (listOfWorkingUsers.size() != 0) {
+                    // Set the adapter of the listview to be populated with the list of working users
+                    adapter = new RecipientsAdapter(CustomAlertRecipientsActivity.this, listOfWorkingUsers);
+                    recipientsListView.setAdapter(adapter);
+                    recipientsListView.setVisibility(View.VISIBLE);
+                    sendButton.setVisibility(View.VISIBLE);
+                    noRecipTextView.setVisibility(View.GONE);
+                } else {
+                    noRecipTextView.setText("There are no users working at the moment.");
+                    noRecipTextView.setVisibility(View.VISIBLE);
+                    recipientsListView.setVisibility(View.GONE);
+                    sendButton.setVisibility(View.GONE);
+                }
 
             }
 
@@ -139,14 +151,16 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
 
                             //Store image if available
                             if (!imgPath.equals("")) {
+                                Toast.makeText(CustomAlertRecipientsActivity.this, "Sending alert...", Toast.LENGTH_LONG).show();
                                 String imgName = uploadImage(imgPath, notification, message, latitude, longitude);
                                 //notification.sendNotification(Notification.IMAGE_NOTIFICATION, message, latitude, longitude, userID, receiver, imgName);
                             } else {
+                                Toast.makeText(CustomAlertRecipientsActivity.this, "Sending alert...", Toast.LENGTH_LONG).show();
                                 notification.sendNotification(Notification.NORMAL_NOTIFICATION, message, latitude, longitude, userID, receiver, null);
+                                Toast.makeText(CustomAlertRecipientsActivity.this, "Alert sent!", Toast.LENGTH_LONG).show();
                             }
 
                             //Send notifications to users that are selected
-                            Toast.makeText(CustomAlertRecipientsActivity.this, "Alert sent", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(CustomAlertRecipientsActivity.this, MainActivity.class);
                             intent.putExtra("userID", userID);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -185,12 +199,12 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
         UploadTask uploadTask = imgRef.putFile(file);
         final String imgName = file.getLastPathSegment();
         Log.d(TAG, "Image file name: " + imgName);
-
         // Register observers to listen for when the download is done or if it fails
         uploadTask.addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
                 Log.d(TAG, "Upload unsuccessful");
+                Toast.makeText(CustomAlertRecipientsActivity.this, "Alert not sent. Please try again.", Toast.LENGTH_LONG).show();
                 // Handle unsuccessful uploads
             }
         }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -199,6 +213,7 @@ public class CustomAlertRecipientsActivity extends AppCompatActivity implements 
                 // taskSnapshot.getMetadata() contains file metadata such as size, content-type, and download URL.
                 Log.d(TAG, "Upload successful");
                 noti.sendNotification(Notification.IMAGE_NOTIFICATION, msg, lati, longi, userID, receiver, imgName);
+                Toast.makeText(CustomAlertRecipientsActivity.this, "Alert sent!", Toast.LENGTH_LONG).show();
             }
         });
         return imgName;
